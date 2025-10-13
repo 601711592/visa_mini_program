@@ -1,0 +1,20 @@
+.layout {
+  background: #fff;
+  min-height: 100vh;
+}
+
+.uni-navbar__header-container-inner {
+  width: 100%;
+}
+.uni-nav-bar-text {
+  font-weight: bold;
+  font-size: 32px !important;
+  color: rgba(0, 0, 0, 1);
+  &::before {
+    content: '';
+    display: block;
+    background: url(#{$assets}logo.png) no-repeat center / auto 100%;
+    width: 60px;
+    height: 40px;
+  }
+}
