@@ -1,6 +1,6 @@
 <template>
   <view class="materials-section">
-    <view class="section-header bg-#00DBFF">
+    <view class="section-header bg-#fae5cd">
       <text class="header-title text-28px font-600 c-#ff0000">固定{{ materials.length }}项基本材料</text>
     </view>
     <view class="materials-list">

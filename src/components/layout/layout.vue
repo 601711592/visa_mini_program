@@ -10,6 +10,7 @@
         </template>
         <template v-slot:default class="uni-navbar__header-container-inner uni-nav-bar-text flex-r-c-c">
           <slot name="navbarDefault">
+            <image v-if="logoUrl" :src="logoUrl" class="navbar-logo" mode="aspectFit" />
             <text>{{ _navbar.title }}</text>
           </slot>
         </template>
@@ -48,13 +49,15 @@ const props = defineProps({
 
 const _navbar = computed(() => {
   return {
-    title: '董大象签证商城',
+    title: import.meta.env.VITE_APP_TITLE,
     statusBar: true,
     border: false,
     backgroundColor: '#fff',
     ...props.navbar,
   };
 });
+
+const logoUrl = computed(() => import.meta.env.VITE_LOGO_URL);
 
 const navBar = ref<any>();
 const navBarHeight = ref((uni.getSystemInfoSync().statusBarHeight || 0) + 44);

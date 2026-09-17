@@ -79,7 +79,7 @@ const request: IRequest = async ({ url, data = {}, method = Method.GET, contentT
   let _url = url.indexOf('http') === -1 ? API_PREFIX + url : url;
 
   // 实际请求参数
-  const _data = { ...CommonData, ...data };
+  const _data = { ...CommonData, ...data, mini_program_id: import.meta.env.VITE_ID };
 
   // 请求后端接口
   const dataRequest = (resolve) => {

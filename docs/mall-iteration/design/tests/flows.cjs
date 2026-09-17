@@ -1,0 +1,28 @@
+// Run: NODE_PATH=<temporary jsdom installation>/node_modules node tests/flows.cjs
+const {JSDOM}=require('jsdom');
+const fs=require('node:fs');
+const path=require('node:path');
+const assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..');
+const dom=new JSDOM(fs.readFileSync(path.join(root,'personal-center.html'),'utf8'),{runScripts:'outside-only',url:'http://localhost:18765/personal-center.html'});
+const w=dom.window,d=w.document;
+w.eval(['assets/lucide.min.js','subpages.js','personal-center.js'].map(file=>fs.readFileSync(path.join(root,file),'utf8')).join('\n;\n'));
+const q=s=>{const n=d.querySelector(s);assert.ok(n,'Element exists: '+s);return n};
+const click=s=>q(s).click();
+const text=()=>q('#local-content').textContent;
+const input=(name,v)=>{q(`[name="${name}"]`).value=v};
+const submit=()=>q('form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
+const back=()=>{if(!q('#flow').hidden){w.dispatchEvent(new w.MessageEvent('message',{source:q('#flow').contentWindow,origin:w.location.origin,data:{type:'personal-flow',page:'mine',logged:true}}))}else click('#back')};
+const home=()=>{let n=0;while(!q('#subpage').hidden&&n++<10)back();assert.ok(q('#subpage').hidden)};
+const login=()=>{click('[data-do="startLogin"]');assert.match(text(),/请先阅读/);q('#consent').checked=true;q('#consent').dispatchEvent(new w.Event('change',{bubbles:true}));click('[data-do="startLogin"]');assert.match(text(),/手机号使用说明/);click('[data-do="privacyAccept"]');click('[data-do="loginSuccess"]')};
+click('[data-route="orders"][data-filter="待付款"]');assert.equal(d.querySelectorAll('.order-total').length,1);click('[data-do="payment"]');click('[data-do="payFail"]');assert.match(text(),/模拟支付失败/);click('[data-do="payCancel"]');assert.match(text(),/支付已取消/);click('[data-do="payment"]');click('[data-do="paySuccess"]');assert.match(text(),/办理中/);assert.match(text(),/护照尾号 5628/);click('[data-do="refund"]');input('reason','出行计划变更');input('note','演示退款');submit();assert.match(text(),/退款审核中/);home();
+click('[data-route="orders"][data-filter="办理中"]');click('[data-do="order"]');assert.match(text(),/护照尾号 5628/);assert.match(text(),/护照尾号 9031/);assert.equal(d.querySelectorAll('.traveller-list').length,2);home();
+click('[data-route="points"]');assert.match(text(),/1,280/);click('[data-value="支出"]');assert.equal(d.querySelectorAll('.ledger-row').length,1);click('[data-page="pointsRules"]');assert.match(text(),/500 积分可抵扣 10 元/);back();assert.match(text(),/下单积分抵扣/);home();
+click('[data-route="coupons"][data-purpose="use"]');assert.equal(d.querySelectorAll('.coupon-card').length,2);click('[data-do="eligible"][data-id="2"]');assert.equal(d.querySelectorAll('.order-product').length,2);assert.doesNotMatch(text(),/欧洲定制/);click('[data-do="goods"][data-id="1"]');assert.match(q('#flow').src,/goodsId=1/);back();assert.match(text(),/日本单次旅游签证/);home();
+click('[data-local="invite"]');click('[data-page="inviteRecords"]');assert.match(text(),/暂无邀请记录/);back();click('[data-do="share"]');assert.ok(q('#local-content .solid').disabled);home();
+click('[data-route="address"]');assert.match(text(),/还没有收货地址/);click('[data-do="editAddress"]');input('name','示例收件人');input('phone','13800006688');input('region','示例省 / 示例市 / 示例区');input('street','示例街道 1 号');submit();assert.match(text(),/默认地址/);click('[data-do="editAddress"]');input('street','示例街道 2 号');submit();assert.match(text(),/示例街道 2 号/);click('.bottom-action [data-do="editAddress"]');input('name','第二收件人');input('phone','13900006688');input('region','示例地区');input('street','第二地址');submit();click('[data-do="default"]');assert.equal(d.querySelectorAll('.address-actions .status-tag').length,1);click('[data-do="deleteAddress"]');click('[data-do="confirmDelete"]');assert.equal(d.querySelectorAll('.address-copy').length,1);home();
+click('[data-route="profile"]');input('nickname','<张女士>');submit();assert.equal(q('#name').textContent,'<张女士>');home();
+click('#toggle');assert.match(q('#name').textContent,/点击登录/);click('[data-local="map"]');assert.match(text(),/地图位置待配置/);home();click('[data-route="orders"][data-filter="已完成"]');assert.match(text(),/手机号快捷登录/);login();assert.equal(q('.filter-tabs [aria-selected="true"]').textContent,'已完成');home();
+click('[data-route="address"]');assert.match(text(),/还没有收货地址/);home();click('#toggle');click('[data-route="catalog"][data-auth="true"]');login();assert.match(q('#flow').src,/page=catalog/);home();
+console.log('PASS: orders, payment failure/cancel/success, refund, per-item travellers, points filters, coupon scope, nested back navigation, invite pending states, address CRUD/default, profile escaping, guest map, consent and login resume, logout cleanup.');
+dom.window.close();

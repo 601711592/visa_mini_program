@@ -2,17 +2,22 @@
   <view class="material-item">
     <view class="material-header">
       <view class="status-icon status-required">
-        <text class="icon-text">✓</text>
+        <!-- <text class="icon-text">✓</text> -->
+        {{ index + 1 }}
       </view>
       <view class="material-info">
         <view class="material-name text-28px font-600 c-#333">
-          材料{{ index + 1 }}：{{ material.name }}
+          {{ material.name }}
         </view>
         <view class="material-desc text-24px c-#666">{{ material.description }}</view>
       </view>
-      <view v-if="material.imageUrl" class="detail-button" @click="previewMaterialImage">
+      <!-- <view v-if="material.imageUrl" class="detail-button" @click="previewMaterialImage">
         <text class="button-text text-26px c-#333">查看材料样本</text>
         <text class="button-arrow text-24px c-#333">▼</text>
+      </view> -->
+      <view class="optional-media-buttons">
+        <MediaPreview v-if="material.imageUrl" :image-url="material.imageUrl" @click.stop />
+        <MediaPreview v-if="material.videoUrl" :image-url="material.imageUrl" :video-url="material.videoUrl" @click.stop />
       </view>
     </view>
   </view>
@@ -20,6 +25,7 @@
 
 <script setup lang="ts">
 import type { MaterialItem as MaterialItemType } from '../constants.js';
+import MediaPreview from './MediaPreview.vue';
 
 interface Props {
   material: MaterialItemType;
@@ -115,5 +121,12 @@ const previewMaterialImage = () => {
 
 .button-arrow {
   margin-left: 12px;
+}
+
+.optional-media-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  align-self: center;
 }
 </style>

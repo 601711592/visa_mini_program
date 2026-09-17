@@ -1,0 +1,111 @@
+/* Shared 750 design units, rendered at half-size inside the 2x archived canvas. */
+:root{color-scheme:light}
+body{margin:0;background:#f4f6fa}
+#visa-proto{--v-brand:#164e70!important;--v-action:#164e70!important;--v-bg:#f4f6fa!important;--v-paper:#fff!important;--v-text:#202631!important;--v-muted:#737d8c!important;--v-line:#e3e8f0!important;--v-soft:#eaf6fd!important;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.6;width:375px;max-width:none;zoom:2}
+#visa-proto .phone{display:flex;flex-direction:column;min-height:690px;border:0;border-radius:0;background:var(--v-bg)}
+#visa-proto .status,#visa-proto header{display:none}
+#visa-proto main{padding:12px;flex:1;min-height:550px;color:#495566}
+#visa-proto .panel{padding:16px;border-radius:12px;margin-bottom:10px;background:#fff}
+#visa-proto h2{font-size:18px;color:#202631;font-weight:600}
+#visa-proto h3{font-size:16px;color:#202631;font-weight:600}
+#visa-proto .primary,#visa-proto .wx-primary{background:#8ad0f9!important;color:#164e70!important;border-radius:24px;min-height:44px;font-weight:500}
+#visa-proto .secondary{background:#eaf6fd;color:#164e70;border-radius:24px;min-height:44px}
+#visa-proto .link{color:#164e70;min-height:44px}
+#visa-proto .balance{background:#8ad0f9!important;color:#164e70!important;border-radius:12px;padding:24px}
+#visa-proto .balance small{color:#285d7a!important}
+#visa-proto .price{font-size:26px;color:#164e70}
+#visa-proto .tag{background:#eaf6fd;color:#164e70;font-size:12px}
+#visa-proto svg{stroke:#245b7a!important;stroke-width:1.65}
+#visa-proto .tabs{background:white;gap:4px;flex-wrap:nowrap;overflow:auto;border-radius:12px}
+#visa-proto .tabs button{font-size:13px;padding:14px 8px}
+#visa-proto .tabs button.active{color:#164e70;border-bottom-color:#245b7a}
+#visa-proto .choice.active,#visa-proto .day.active{background:#eaf6fd!important;border:1px solid #8ad0f9!important;color:#164e70}
+#visa-proto .stepper{gap:12px}#visa-proto .stepper button{width:44px;height:44px}
+#visa-proto .notice{background:#eaf6fd;border-radius:8px;padding:12px;font-size:13px;color:#164e70}
+#visa-proto .field{font-size:14px;color:#202631}
+#visa-proto input:not([type=checkbox]),#visa-proto select,#visa-proto textarea{font-size:16px!important;background:#fafbfd;border:1px solid #ccd5e2;border-radius:8px;padding:12px;min-height:44px}
+#visa-proto input[type=checkbox]{width:20px;height:20px;accent-color:#164e70}
+#visa-proto button:focus-visible,#visa-proto input:focus-visible,#visa-proto textarea:focus-visible,#visa-proto select:focus-visible{outline:2px solid #245b7a;outline-offset:2px}
+#visa-proto footer{position:sticky;bottom:0;z-index:3;padding:12px;background:#fff;border-top:1px solid #e3e8f0;box-shadow:none}
+#visa-proto footer[hidden]{display:none}
+#visa-proto nav{position:sticky;bottom:0;min-height:59px;background:white;padding:6px}
+#visa-proto nav button{font-size:13px;color:#737d8c}
+#visa-proto nav button.active{color:#164e70}
+#visa-proto .legacy main{background:#f4f6fa}
+#visa-proto .search-entry{border-radius:22px;background:white;justify-content:flex-start;padding:12px 18px;border:0}
+#visa-proto .original-banner{border-radius:12px;background:#eaf6fd;color:#164e70}
+#visa-proto .category-tabs button{border-radius:20px;min-height:44px}
+#visa-proto .category-tabs button.active{background:#8ad0f9;color:#164e70}
+#visa-proto .browse-product{border:0;border-radius:12px}
+#visa-proto .product-copy{padding:12px}
+#visa-proto .product-copy h3{font-size:14px}
+#visa-proto .product-copy>span{color:#164e70;font-size:17px;font-weight:500}
+#visa-proto .product-cover-label{color:#737d8c;background:#edf2f8}
+#visa-proto .catalog-layout{grid-template-columns:80px minmax(0,1fr);gap:10px}
+#visa-proto .catalog-layout aside{border-radius:12px;background:#edf2f8}
+#visa-proto .category-item{font-size:13px;min-height:54px}
+#visa-proto .category-item.active{border-left-color:#8ad0f9;color:#164e70}
+#visa-proto .catalog-results .browse-product{border-radius:12px;padding:8px;gap:6px}
+#visa-proto .catalog-results .product-copy{padding:4px}
+#visa-proto .catalog-results .product-copy h3{font-size:13px}
+#visa-proto .legacy-detail{margin:0;background:#f4f6fa}
+#visa-proto .legacy-detail .panel{border-radius:12px;padding:16px;margin-bottom:10px}
+#visa-proto .original-gallery{border-radius:12px;overflow:hidden;margin-bottom:10px}
+#visa-proto .original-image{background:#edf2f8}
+#visa-proto .legacy-detail .price{color:#164e70;font-size:26px}
+#visa-proto .legacy-detail .choice{border-radius:8px}
+#visa-proto .price-calendar{gap:3px}
+#visa-proto .day{min-height:48px;border:1px solid transparent;border-radius:8px}
+#visa-proto .day small{font-size:10px}
+#visa-proto .checkout-product{padding:10px 0;gap:12px}
+#visa-proto .checkout-product h3{font-size:15px;line-height:1.5}
+#visa-proto .checkout-cover{border-radius:8px}
+#visa-proto .checkout-consent{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.7;padding:12px 4px}
+#visa-proto .traveller-summary{background:#f4f6fa;font-size:13px;border-radius:8px}
+#visa-proto .payment{border:0;border-radius:12px;background:white;padding:24px 18px}
+#visa-proto .payment .price{font-size:38px;margin:16px 0}
+#visa-proto .success{padding:48px 20px}
+#visa-proto .success>svg{width:56px;height:56px;margin-bottom:20px}
+#visa-proto .success .price{font-size:34px;margin:20px 0}
+#visa-proto .coupon{border-left:3px solid #8ad0f9}
+#visa-proto .empty{padding:60px 20px}
+
+/* Two categories use horizontal tabs and full-width product cards. */
+#visa-proto .catalog-search{display:flex;align-items:center;gap:12px}
+#visa-proto .catalog-search .search-entry{flex:1;min-width:0;font-size:13px;color:#737d8c}
+#visa-proto .catalog-cart{display:grid;place-items:center;width:44px;min-height:44px;border:0;background:white;border-radius:50%}
+#visa-proto .catalog-switch{display:flex;margin:16px 0 20px;border-bottom:1px solid #e3e8f0}
+#visa-proto .catalog-switch button{position:relative;flex:1;border:0;background:transparent;min-height:52px;padding:12px;font-size:16px;color:#737d8c}
+#visa-proto .catalog-switch button.active{color:#164e70;font-weight:600}
+#visa-proto .catalog-switch button.active:after{content:"";position:absolute;bottom:0;left:calc(50% - 16px);width:32px;height:3px;border-radius:3px;background:#8ad0f9}
+#visa-proto .catalog-list{display:flex;flex-direction:column;gap:12px}
+#visa-proto .catalog-product{display:flex;align-items:stretch;gap:16px;width:100%;padding:14px;background:white;border:0;border-radius:12px;text-align:left}
+#visa-proto .catalog-product .checkout-cover{width:96px;height:104px;border-radius:8px}
+#visa-proto .catalog-copy{display:flex;flex-direction:column;justify-content:space-between;flex:1;min-width:0;padding:2px 0}
+#visa-proto .catalog-copy h3{font-size:16px;line-height:1.55;margin:0;font-weight:500;color:#202631}
+#visa-proto .catalog-price{display:flex;align-items:center;justify-content:space-between;color:#164e70;font-size:13px;margin-top:14px}
+#visa-proto .catalog-price strong{font-size:22px;font-weight:600;margin-left:3px}
+#visa-proto .catalog-price svg{width:18px;height:18px}
+
+/* User reference: left category rail and two-column image cards. */
+#visa-proto .catalog-reference{margin:-12px;min-height:550px;background:#f4f6fa}
+#visa-proto .catalog-reference .catalog-search{background:#8ad0f9;padding:16px 12px 24px;gap:10px}
+#visa-proto .catalog-reference .catalog-cart{background:transparent;flex:none}
+#visa-proto .catalog-reference .search-entry{background:#eaf6fd;color:#495566;padding:10px 12px}
+#visa-proto .catalog-split{display:grid;grid-template-columns:76px minmax(0,1fr);align-items:stretch}
+#visa-proto .catalog-rail{background:#edf2f7;padding-top:8px}
+#visa-proto .catalog-rail button{width:100%;min-height:64px;padding:16px 8px;border:0;border-radius:0;background:transparent;color:#495566;font-size:13px;line-height:1.5;position:relative}
+#visa-proto .catalog-rail button.active{background:white;color:#164e70;font-weight:600}
+#visa-proto .catalog-rail button.active:before{content:"";position:absolute;left:0;top:20px;bottom:20px;width:3px;border-radius:2px;background:#8ad0f9}
+#visa-proto .catalog-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:10px;padding:16px 10px;min-height:480px;background:#fff;border-radius:18px 0 0 0}
+#visa-proto .catalog-tile{min-width:0;background:white;border:1px solid #edf1f5;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px #20263106}
+#visa-proto .catalog-goods{display:block;width:100%;padding:6px 6px 0;background:transparent;border:0;text-align:left}
+#visa-proto .catalog-goods .checkout-cover{display:block;width:100%;height:auto;aspect-ratio:1.3;object-fit:cover;border-radius:7px}
+#visa-proto .catalog-goods h3{font-size:13px;font-weight:500;line-height:1.55;margin:10px 2px 0;min-height:41px;overflow-wrap:anywhere}
+#visa-proto .tile-bottom{display:flex;align-items:center;justify-content:space-between;gap:2px;padding:0 4px 4px 8px}
+#visa-proto .tile-price{font-size:11px;color:#164e70;white-space:nowrap}
+#visa-proto .tile-price strong{font-size:17px;font-weight:600;margin-left:1px}
+#visa-proto .tile-cart{display:grid;place-items:center;flex:none;width:44px;height:44px;border:0;background:transparent;padding:10px}
+#visa-proto .tile-cart svg{width:23px;height:23px}
+
+#visa-proto .catalog-reference .catalog-search{display:none}

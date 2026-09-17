@@ -62,7 +62,7 @@ const gotoSearchPage = () => {
 
 onShareAppMessage(() => {
   return {
-    title: '董大象签证',
+    title: import.meta.env.VITE_APP_TITLE,
   };
 });
 </script>

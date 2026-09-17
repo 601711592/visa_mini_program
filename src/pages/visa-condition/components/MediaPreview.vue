@@ -1,10 +1,12 @@
 <template>
-  <view class="media-preview" :class="{ 'video-preview': videoUrl }" @click="handleClick">
-    <image :src="imageUrl || '/static/video-placeholder.png'" mode="aspectFill" class="preview-thumbnail" />
+  <view class="media-preview-wrapper">
     <view class="preview-overlay">
       <text class="preview-text">{{ videoUrl ? '视频指引' : '图片指引' }}</text>
     </view>
-    <view v-if="videoUrl" class="play-icon">▶</view>
+    <view class="media-preview" :class="{ 'video-preview': videoUrl }" @click="handleClick">
+      <image :src="imageUrl || '/static/video-placeholder.png'" mode="aspectFill" class="preview-thumbnail" />
+      <view v-if="videoUrl" class="play-icon">▶</view>
+    </view>
   </view>
 </template>
 
@@ -45,12 +47,11 @@ const handleClick = () => {
   width: 120px;
   height: 120px;
   border-radius: 8px;
-  overflow: hidden;
+  // overflow: hidden;
   position: relative;
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid #e0e0e0;
-
   &:active {
     transform: scale(0.95);
   }
@@ -63,12 +64,12 @@ const handleClick = () => {
 }
 
 .preview-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
-  padding: 8px 6px 4px;
+  // position: absolute;
+  // bottom: 100%;
+  // left: 0;
+  // right: 0;
+  // background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  padding: 4px 6px 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,8 +78,8 @@ const handleClick = () => {
 .preview-text {
   font-size: 20px;
   font-weight: 500;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  color: black;
+  // text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .play-icon {

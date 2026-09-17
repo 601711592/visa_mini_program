@@ -10,11 +10,12 @@
   font-weight: bold;
   font-size: 32px !important;
   color: rgba(0, 0, 0, 1);
-  &::before {
-    content: '';
-    display: block;
-    background: url(#{$assets}logo.png) no-repeat center / auto 100%;
-    width: 60px;
-    height: 40px;
-  }
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-logo {
+  width: 60px;
+  height: 40px;
 }
