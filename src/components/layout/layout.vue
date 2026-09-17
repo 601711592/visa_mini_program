@@ -14,20 +14,20 @@
             <text>{{ _navbar.title }}</text>
           </slot>
         </template>
+        <template v-slot:right><slot name="navbarRight" /></template>
       </uni-nav-bar>
     </div>
     <div class="layout-body flex-c flex-1">
       <not-login v-if="needLogin && !global.isLogin" />
       <slot v-else></slot>
     </div>
-    <login-popup ref="loginPopupRef" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useGlobalStore } from '@/store/global';
 import type { UniNavBarProps } from '@uni-helper/uni-ui-types';
-import { computed, getCurrentInstance, onMounted, ref, watch, type PropType } from 'vue';
+import { computed, getCurrentInstance, ref, type PropType } from 'vue';
 import notLogin from './not-login.vue';
 
 defineOptions({
@@ -74,20 +74,7 @@ function handleClickLeft() {
   uni.navigateBack();
 }
 
-const loginPopupRef = ref<any>();
-
 const global = useGlobalStore();
-
-watch(
-  () => global.showLoginDialog,
-  (val) => {
-    if (val) {
-      loginPopupRef.value?.open();
-    } else {
-      loginPopupRef.value?.close();
-    }
-  },
-);
 </script>
 
 <style lang="scss">

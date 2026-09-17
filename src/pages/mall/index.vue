@@ -1,5 +1,6 @@
 <template>
   <layout :navbar="{ backgroundColor: '#fff', fixed: true }">
+    <template #navbarRight><text class="account-entry" @tap="gotoAccount">我的</text></template>
     <view class="page">
       <view class="search m-[0_24px] rd-1 h60 center mt-2 c-#cacaca" border="1px solid #DCDCDC" @click="gotoSearchPage">点击搜索商品</view>
       <view class="w700 h500 m-[24px_auto_0] company"></view>
@@ -32,6 +33,8 @@ import { getGoodsList, getShopCagetorys } from '@/services/shop';
 import { debounce, formatMoney } from '@/utils';
 import { onShareAppMessage, onShow } from '@dcloudio/uni-app';
 import { computed, ref } from 'vue';
+
+const gotoAccount = () => uni.navigateTo({ url: '/pages/account/index' });
 
 const currentCategory = ref(0);
 const shopCagetorys = ref<GoodsCategory[]>([]);
@@ -69,4 +72,5 @@ onShareAppMessage(() => {
 
 <style lang="scss">
 @import './index.scss';
+.account-entry { color: #164E70; font-size: 26rpx; min-height: 88rpx; display: flex; align-items: center; }
 </style>

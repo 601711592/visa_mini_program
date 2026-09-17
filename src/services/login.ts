@@ -1,37 +1,13 @@
-import { API_PREFIX } from '@/utils/constant';
-import request, { Method } from '@/utils/request';
+import request from '@/utils/request';
+import type { Member } from './mine';
+export interface AuthResponse<T> { status: number; msg: string; data: T }
+export interface ServiceAgreement { version: string; title: string; content: string }
+export interface LoginResult { token: string; expires_at: string; member: Member }
 
-/**
- * 通过code登录
- */
-export const login = (code: string) => {
-  return request<API.ResponseBody<{ token: string }>>({ url: `/login`, method: Method.POST, data: { code } });
-};
-
-/**
- * 上传头像
- */
-export const uploadAvatar = (filePath: string) => {
-  return new Promise<API.ResponseBody<string>>((resolve, reject) => {
-    uni.uploadFile({
-      url: API_PREFIX + '/avatar', // 服务器地址
-      filePath,
-      name: 'file',
-      success: (uploadFileRes) => {
-        const data = JSON.parse(uploadFileRes.data);
-        // console.log('Avatar uploaded:', data);
-        resolve(data); // 处理上传后的服务器响应
-      },
-      fail: (err) => {
-        reject(err); // 处理上传失败的情况
-      },
-    });
-  });
-};
-
-/**
- * 注册
- */
-export const register = (data: { code: string; nickname: string; avatarUrl: string; encryptedData: string; iv: string }) => {
-  return request<API.ResponseBody<{ token: string }>>({ url: `/register`, method: Method.POST, data });
-};
+export const phoneLogin = (data: { login_code: string; phone_code: string; agreement_version: string }) =>
+  request<AuthResponse<LoginResult>>({ url: '/auth/phone-login', method: 'POST', auth: false, data });
+export const getServiceAgreement = () => request<AuthResponse<ServiceAgreement>>({ url: '/auth/service-agreement', auth: false });
+export const verifyWechatSession = (login_code: string, token?: string) => request<AuthResponse<{ verified: boolean }>>({
+  url: '/auth/wechat-session', method: 'POST', token, data: { login_code },
+});
+export const revokeSession = (token: string) => request<AuthResponse<null>>({ url: '/auth/logout', method: 'POST', token });

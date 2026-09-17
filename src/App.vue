@@ -2,14 +2,14 @@
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app';
 import { useGlobalStore } from './store/global';
 
-// const global = useGlobalStore();
+const global = useGlobalStore();
 
 onLaunch(() => {
   console.log('App Launch');
-  // global.autoLogin();
+  void global.initialize();
 });
 onShow(() => {
-  console.log('App Show');
+  if (global.status !== 'authenticating' && !global.loginOpen) void global.restoreSession();
 });
 onHide(() => {
   console.log('App Hide');

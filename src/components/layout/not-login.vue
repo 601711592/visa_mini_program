@@ -1,33 +1,17 @@
 <template>
-  <view class="flex flex-col items-center">
-    <!-- 顶部图片区域 -->
-    <view class="w-[166px] h-[134px] mt-[328px] empty_image"></view>
-
-    <!-- 提示文字 -->
-    <view class="text-[48px] font-semibold text-black leading-[67px] mt-[16px] text-center"> 啊哦，你还没登录哦 </view>
-
-    <!-- 登录提示 -->
-    <view class="text-[24px] font-normal text-black leading-[34px] mt-[16px]"> 立即登录, 开始定制个性化T恤 </view>
-
-    <!-- 微信授权按钮 -->
-    <view class="w-[440px] mt-[120px] h-[88px] bg-black rounded-[90px] flex items-center justify-center" @click="clickHandle">
-      <view class="text-[28px] font-semibold text-white">登录</view>
-    </view>
+  <view class="login-required">
+    <text class="title">{{ global.status === 'checking' ? '正在校验登录状态…' : '登录后查看个人信息' }}</text>
+    <button v-if="global.status !== 'checking'" @tap="login">手机号快捷登录</button>
   </view>
 </template>
-
 <script setup lang="ts">
 import { useGlobalStore } from '@/store/global';
-
 const global = useGlobalStore();
-
-const clickHandle = () => {
-  global.showLoginDialog = true;
-};
+function login() { void global.ensureLogin(); }
 </script>
-
-<style lang="scss">
-.empty_image {
-  background: url(#{$assets}common/empty.png) no-repeat center / 100% 100%;
-}
+<style scoped>
+.login-required { padding: 100rpx 48rpx; text-align: center; }
+.title { display: block; font-size: 32rpx; color: #202631; margin-bottom: 40rpx; }
+button { background: #8AD0F9; color: #164E70; border-radius: 48rpx; min-height: 88rpx; font-size: 28rpx; }
+button::after { border: 0; }
 </style>

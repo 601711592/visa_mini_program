@@ -1,142 +1,50 @@
-import { login } from '@/services/login';
 import { API_PREFIX } from './constant';
-import { getToken, setToken } from './index';
-import { useGlobalStore } from '@/store/global';
+import { getToken, invalidateSession } from './auth-session';
 
-export const Method = {
-  GET: 'GET',
-  POST: 'POST',
-  PUT: 'PUT',
-  DELETE: 'DELETE',
-};
-
-// 公共header
-const CommonHeader = {};
-
-// 公共data
-const CommonData = {};
-
-export const ApiPrefix = import.meta.env.VITE_API_PREFIX;
-
-// 要排除tokenKey的接口列表
-const excludeTokenKeyList = [];
-
-interface IRequest {
-  <T = any>(url: string): Promise<T>; // 不提供 opts 时，默认使用 'GET' method，并且默认返回 data
+export const Method = { GET: 'GET', POST: 'POST', PUT: 'PUT', DELETE: 'DELETE' } as const;
+export const ApiPrefix = API_PREFIX;
+export interface RequestOptions {
+  url: string;
+  data?: Record<string, unknown>;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  contentType?: string;
+  header?: Record<string, string>;
+  auth?: boolean;
+  token?: string;
+}
+export class RequestError extends Error {
+  constructor(public code: string, message: string, public statusCode = 0) { super(message); }
 }
 
-// 处理登录逻辑
-export const requestLoginLogic = (() => {
-  // 登录队列
-  const queue = [];
-
-  return {
-    // 去登录
-    gotoLogin: () => {
-      return new Promise((resolve) => {
-        queue.push(resolve);
-        uni.login({
-          success: (result) => {
-            login(result.code).then(
-              (res) => {
-                setToken(res.data.token);
-                requestLoginLogic.loginSuccess();
-              },
-              (e) => {
-                // console.log('登录失败', e);
-                // if (e.statusCode === 404) {
-                //   uni.showToast({ title: '请先登录', icon: 'none', duration: 2000 });
-                //   const global = useGlobalStore();
-                //   global.showLoginDialog = true;
-                // }
-                requestLoginLogic.loginFail();
-              },
-            );
-          },
-        });
-      });
-    },
-    // 登录成功
-    loginSuccess: async () => {
-      setTimeout(() => {
-        queue.forEach((resolve) => {
-          resolve(true);
-        });
-        queue.length = 0;
-      }, 1000);
-    },
-    // 登录失败
-    loginFail: () => {
-      queue.forEach((resolve) => {
-        resolve(false);
-      });
-      queue.length = 0;
-    },
-  };
-})();
-
-const request: IRequest = async ({ url, data = {}, method = Method.GET, contentType = 'application/json', header }) => {
-  let _url = url.indexOf('http') === -1 ? API_PREFIX + url : url;
-
-  // 实际请求参数
-  const _data = { ...CommonData, ...data, mini_program_id: import.meta.env.VITE_ID };
-
-  // 请求后端接口
-  const dataRequest = (resolve) => {
-    let _header = { ...CommonHeader, 'content-type': contentType, authorization: getToken() };
-    // 如果是排除tokenKey的接口，不传tokenKey
-    if (excludeTokenKeyList.some((val) => _url.indexOf(val) !== -1) || !_header.authorization) {
-      delete _header.authorization;
-    }
-    if (header) _header = { ..._header, ...header };
-
+export default function request<T = unknown>(options: RequestOptions | string): Promise<T> {
+  const opts = typeof options === 'string' ? { url: options } : options;
+  const url = /^https?:\/\//.test(opts.url) ? opts.url : API_PREFIX + opts.url;
+  const trusted = url.startsWith(API_PREFIX + '/');
+  const token = opts.auth === false || !trusted ? '' : (opts.token ?? getToken());
+  return new Promise<T>((resolve, reject) => {
     uni.request({
-      url: _url,
-      data: _data,
-      method,
+      url,
+      data: { ...opts.data, mini_program_id: import.meta.env.VITE_ID },
+      method: opts.method || 'GET',
+      timeout: 30000,
+      header: {
+        'content-type': opts.contentType || 'application/json',
+        ...opts.header,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       success: (res) => {
-        resolve(res);
+        const body = res.data as { status?: number | string; code?: string; msg?: string } | null;
+        if (res.statusCode === 401) invalidateSession(token);
+        if (res.statusCode < 200 || res.statusCode >= 300 || (body?.status !== undefined && String(body.status) !== '11')) {
+          reject(new RequestError(body?.code || `HTTP_${res.statusCode}`, body?.msg || '请求失败，请稍后重试', res.statusCode));
+          return;
+        }
+        resolve(res.data as T);
       },
-      header: _header,
-      fail: () => {
-        uni.hideLoading();
-      },
+      fail: () => reject(new RequestError('NETWORK_ERROR', '网络连接失败，请检查网络后重试')),
     });
-  };
+  });
+}
 
-  let res = await new Promise(dataRequest);
-
-  if (res.statusCode === 403) {
-    res = await requestLoginLogic.gotoLogin();
-    if (res) {
-      // 登录成功后，重新请求
-      res = await new Promise(dataRequest);
-    } else {
-      // 报错
-      throw '未登录';
-    }
-  } else if (res.statusCode === 401) {
-    // uni.showToast({ title: '请先登录', icon: 'none', duration: 2000 });
-    // const global = useGlobalStore();
-    // global.showLoginDialog = true;
-    throw '未登录';
-  } else if (res.statusCode !== 200) {
-    throw res;
-  }
-
-  return res.data;
-};
-
-export default request;
-
-/**
- * 检查请求结果是否成功
- * @param data
- * @returns
- */
-export const checkResponse = (data) => {
-  if (data.resultCode === '0') {
-    return true;
-  }
-  return false;
-};
+export const checkResponse = (data: { status?: number | string; resultCode?: string }) =>
+  String(data.status) === '11' || data.resultCode === '0';

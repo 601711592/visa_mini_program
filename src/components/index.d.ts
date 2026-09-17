@@ -6,7 +6,6 @@ import popupBottom from './popup-bottom/popup-bottom.vue';
 import addressFormPopup from './address-form-popup/address-form-popup.vue';
 import cityPopup from './city-popup/city-popup.vue';
 import addressPopup from './address-popup/address-popup.vue';
-import loginPopup from './login-popup/login-popup.vue';
 import { type UniPopupProps } from '@uni-helper/uni-ui-types/index';
 
 declare module 'vue' {
@@ -19,6 +18,5 @@ declare module 'vue' {
     addressFormPopup: typeof addressFormPopup;
     cityPopup: typeof cityPopup;
     addressPopup: typeof addressPopup;
-    loginPopup: typeof loginPopup;
   }
 }

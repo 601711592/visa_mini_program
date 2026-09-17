@@ -27,6 +27,33 @@
         "navigationBarTitleText": "",
         "navigationStyle": "custom"
       }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "default",
+        "navigationBarBackgroundColor": "#8AD0F9",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/service-agreement/index",
+      "style": {
+        "navigationBarTitleText": "用户服务协议",
+        "navigationStyle": "default",
+        "navigationBarBackgroundColor": "#8AD0F9",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/account/index",
+      "style": {
+        "navigationBarTitleText": "我的账号",
+        "navigationStyle": "default",
+        "navigationBarBackgroundColor": "#8AD0F9",
+        "navigationBarTextStyle": "black"
+      }
     }
   ],
   "subPackages": [

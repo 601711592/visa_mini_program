@@ -1,15 +1,11 @@
-import request, { Method } from '@/utils/request';
-import type { Goods } from './shop';
-
+import request from '@/utils/request';
+import type { AuthResponse } from './login';
 export interface Member {
   id: number;
+  mini_program_id: number;
   nickname: string;
   avatar: string;
+  phone_masked: string;
+  phone_bound: boolean;
 }
-
-/**
- * 查询当前用户信息
- */
-export const getCurrentUserInfo = () => {
-  return request<API.ResponseBody<Member>>({ url: `/member/current`, method: Method.GET });
-};
+export const getCurrentUserInfo = (token?: string) => request<AuthResponse<Member>>({ url: '/member/current', token });

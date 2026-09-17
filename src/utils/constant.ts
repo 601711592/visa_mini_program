@@ -6,5 +6,4 @@ export const ASSET_DOMAIN = 'https://static.o1001.com/t-shirt/';
 // export const API_PREFIX = 'http://192.168.31.254:8000/api/mp';
 // export const API_PREFIX = 'http://localhost:8000/api/mp';
 // export const API_PREFIX = 'http://192.168.31.6:8000/api/mp';
-// export const API_PREFIX = 'http://visa.test/api/min';
-export const API_PREFIX = 'https://www.visa8.cn/api/min';
+export const API_PREFIX = (import.meta.env.VITE_API_PREFIX || 'http://visa.test/api/min').replace(/\/$/, '');

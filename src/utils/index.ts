@@ -32,20 +32,7 @@ export const queryNode = (select: string, isAll: boolean, time: number, that: an
   });
 };
 
-// 缓存token
-export const setToken = (token: string) => {
-  uni.setStorageSync('token', token);
-};
-
-// 获取token
-export const getToken = () => {
-  return uni.getStorageSync('token');
-};
-
-// 删除token
-export const removeToken = () => {
-  return uni.removeStorageSync('token');
-};
+export { getToken, setToken, removeToken } from './auth-session';
 
 // 格式化金额分转元
 export const formatMoney = (value?: number, decimal: number = 2) => {
