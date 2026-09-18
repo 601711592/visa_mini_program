@@ -1,0 +1,47 @@
+name: Mall frontend checks
+on:
+  push:
+    branches: [feat/mall-static-pages-20260918]
+permissions:
+  contents: read
+concurrency:
+  group: mall-frontend-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: Install locked dependencies
+        run: corepack yarn install --frozen-lockfile --non-interactive
+      - name: Authentication regression
+        run: npm run test:auth
+      - name: Mall model, routing and Vue compilation
+        run: node --test tests/mall.test.cjs
+      - name: Compare TypeScript baseline
+        run: node scripts/check-types.cjs
+      - name: Build both existing WeChat targets and offline preview
+        run: |
+          cp src/manifest.json /tmp/mall-manifest.json
+          trap 'cp /tmp/mall-manifest.json src/manifest.json' EXIT
+          npm run build:mp-weixin:app1
+          npm run build:mp-weixin:app2
+          npm run build:mp-weixin -- --mode preview
+          npm run build:h5 -- --mode preview
+      - name: Save frontend evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: mall-frontend-evidence
+          path: |
+            artifacts/
+            dist/build/h5/
+            dist/build/mp-weixin/
+          retention-days: 14
