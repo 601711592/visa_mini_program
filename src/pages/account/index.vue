@@ -1,39 +1,46 @@
 <template>
-  <view class="account-page">
-    <view v-if="global.status === 'checking'" class="card">正在校验登录状态…</view>
-    <view v-else-if="global.isLogin && global.userInfo" class="card">
-      <text class="title">{{ global.userInfo.nickname || '已登录' }}</text>
-      <text class="phone">{{ global.userInfo.phone_masked }}</text>
-      <button class="primary" @tap="openPrivacyContract">隐私保护指引</button>
-      <button class="secondary" @tap="logout">退出登录</button>
+  <MallPage public-page>
+    <ProfileHeader :logged="logged" :checking="checking" :nickname="nickname" :phone="phone" :avatar="avatar" @open="openProfile" />
+    <view class="mx-body account-body">
+      <OrderShortcuts @open="status => openPrivate('orders', { filter: status })" />
+      <view class="mx-card">
+        <BenefitRow icon="points" title="我的积分" :value="pointsValue" @detail="openPrivate('points')" @use="go('category')" />
+        <BenefitRow icon="coupon" title="我的优惠券" :value="couponValue" @detail="openPrivate('coupons')" @use="openPrivate('coupons', { filter: '未使用' })" />
+        <BenefitRow icon="invite" title="邀请好友" value="邀请奖励待上线" action="去邀请" @detail="openPrivate('invite')" @use="openPrivate('invite')" />
+      </view>
+      <ServiceList @address="openPrivate('addresses')" @map="go('map')" />
+      <view v-if="!MALL_PREVIEW && global.sessionError" class="mx-card"><view class="mx-muted">{{ global.sessionError }}</view><button class="mx-button mx-plain" @tap="global.restoreSession()">重新校验登录状态</button></view>
     </view>
-    <view v-else class="card">
-      <text class="title">登录后使用会员服务</text>
-      <text v-if="global.sessionError" class="hint">{{ global.sessionError }}</text>
-      <button class="primary" @tap="login">手机号快捷登录</button>
-      <button v-if="global.sessionError" class="secondary" @tap="global.restoreSession()">重新校验登录状态</button>
-    </view>
-  </view>
+  </MallPage>
 </template>
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useGlobalStore } from '@/store/global';
-import { openPrivacyContract } from '@/utils/wechat-privacy';
-import { ACCOUNT_PAGE } from '@/utils/auth-routing';
-const global = useGlobalStore();
-function login() { void global.ensureLogin({ target: ACCOUNT_PAGE }); }
-function logout() {
-  uni.showModal({ title: '退出登录', content: '退出后将清理本机出行人、地址和联系电话草稿，商品选择会保留。',
-    success: (result) => { if (result.confirm) void global.logout(); },
-  });
+import { useMallPreviewStore } from '@/store/mall-preview';
+import { MALL_PREVIEW } from '@/mall/config';
+import { day } from '@/mall/model';
+import { go, routes, type PageName } from '@/mall/navigation';
+import { currentUrl } from '@/utils/auth-routing';
+import MallPage from '@/components/mall/MallPage.vue';
+import ProfileHeader from '@/components/mall/ProfileHeader.vue';
+import OrderShortcuts from '@/components/mall/OrderShortcuts.vue';
+import BenefitRow from '@/components/mall/BenefitRow.vue';
+import ServiceList from '@/components/mall/ServiceList.vue';
+const global = useGlobalStore(), mall = useMallPreviewStore();
+const logged = computed(() => MALL_PREVIEW ? mall.data.member : global.isLogin);
+const checking = computed(() => !MALL_PREVIEW && global.status === 'checking');
+const nickname = computed(() => MALL_PREVIEW ? mall.data.nickname : global.userInfo?.nickname || '已登录');
+const avatar = computed(() => MALL_PREVIEW ? mall.data.avatar : global.userInfo?.avatar || '');
+const phone = computed(() => MALL_PREVIEW ? '前端演示账号' : global.userInfo?.phone_masked || '');
+const pointsValue = computed(() => !logged.value ? '登录后查看' : MALL_PREVIEW ? `${mall.data.balance} 积分` : '业务数据待接入');
+const couponValue = computed(() => !logged.value ? '登录后查看' : MALL_PREVIEW ? `${mall.data.coupons.filter(item => item.status === '未使用' && item.end >= day() && !item.reservedBy).length} 张可用` : '业务数据待接入');
+async function openPrivate(page: PageName, params: Record<string, string> = {}) {
+  const query = Object.entries(params).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
+  const target = routes[page] + (query ? '?' + query : '');
+  if (MALL_PREVIEW && !mall.data.member) { mall.pendingTarget = target; mall.pendingOrigin = currentUrl(); go('login'); return; }
+  if (!MALL_PREVIEW && !(await global.ensureLogin({ target }))) return;
+  go(page, params);
 }
+function openProfile() { void openPrivate('profile'); }
 </script>
-<style scoped>
-.account-page { min-height: 100vh; padding: 24rpx; box-sizing: border-box; background: #F4F6FA; color: #495566; }
-.card { background: white; border-radius: 24rpx; padding: 40rpx; }
-.title { display: block; color: #202631; font-size: 34rpx; font-weight: 600; margin-bottom: 24rpx; }
-.phone,.hint { display: block; margin: 24rpx 0; font-size: 28rpx; }
-.primary,.secondary { margin-top: 24rpx; min-height: 88rpx; font-size: 28rpx; color: #164E70; border-radius: 44rpx; }
-.primary { background: #8AD0F9; }
-.secondary { background: #EAF6FD; }
-button::after { border: 0; }
-</style>
+<style scoped>.account-body { padding-top: 0; margin-top: -20rpx; position: relative; }</style>

@@ -1,0 +1,2 @@
+<template><MallPage><view class="mx-empty"><MallIcon name="invite" :size="112" /><view class="mx-title">{{ title }}</view><view class="mx-muted">{{ description }}</view><view class="mx-hint">当前仅保留已确认设计入口，不建立邀请关系、不发放奖励。</view><button class="mx-button mx-outline" @tap="back">返回</button></view></MallPage></template>
+<script setup lang="ts">import MallPage from './MallPage.vue';import MallIcon from './MallIcon.vue';import { back } from '@/mall/navigation';defineProps<{ title: string; description: string }>();</script>

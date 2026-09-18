@@ -1,56 +1,41 @@
 <template>
-  <layout :navbar="{ backgroundColor: '#fff', fixed: true, leftBack: true }">
-    <view class="page">
-      <view class="search m-[0_24px] rd-1 h60 flex items-center mt-2 pos-relative" border="1px solid #DCDCDC">
-        <input v-model="value" @input="onInput" type="text" class="input" :focus="true" />
-        <view class="placeholder" v-if="!value">请输入您要搜索的商品关键词</view>
-      </view>
-      <view class="text-center color-#cacaca line-height-10" v-if="value && !loading && !searchResult.length">没有找到相关商品</view>
-      <view class="text-center color-#cacaca line-height-10" v-else-if="value && loading">搜索中...</view>
-      <view class="p-[24px] flex flex-wrap justify-between" v-else>
-        <view @click="gotoGoodsDetail(item.id)" class="product-card" v-for="(item, index) in searchResult" :key="index">
-          <view class="product-image" :style="`background-image: url(${item.cover})`"></view>
-          <view class="product-card__text">
-            <view class="description">{{ item.name }}</view>
-            <view class="price">¥ {{ formatMoney(item.price) }}</view>
-          </view>
-        </view>
-      </view>
+  <MallPage public-page>
+    <view class="mx-body">
+      <view class="search-field"><MallIcon name="search" :size="34" /><input v-model="value" class="mx-input" placeholder="请输入商品关键词" :focus="true" confirm-type="search" @input="schedule" @confirm="search" /><button v-if="value" class="mx-button mx-plain" @tap="clear">清除</button></view>
+      <view v-if="loading" class="mx-empty">搜索中…</view>
+      <view v-else-if="error" class="mx-empty"><view>{{ error }}</view><button class="mx-button" @tap="search">重新搜索</button></view>
+      <CatalogCards v-else-if="items.length" :items="items" />
+      <view v-else class="mx-empty mx-muted">{{ value.trim() ? '没有找到相关商品，请试试其他关键词' : '输入关键词查找商品' }}</view>
     </view>
-  </layout>
+  </MallPage>
 </template>
-
 <script setup lang="ts">
-import type { Goods, GoodsCategory } from '@/services/shop';
-import { getGoodsList, getShopCagetorys } from '@/services/shop';
-import { debounce, formatMoney } from '@/utils';
-import { onShareAppMessage, onShow } from '@dcloudio/uni-app';
-import { computed, ref } from 'vue';
-
-const gotoGoodsDetail = (id: number) => {
-  uni.navigateTo({ url: `/pagesMall/goodsDetail/index?id=${id}` });
-};
-const loading = ref(false);
-const value = ref('');
-const searchResult = ref<Goods[]>([]);
-const onInput = debounce(async () => {
-  if (!value.value) {
-    searchResult.value = [];
-    return;
-  }
+import { ref } from 'vue';
+import { onUnload } from '@dcloudio/uni-app';
+import { getGoodsList, type Goods } from '@/services/shop';
+import { demoGoods } from '@/mall/fixtures';
+import { MALL_PREVIEW } from '@/mall/config';
+import MallPage from '@/components/mall/MallPage.vue';
+import MallIcon from '@/components/mall/MallIcon.vue';
+import CatalogCards from '@/components/mall/CatalogCards.vue';
+const value = ref(''), loading = ref(false), error = ref('');
+const items = ref<Goods[]>([]);
+let timer: ReturnType<typeof setTimeout> | undefined;
+let sequence = 0;
+async function search() {
+  if (timer) clearTimeout(timer);
+  const run = ++sequence, keyword = value.value.trim();
+  error.value = ''; items.value = [];
+  if (!keyword) { loading.value = false; return; }
   loading.value = true;
-  const res = await getGoodsList({ pageSize: 100, name: value.value });
-  loading.value = false;
-  searchResult.value = res.data.data;
-}, 500);
-
-onShareAppMessage(() => {
-  return {
-    title: '董大象签证',
-  };
-});
+  try {
+    const results = MALL_PREVIEW ? demoGoods().filter(item => item.name.toLowerCase().includes(keyword.toLowerCase())) : (await getGoodsList({ pageSize: 100, name: keyword })).data.data;
+    if (run === sequence) items.value = results;
+  } catch (e) { if (run === sequence) error.value = e instanceof Error ? e.message : '搜索失败，请重试'; }
+  finally { if (run === sequence) loading.value = false; }
+}
+function schedule() { ++sequence; if (timer) clearTimeout(timer); loading.value = !!value.value.trim(); timer = setTimeout(search, 300); }
+function clear() { value.value = ''; void search(); }
+onUnload(() => { ++sequence; if (timer) clearTimeout(timer); });
 </script>
-
-<style lang="scss">
-@import './index.scss';
-</style>
+<style scoped>.search-field { display: flex; align-items: center; background: #fff; border-radius: 24rpx; padding: 0 20rpx; margin-bottom: 24rpx; }.search-field input { flex: 1; min-width: 0; margin-left: 16rpx; }.search-field button { flex-shrink: 0; }</style>
