@@ -1,12 +1,12 @@
 <template>
   <MallPage public-page>
     <ProfileHeader :logged="logged" :checking="checking" :nickname="nickname" :phone="phone" :avatar="avatar" @open="openProfile" />
-    <view class="mx-body account-body">
+    <view class="account-body">
       <OrderShortcuts @open="status => openPrivate('orders', { filter: status })" />
-      <view class="mx-card">
-        <BenefitRow icon="points" title="我的积分" :value="pointsValue" @detail="openPrivate('points')" @use="go('category')" />
-        <BenefitRow icon="coupon" title="我的优惠券" :value="couponValue" @detail="openPrivate('coupons')" @use="openPrivate('coupons', { filter: '未使用' })" />
-        <BenefitRow icon="invite" title="邀请好友" value="邀请奖励待上线" action="去邀请" @detail="openPrivate('invite')" @use="openPrivate('invite')" />
+      <view class="account-benefits">
+        <BenefitRow icon="points" title="积分中心" :value="pointsValue" detail-label="明细" @detail="openPrivate('points')" @use="go('category')" />
+        <BenefitRow icon="coupon" title="优惠券" :value="couponValue" detail-label="查看全部" @detail="openPrivate('coupons')" @use="openPrivate('coupons', { filter: '未使用' })" />
+        <BenefitRow icon="invite" title="邀请好友" value="查看邀请记录与奖励规则" action="去邀请" @detail="openPrivate('invite')" @use="openPrivate('invite')" />
       </view>
       <ServiceList @address="openPrivate('addresses')" @map="go('map')" />
       <view v-if="!MALL_PREVIEW && global.sessionError" class="mx-card"><view class="mx-muted">{{ global.sessionError }}</view><button class="mx-button mx-plain" @tap="global.restoreSession()">重新校验登录状态</button></view>
@@ -31,8 +31,8 @@ const logged = computed(() => MALL_PREVIEW ? mall.data.member : global.isLogin);
 const checking = computed(() => !MALL_PREVIEW && global.status === 'checking');
 const nickname = computed(() => MALL_PREVIEW ? mall.data.nickname : global.userInfo?.nickname || '已登录');
 const avatar = computed(() => MALL_PREVIEW ? mall.data.avatar : global.userInfo?.avatar || '');
-const phone = computed(() => MALL_PREVIEW ? '前端演示账号' : global.userInfo?.phone_masked || '');
-const pointsValue = computed(() => !logged.value ? '登录后查看' : MALL_PREVIEW ? `${mall.data.balance} 积分` : '业务数据待接入');
+const phone = computed(() => MALL_PREVIEW ? '138****6688' : global.userInfo?.phone_masked || '');
+const pointsValue = computed(() => !logged.value ? '登录后查看' : MALL_PREVIEW ? `当前积分 ${mall.data.balance}` : '业务数据待接入');
 const couponValue = computed(() => !logged.value ? '登录后查看' : MALL_PREVIEW ? `${mall.data.coupons.filter(item => item.status === '未使用' && item.end >= day() && !item.reservedBy).length} 张可用` : '业务数据待接入');
 async function openPrivate(page: PageName, params: Record<string, string> = {}) {
   const query = Object.entries(params).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
@@ -43,4 +43,7 @@ async function openPrivate(page: PageName, params: Record<string, string> = {}) 
 }
 function openProfile() { void openPrivate('profile'); }
 </script>
-<style scoped>.account-body { padding-top: 0; margin-top: -20rpx; position: relative; }</style>
+<style scoped>
+.account-body { position: relative; box-sizing: border-box; margin-top: -93rpx; padding: 0 24rpx 42rpx; }
+.account-benefits { padding: 0 28rpx; margin-bottom: 20rpx; border-radius: 24rpx; background: #fff; }
+</style>

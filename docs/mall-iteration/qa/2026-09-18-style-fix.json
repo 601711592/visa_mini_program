@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-18",
+  "base_commit": "1b5cf82609a0e684a9715af05052109ad7ac1f4d",
+  "node_tests": {
+    "command": "node --test tests/design-contract.test.cjs",
+    "passed": 8,
+    "failed": 0,
+    "scope": "图标资源/映射/路由资产/样式约束，以及 14 个修改组件的 TS 语法转译。不是 Vue 编译、业务回归或完整类型检查。"
+  },
+  "chromium_css_fixtures": {
+    "widths": [
+      320,
+      375,
+      390,
+      430
+    ],
+    "fixtures": [
+      "个人中心设计规则基准",
+      "个人中心组件样式",
+      "分类组件样式",
+      "优惠券组件样式"
+    ],
+    "horizontal_overflow": false,
+    "measured_regions": 28,
+    "max_measured_difference_css_px": 0.016,
+    "scope": "Chromium 静态组件 CSS 几何夹具；非 Vue/uni-app 编译运行。头像照片及原生导航不作像素验收。"
+  },
+  "not_verified": [
+    "完整 uni-app H5/微信构建",
+    "原生组件与 Vue scoped 样式在框架运行时的表现",
+    "原生 Tab/胶囊/安全区真机效果",
+    "头像照片区域像素还原",
+    "其余业务页面逐屏验收",
+    "真实接口和授权/支付（不在本轮范围）"
+  ]
+}

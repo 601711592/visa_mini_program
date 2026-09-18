@@ -1,24 +1,25 @@
-/* 正式登录与独立演示登录共用布局，不复制微信导航及胶囊。 */
-.login-page { min-height: 100vh; box-sizing: border-box; background: #fff; color: #495566; padding-bottom: env(safe-area-inset-bottom); }
-.login-content { box-sizing: border-box; width: 100%; max-width: 750rpx; margin: 0 auto; padding: 48rpx 48rpx 40rpx; }
-.illustration { display: block; width: 520rpx; max-width: 100%; height: 352rpx; margin: 40rpx auto 72rpx; }
-.actions { width: 100%; max-width: 654rpx; margin: 0 auto; }
+/* 正式登录与演示登录共享设计尺寸；原生导航在页面外，不重复绘制。 */
+.login-page { min-height: calc(100vh - var(--window-top, 0px)); box-sizing: border-box; background: #fff; color: #495566; padding-bottom: env(safe-area-inset-bottom); }
+.login-content { box-sizing: border-box; width: 100%; max-width: 750rpx; margin: 0 auto; padding: 100rpx 56rpx 80rpx; }
+.illustration { display: block; width: 480rpx; max-width: 100%; height: 320rpx; margin: 0 auto 72rpx; }
+.actions { width: 100%; margin: 0 auto; }
 button::after { border: 0; }
-.primary { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 96rpx; box-sizing: border-box; padding: 22rpx 24rpx; border-radius: 48rpx; background: #8AD0F9; color: #164E70; font-size: 30rpx; font-weight: 600; line-height: 1.5; }
+.primary { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 96rpx; box-sizing: border-box; padding: 22rpx 24rpx; border-radius: 24rpx; background: #8AD0F9; color: #164E70; font-size: 30rpx; font-weight: 600; line-height: 1.5; }
 .primary[disabled] { background: #EAF6FD; color: #737D8C; }
-.consent-row { display: flex; justify-content: center; align-items: flex-start; margin: 28rpx 0 0; font-size: 24rpx; line-height: 1.6; }
-.checkbox-label { min-width: 64rpx; min-height: 96rpx; display: flex; align-items: flex-start; padding-top: 8rpx; box-sizing: border-box; }
+.consent-row { display: flex; align-items: flex-start; margin: 24rpx 0 0; font-size: 23rpx; line-height: 44rpx; }
+.checkbox-label { min-width: 44rpx; min-height: 88rpx; display: flex; align-items: flex-start; padding-top: 6rpx; box-sizing: border-box; }
 .checkbox-label checkbox { transform: scale(.76); transform-origin: left top; }
-.consent-copy { min-width: 0; padding-top: 8rpx; color: #737D8C; }
+.consent-copy { min-width: 0; flex: 1; color: #737D8C; }
 .consent-links { display: flex; align-items: center; flex-wrap: wrap; }
-.agreement-link { display: inline-flex; align-items: center; min-height: 64rpx; box-sizing: border-box; padding: 8rpx 0; margin: 0; background: transparent; color: #164E70; font-size: 24rpx; line-height: 1.6; text-align: left; border-radius: 0; }
-.text-button { display: flex; align-items: center; justify-content: center; background: transparent; color: #737D8C; min-height: 88rpx; padding: 16rpx; font-size: 27rpx; line-height: 1.5; }
-.skip { margin-top: 32rpx; }
+.agreement-link { display: inline-flex; align-items: center; min-height: 88rpx; box-sizing: border-box; padding: 0; margin: -22rpx 0; background: transparent; color: #164E70; font-size: 23rpx; line-height: 44rpx; text-align: left; border-radius: 0; }
+.text-button { display: flex; align-items: center; justify-content: center; background: transparent; color: #495566; min-height: 88rpx; padding: 16rpx; font-size: 25rpx; line-height: 1.5; }
+.skip { margin-top: 24rpx; }
 .error { display: block; color: #A33232; font-size: 25rpx; line-height: 1.6; text-align: left; padding: 16rpx 20rpx; margin-top: 12rpx; border-radius: 12rpx; background: #FFF5F4; }
 .sr-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
 .privacy-mask { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 100; padding: 32rpx; box-sizing: border-box; background: rgba(16,35,50,.42); display: flex; align-items: center; justify-content: center; }
-.privacy-card { width: 630rpx; max-width: 100%; max-height: 86vh; overflow-y: auto; box-sizing: border-box; background: #fff; border-radius: 28rpx; padding: 40rpx; }
+.privacy-card { width: 630rpx; max-width: 100%; max-height: 86vh; overflow-y: auto; box-sizing: border-box; background: #fff; border-radius: 24rpx; padding: 40rpx; }
 .privacy-title { display: block; color: #202631; font-size: 34rpx; font-weight: 600; margin-bottom: 20rpx; }
 .privacy-copy { display: block; font-size: 28rpx; line-height: 1.8; }
 .privacy-card .primary { margin-top: 20rpx; }
-@media (max-height: 640px) { .login-content { padding-top: 20rpx; } .illustration { height: 280rpx; margin: 16rpx auto 40rpx; } .skip { margin-top: 16rpx; } }
+.privacy-card .agreement-link { margin: 0; }
+@media (max-height: 640px) { .login-content { padding-top: 40rpx; } .illustration { height: 280rpx; margin-bottom: 40rpx; } .skip { margin-top: 16rpx; } }
