@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-18",
+  "reviewed_source_commit": "aabdd3a6f67ef845bb6dd0b4333c1630ca9d106b",
+  "source_transfer": "Retrieved through GitHub connector; exact UTF-8 bytes restored in isolated local runner; Git blob hashes verified before execution.",
+  "sources": {
+    "src/mall/model.ts": "c55450e8c2f64215b0373ce05729d10788fa646b",
+    "src/mall/product-selection.ts": "b32deaaf2aa2aebbccac7642649e50282d35a6c1",
+    "src/utils/auth-routing.ts": "6e87dfb51d2a5fa89a15d652e712c01fe467c994"
+  },
+  "runner": { "node": "v22.16.0", "typescript": "5.8.3", "network": "disabled" },
+  "suite": "tests/mall-offline.test.cjs",
+  "result": { "tests": 29, "passed": 29, "failed": 0, "skipped": 0, "exit_code": 0 },
+  "model_only_typecheck": {
+    "command": "tsc --noEmit --strict --target ES2020 --lib ES2020,DOM model.ts",
+    "exit_code": 0,
+    "note": "Only the exact model.ts snapshot; not the repository-wide type-check and not the locked TypeScript version."
+  },
+  "github_actions_attempt": {
+    "run_id": 35304061979,
+    "job_id": 105472514709,
+    "commit": "aabdd3a6f67ef845bb6dd0b4333c1630ca9d106b",
+    "conclusion": "failure",
+    "returned_steps": [],
+    "logs": "404 BlobNotFound",
+    "cause": "Not determined. No build or test steps can be confirmed as executed."
+  },
+  "not_verified": [
+    "Full authentication regression for this branch",
+    "tests/mall.test.cjs Vue SFC/framework regression",
+    "Whole-project TypeScript baseline comparison",
+    "app1/app2 and preview WeChat builds",
+    "H5 preview build and browser interaction",
+    "All-page screenshot comparison and 320/375/390/430 device widths",
+    "Real-device WeChat rendering or native authorization"
+  ],
+  "not_performed_by_scope": ["Backend development", "API integration tests", "Database migrations", "Real registration or payment", "Deployment", "Merge to main"]
+}

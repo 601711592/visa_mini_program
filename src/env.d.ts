@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_ID: string
   readonly VITE_APP_TITLE: string
   readonly VITE_LOGO_URL: string
+  /** Only the explicit string 'true' enables isolated frontend fixtures. */
+  readonly VITE_MALL_PREVIEW?: string
 }
 
 interface ImportMeta {
