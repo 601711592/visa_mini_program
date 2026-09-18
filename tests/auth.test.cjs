@@ -7,9 +7,9 @@ const esbuild = require('esbuild');
 let bundle;
 before(async () => {
   const result = await esbuild.build({
-    stdin: { contents: `export { createPinia, setActivePinia } from 'pinia'; export { useGlobalStore } from './src/store/global'; export * from './src/utils/auth-session'; export * from './src/utils/auth-drafts'; export * from './src/utils/auth-routing'; export { default as request } from './src/utils/request'; export * from './src/utils/wechat-privacy'; export { default as LoginPage } from './src/pages/login/index.vue';`, resolveDir: process.cwd(), loader: 'ts' },
+    stdin: { contents: `export { createPinia, setActivePinia } from 'pinia'; export { useGlobalStore } from './src/store/global'; export * from './src/utils/auth-session'; export * from './src/utils/auth-drafts'; export * from './src/utils/auth-routing'; export { default as request } from './src/utils/request'; export * from './src/utils/wechat-privacy'; export { default as LoginPage } from './src/pages/login/index.vue'; export { default as AgreementPage } from './src/pages/service-agreement/index.vue'; export * from './src/content/login-agreements';`, resolveDir: process.cwd(), loader: 'ts' },
     bundle: true, write: false, format: 'cjs', platform: 'node',
-    define: { 'import.meta.env.VITE_ID': '"1"', 'import.meta.env.VITE_API_PREFIX': '"https://test.invalid/api/min"' },
+    define: { 'import.meta.env.VITE_MALL_PREVIEW': '"false"', 'import.meta.env.VITE_ID': '"1"', 'import.meta.env.VITE_API_PREFIX': '"https://test.invalid/api/min"' },
     plugins: [{ name: 'vue-page-harness', setup(build) {
       build.onLoad({ filter: /\.vue$/ }, (args) => {
         const compiler = require('@vue/compiler-sfc');
@@ -39,7 +39,7 @@ function harness() {
     request: (opts) => requests.push(opts), login: (opts) => opts.success({ code: 'wx-login-code' }), checkSession: (opts) => opts.success(),
     navigateTo: (opts) => navigation.push(['navigateTo', opts]), navigateBack: (opts) => navigation.push(['navigateBack', opts]),
     redirectTo: (opts) => navigation.push(['redirectTo', opts]), switchTab: (opts) => navigation.push(['switchTab', opts]), reLaunch: (opts) => navigation.push(['reLaunch', opts]),
-    showToast: (opts) => notices.push(opts),
+    showToast: (opts) => notices.push(opts), setNavigationBarTitle: () => {},
   };
   const module = { exports: {} };
   const hooks = {};
@@ -76,7 +76,7 @@ test('并发 401 仅清理匹配的旧会话，不影响新登录 token', async 
   h.api.setToken('new'); h.requests[1].success({ statusCode: 401, data: { msg: '失效' } }); await assert.rejects(second);
   assert.equal(h.api.getToken(), 'new'); assert.equal(h.requests.length, 2);
 });
-test('协议及登录请求不携带旧 token，外部 URL 不泄漏 token', async () => {
+test('登录请求不携带旧 token，外部 URL 不泄漏 token', async () => {
   const h = harness(); h.api.setToken('secret');
   for (const opts of [{ url: '/auth/phone-login', auth: false }, { url: 'https://elsewhere.invalid/path' }]) {
     const p = h.api.request(opts); const req = h.requests.at(-1); assert.equal(req.header.Authorization, undefined); ok(req, {}); await p;
@@ -149,15 +149,15 @@ test('退出后迟到的校验响应不会触发微信会话更新或恢复用�
 
 function loginPage(h) { const page = h.api.LoginPage.setup({}, { expose() {} }); h.hooks.load(); return page; }
 test('登录页面协议默认不勾选，未勾选时不请求手机号登录', async () => {
-  const h = harness(); const page = loginPage(h); ok(h.requests[0], { version: 'v1', title: '协议', content: '测试' }); await tick();
+  const h = harness(); const page = loginPage(h); assert.equal(h.requests.length, 0);
   assert.equal(page.consent.value, false); await page.handlePhone({ detail: { code: 'phone' } });
-  assert.match(page.error.value, /勾选/); assert.equal(h.requests.length, 1);
+  assert.match(page.error.value, /勾选/); assert.equal(h.requests.length, 0);
 });
 test('协议阅读返回保留勾选，手机号拒绝可继续浏览', async () => {
-  const h = harness(); const page = loginPage(h); ok(h.requests[0], { version: 'v1', title: '协议', content: '测试' }); await tick();
+  const h = harness(); const page = loginPage(h); assert.equal(h.requests.length, 0);
   page.changeConsent({ detail: { value: ['agree'] } }); page.readAgreement(); assert.equal(page.consent.value, true);
   await page.handlePhone({ detail: { errMsg: 'getPhoneNumber:fail user deny' } }); assert.match(page.error.value, /未完成/);
-  assert.equal(h.requests.length, 1); page.cancel(); assert.equal(h.store.loginOpen, false);
+  assert.equal(h.requests.length, 0); h.hooks.unload(); assert.equal(h.store.loginOpen, false);
 });
 test('隐私拒绝及页面卸载结束全部等待回调', () => {
   const h = harness(); const page = loginPage(h); const results = [];
@@ -165,10 +165,16 @@ test('隐私拒绝及页面卸载结束全部等待回调', () => {
   assert.equal(page.showPrivacy.value, true); page.rejectPrivacy(); assert.deepEqual(results, ['disagree', 'disagree']);
   h.privacy((r) => results.push(r.event)); h.hooks.unload(); assert.deepEqual(results, ['disagree', 'disagree', 'disagree']);
 });
-test('协议版本变更时撤销勾选并重新获取正式文本', async () => {
-  const h = harness(); const page = loginPage(h); ok(h.requests[0], { version: 'v1', title: '协议', content: '测试' }); await tick();
+test('登录直接提交前端协议版本，不加载后端协议', async () => {
+  const h = harness(); const page = loginPage(h); assert.equal(h.requests.length, 0);
   page.changeConsent({ detail: { value: ['agree'] } }); const logging = page.handlePhone({ detail: { code: 'phone' } }); await tick();
-  h.requests[1].success({ statusCode: 409, data: { code: 'AGREEMENT_CHANGED', msg: '协议更新' } }); await tick();
-  ok(h.requests[2], { version: 'v2', title: '协议', content: '新文本' }); await logging;
-  assert.equal(page.consent.value, false); assert.equal(page.agreement.value.version, 'v2'); assert.equal(h.store.isLogin, false);
+  assert.equal(h.requests.length, 1); assert.ok(h.requests[0].url.endsWith('/auth/phone-login'));
+  assert.equal(h.requests[0].data.agreement_version, h.api.LOGIN_AGREEMENT_VERSION);
+  ok(h.requests[0], { token: 'valid', expires_at: '', member: member() }); await logging;
+  assert.equal(h.store.isLogin, true);
+});
+test('两份本地协议可离线阅读，未知类型回到服务协议', () => {
+  const h = harness(); const page = h.api.AgreementPage.setup({}, { expose() {} });
+  h.hooks.load({ kind: 'privacy' }); assert.equal(page.agreement.value.title, '隐私保护指引'); assert.ok(page.agreement.value.content.length > 100);
+  h.hooks.load({ kind: 'unknown' }); assert.equal(page.agreement.value.title, '用户服务协议'); assert.equal(h.requests.length, 0);
 });

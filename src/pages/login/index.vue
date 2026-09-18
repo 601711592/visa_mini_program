@@ -2,16 +2,14 @@
   <view class="login-page">
     <image class="illustration" src="/static/images/login-travel.png" mode="aspectFit" aria-hidden="true" />
     <view class="actions">
-      <button v-if="consent && agreement && supported" class="primary" open-type="getPhoneNumber" :disabled="busy" :loading="busy" @getphonenumber="handlePhone">手机号快捷登录</button>
-      <button v-else class="primary" :disabled="loading" @tap="explainRequired">手机号快捷登录</button>
+      <button v-if="consent && supported" class="primary" open-type="getPhoneNumber" :disabled="busy" :loading="busy" @getphonenumber="handlePhone">手机号快捷登录</button>
+      <button v-else class="primary" @tap="explainRequired">手机号快捷登录</button>
       <view class="consent-row">
         <checkbox-group @change="changeConsent"><label class="checkbox-label"><checkbox value="agree" :checked="consent" color="#164E70" :disabled="busy" /><text>我已阅读并同意</text></label></checkbox-group>
-        <button class="agreement-link" @tap="readAgreement">《用户服务协议》</button>
-        <text>和</text><button class="agreement-link" @tap="openPrivacyContract">《隐私保护指引》</button>
+        <button class="agreement-link" @tap="readAgreement('service')">《用户服务协议》</button>
+        <text>和</text><button class="agreement-link" @tap="readAgreement('privacy')">《隐私保护指引》</button>
       </view>
       <text v-if="error" class="error" role="alert">{{ error }}</text>
-      <button v-if="!agreement && !loading" class="text-button" @tap="loadAgreement">重新加载协议</button>
-      <button class="text-button skip" @tap="cancel">暂不登录，继续浏览</button>
     </view>
     <view v-if="showPrivacy" class="privacy-mask">
       <view class="privacy-card">
@@ -27,35 +25,24 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { onLoad, onUnload } from '@dcloudio/uni-app';
-import { getServiceAgreement, type ServiceAgreement } from '@/services/login';
+import { LOGIN_AGREEMENT_VERSION, type LoginAgreementKind } from '@/content/login-agreements';
 import { useGlobalStore } from '@/store/global';
 import { privacyApi, receivePrivacy, openPrivacyContract, type PrivacyResolve } from '@/utils/wechat-privacy';
-import { RequestError } from '@/utils/request';
 const global = useGlobalStore();
-const agreement = ref<ServiceAgreement | null>(null);
 const consent = ref(false);
 const supported = ref(false);
-const loading = ref(false);
 const busy = ref(false);
 const error = ref('');
 const showPrivacy = ref(false);
 let resolves: PrivacyResolve[] = [];
 let dispose = () => {};
 let alive = true;
-async function loadAgreement() {
-  if (loading.value) return;
-  loading.value = true;
-  try { const result = await getServiceAgreement(); if (alive) { agreement.value = result.data; error.value = ''; } }
-  catch (e) { if (alive) error.value = e instanceof Error ? e.message : '协议加载失败，请重试'; }
-  finally { if (alive) loading.value = false; }
-}
 onLoad(() => {
   global.loginOpen = true;
   const api = privacyApi();
   supported.value = !!api;
   dispose = receivePrivacy((resolve) => { resolves.push(resolve); showPrivacy.value = true; });
   api?.getPrivacySetting({ success: () => {}, fail: () => { error.value = '隐私状态读取失败，请重试'; } });
-  void loadAgreement();
 });
 onUnload(() => {
   alive = false;
@@ -65,9 +52,9 @@ onUnload(() => {
 });
 function changeConsent(event: { detail: { value: string[] } }) { consent.value = event.detail.value.includes('agree'); }
 function explainRequired() {
-  error.value = !supported.value ? '请在最新版微信小程序中使用手机号登录' : !agreement.value ? '请先加载并阅读服务协议' : '请先阅读并勾选同意协议';
+  error.value = !supported.value ? '请在最新版微信小程序中使用手机号登录' : '请先阅读并勾选同意协议';
 }
-function readAgreement() { uni.navigateTo({ url: '/pages/service-agreement/index' }); }
+function readAgreement(kind: LoginAgreementKind = 'service') { uni.navigateTo({ url: `/pages/service-agreement/index?kind=${kind}` }); }
 function resolvePrivacy(agree: boolean) {
   const waiting = resolves;
   resolves = [];
@@ -76,25 +63,18 @@ function resolvePrivacy(agree: boolean) {
 }
 function agreePrivacy() { resolvePrivacy(true); }
 function rejectPrivacy() { resolvePrivacy(false); error.value = '您未同意隐私授权，可继续浏览或主动重试'; }
-function cancel() { resolvePrivacy(false); global.cancelLogin(); }
 async function handlePhone(event: { detail: { code?: string; errMsg?: string } }) {
   if (busy.value || !alive) return;
-  if (!consent.value || !agreement.value) { explainRequired(); return; }
+  if (!consent.value) { explainRequired(); return; }
   if (!event.detail.code) { error.value = '手机号授权未完成，可继续浏览或主动重试'; return; }
   busy.value = true;
   error.value = '';
   try {
-    const success = await global.completePhoneLogin(event.detail.code, agreement.value.version);
+    const success = await global.completePhoneLogin(event.detail.code, LOGIN_AGREEMENT_VERSION);
     if (success && alive) global.finishLogin();
   } catch (e) {
     if (!alive) return;
     error.value = e instanceof Error ? e.message : '登录失败，请重试';
-    if (e instanceof RequestError && e.code === 'AGREEMENT_CHANGED') {
-      consent.value = false;
-      agreement.value = null;
-      await loadAgreement();
-      error.value = '服务协议已更新，请重新阅读并同意';
-    }
   } finally { if (alive) busy.value = false; }
 }
 </script>
@@ -109,7 +89,6 @@ button::after { border: 0; }
 .checkbox-label { min-height: 88rpx; display: flex; align-items: center; }
 .agreement-link { display: inline-flex; align-items: center; min-height: 88rpx; background: transparent; color: #164E70; padding: 0; margin: 0; font-size: 24rpx; line-height: 1.5; }
 .text-button { background: transparent; color: #737D8C; min-height: 88rpx; font-size: 28rpx; }
-.skip { margin-top: 28rpx; }
 .error { display: block; color: #A33232; font-size: 26rpx; line-height: 1.6; text-align: center; }
 .privacy-mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
 .privacy-card { width: 630rpx; box-sizing: border-box; background: #fff; border-radius: 24rpx; padding: 40rpx; }
