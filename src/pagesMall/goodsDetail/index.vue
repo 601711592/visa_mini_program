@@ -1,148 +1,79 @@
 <template>
-  <layout :navbar="{ backgroundColor: '#fff', leftBack: true, fixed: true }">
-    <view class="page" v-show="goodsDetail">
-      <view class="header-image">
-        <!-- 轮播图 -->
-        <swiper class="swiper" :indicator-dots="true" :autoplay="false" :interval="3000" :duration="500">
-          <swiper-item v-for="(item, index) in goodsDetail?.images" :key="index">
-            <image :src="item" mode="aspectFill" class="swiper-image" />
-          </swiper-item>
-        </swiper>
+  <MallPage public-page :footer="!!goods">
+    <view v-if="loading" class="mx-empty">正在加载商品…</view>
+    <view v-else-if="error" class="mx-empty"><view>{{ error }}</view><button class="mx-button" @tap="load">重新加载</button></view>
+    <template v-else-if="goods">
+      <swiper class="goods-gallery" indicator-dots><swiper-item v-for="(image, index) in goods.images" :key="index"><image :src="image" class="goods-image" mode="aspectFit" /></swiper-item></swiper>
+      <view class="mx-body">
+        <view class="mx-card"><view class="mx-title">{{ goods.name }}</view><view class="mx-price">¥{{ money(currentPrice) }}</view></view>
+        <view class="mx-card"><view class="mx-title">商家说亮点</view><view class="mx-hint">{{ goods.highlights }}</view></view>
+        <view class="mx-card"><view class="mx-title">套餐</view><view class="choices"><button v-for="item in goods.specification" :key="item.key" class="choice" :class="{ active: specKey === item.key }" @tap="specKey = item.key">{{ item.title }}</button></view></view>
+        <template v-if="spec">
+          <view class="mx-card"><view class="mx-title">出游人群</view><view class="choices"><button v-for="item in spec.person" :key="item" class="choice" :class="{ active: group === item }" @tap="group = item">{{ item }}</button></view></view>
+          <view class="mx-card"><view class="mx-title">出发日期</view><view class="mx-muted">{{ date || '请选择下方有价格的日期' }}</view><uni-calendar :selected="calendar" :start-date="spec.timeSlot?.[0]" :end-date="spec.timeSlot?.[1]" @change="chooseDate" /></view>
+          <view class="mx-card mx-row"><view class="mx-title">购买人数</view><view class="mx-stepper"><button :disabled="quantity <= 1" @tap="quantity--">−</button><text>{{ quantity }}</text><button :disabled="quantity >= 99" @tap="quantity++">＋</button></view></view>
+          <view class="mx-card"><view class="mx-title">材料清单</view><view v-for="(item, index) in materials" :key="index" class="material"><MallIcon name="check" :size="32" /><text>{{ item }}</text></view></view>
+        </template>
+        <view class="mx-card"><view class="mx-title">商品详细</view><rich-text :nodes="content(goods.content)" /></view>
+        <view class="mx-tabs"><button v-for="(item, index) in sections" :key="item.key" class="mx-tab" :class="{ active: sectionIndex === index }" @tap="sectionIndex = index">{{ item.title }}</button></view>
+        <view v-if="sections.length" class="mx-card"><rich-text :nodes="content(sections[sectionIndex]?.content || '')" /></view>
       </view>
-      <view class="goods-base p-4">
-        <view class="goods-name">{{ goodsDetail?.name }}</view>
-        <view class="goods-price mt-1">¥ {{ formatMoney(selectPackage ? +selectPackage.price : goodsDetail?.price) }}</view>
-      </view>
-      <view class="goods-detail mt-3 mb-3 p-2">
-        <view class="font-bold">商家说亮点</view>
-        <view class="mt-1 color-coolgray">
-          <text>{{ goodsDetail?.highlights }}</text>
-        </view>
-      </view>
-
-      <view class="goods-detail mt-3 mb-3 p-2">
-        <view class="font-bold">套餐</view>
-        <view class="mt-1 flex">
-          <view
-            class="package"
-            :class="{ active: selectPackage === item }"
-            v-for="item in goodsDetail?.specification"
-            :key="item.key"
-            @click="selectPackage = item"
-            >{{ item.title }}</view
-          >
-        </view>
-      </view>
-      <view class="goods-detail mt-3 mb-3 p-2" v-if="selectPackage">
-        <view class="font-bold">出游人群</view>
-        <view class="mt-1 flex">
-          <view
-            class="package"
-            :class="{ active: selectPersonIndex === index }"
-            v-for="(item, index) in selectPackage?.person"
-            :key="item"
-            @click="selectPersonIndex = index"
-            >{{ item }}</view
-          >
-        </view>
-      </view>
-      <view class="goods-detail mt-3 mb-3 p-2" v-if="selectPackage">
-        <view class="font-bold">出发日期</view>
-        <view class="mt-1 flex">
-          <uni-calendar :selected="calendarSelected" :startDate="calendarRange[0]" :endDate="calendarRange[1]" />
-        </view>
-      </view>
-      <view class="goods-detail mt-3 mb-3 p-2" v-if="selectPackage">
-        <view class="font-bold">材料清单</view>
-        <view class="mt-1 flex materialList">
-          <view class="item" v-for="item in selectPackage.information.split('\n')" :key="item"
-            ><iconfont type="checkmarkempty" size="16" color="#7D7DE4" />{{ item }}</view
-          >
-        </view>
-      </view>
-      <view class="goods-detail mt-3 mb-3 p-2">
-        <view class="font-bold mb-2">商品详细</view>
-        <rich-text :nodes="goodsDetail?.content"></rich-text>
-      </view>
-      <view class="tabs">
-        <view
-          class="tab-item"
-          @click="currentDescriptionIndex = index"
-          :class="{ active: index === currentDescriptionIndex }"
-          v-for="(item, index) in descriptionList"
-          :key="item"
-          >{{ item }}</view
-        >
-      </view>
-      <view class="goods-detail p-2">
-        <rich-text :nodes="goodsDetail?.trip_description" v-show="currentDescriptionIndex === 0"></rich-text>
-        <rich-text :nodes="goodsDetail?.price_description" v-show="currentDescriptionIndex === 1"></rich-text>
-        <rich-text :nodes="goodsDetail?.refund_description" v-show="currentDescriptionIndex === 2"></rich-text>
-        <rich-text :nodes="goodsDetail?.booking_description" v-show="currentDescriptionIndex === 3"></rich-text>
-      </view>
-    </view>
-  </layout>
+    </template>
+    <view v-else class="mx-empty">商品不存在或已下架</view>
+    <template #footer><button class="goods-cart" aria-label="购物车" @tap="go('cart')"><MallIcon name="cart" :size="40" /><text>购物车</text></button><button class="mx-button mx-light" @tap="purchase(false)">加入购物车</button><button class="mx-button" @tap="purchase(true)">立即购买</button></template>
+  </MallPage>
 </template>
-
 <script setup lang="ts">
-import type { Goods, GoodsSpecification } from '@/services/shop';
-import { computed, ref, watch } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { ref, computed, watch } from 'vue';
+import { onLoad, onUnload } from '@dcloudio/uni-app';
 import { getGoodsDetail } from '@/services/shop';
-import { formatMoney } from '@/utils';
-import moment from 'moment';
-
-const goodsDetail = ref<Goods | undefined>(undefined);
-
-const selectPackage = ref<GoodsSpecification | undefined>();
-const selectPersonIndex = ref(0);
-
-watch(selectPackage, () => {
-  if (!selectPackage.value?.person) return;
-  selectPersonIndex.value = selectPackage.value?.person.length < selectPersonIndex.value ? 0 : selectPersonIndex.value;
+import { useMallPreviewStore } from '@/store/mall-preview';
+import { demoGoods } from '@/mall/fixtures';
+import { MALL_PREVIEW } from '@/mall/config';
+import { makeLine, money } from '@/mall/model';
+import { calendarSlots, selectionFor, type MallGoods } from '@/mall/product-selection';
+import { attempt, go } from '@/mall/navigation';
+import MallPage from '@/components/mall/MallPage.vue';
+import MallIcon from '@/components/mall/MallIcon.vue';
+const mall = useMallPreviewStore();
+const goods = ref<MallGoods>(), loading = ref(false), error = ref('');
+const specKey = ref(''), group = ref(''), date = ref(''), quantity = ref(1), sectionIndex = ref(0);
+let id = '', alive = true;
+const spec = computed(() => goods.value?.specification?.find(item => item.key === specKey.value));
+const slots = computed(() => calendarSlots(spec.value, group.value));
+const calendar = computed(() => slots.value.map(item => ({ date: item.date, info: '¥' + money(item.price) })));
+const currentPrice = computed(() => slots.value.find(item => item.date === date.value)?.price ?? Number(spec.value?.price || goods.value?.price || 0));
+const materials = computed(() => (spec.value?.information || '').split('\n').filter(Boolean));
+const sections = computed(() => {
+  const g = goods.value;
+  if (!g) return [];
+  return [{ key: 'trip', title: '行程说明', content: g.trip_description }, { key: 'price', title: '费用说明', content: g.price_description }, { key: 'refund', title: '退改规则', content: g.refund_description }, { key: 'booking', title: '预订须知', content: g.booking_description }].filter(item => g.visibleSections?.[item.key as 'trip' | 'price' | 'refund' | 'booking'] !== false);
 });
-
-const calendarSelected = computed(() => {
-  if (!selectPackage.value?.person) return [];
-
-  const currentPerson = selectPackage.value?.person[selectPersonIndex.value];
-  const res: any = [];
-  selectPackage.value.priceCalender.forEach((item: any) => {
-    const obj = item.list.find((v: any) => v.person === currentPerson);
-    if (obj && obj.quota > 0) {
-      res.push({
-        date: item.date,
-        info: '¥' + obj.price,
-      });
-    }
-  });
-  return res;
-});
-
-const calendarRange = computed(() => {
-  if (!selectPackage.value) return [undefined, undefined];
-  return [moment(selectPackage.value.timeSlot[0]).format('YYYY-MM-DD'), moment(selectPackage.value.timeSlot[1]).format('YYYY-MM-DD')];
-});
-
-const descriptionList = ['行程说明', '费用说明', '退改规划', '预定须知'];
-
-const currentDescriptionIndex = ref(0);
-
-interface Options {
-  id?: string;
+watch(spec, value => { group.value = value?.person?.[0] || ''; date.value = ''; });
+watch(group, () => { date.value = ''; });
+function content(html: string) { return (html || '').replace(/<img/gi, '<img style="max-width:100%;height:auto"'); }
+async function load() {
+  if (loading.value) return;
+  loading.value = true; error.value = '';
+  try {
+    const result = MALL_PREVIEW ? demoGoods().find(item => String(item.id) === id) : (await getGoodsDetail(id)).data;
+    if (!alive) return;
+    goods.value = result; specKey.value = result?.specification?.[0]?.key || '';
+  } catch (e) { if (alive) error.value = e instanceof Error ? e.message : '商品加载失败'; }
+  finally { if (alive) loading.value = false; }
 }
-
-onLoad((options) => {
-  const { id } = options as Options;
-  if (id) {
-    getGoodsDetail(id).then((res) => {
-      goodsDetail.value = res.data;
-      goodsDetail.value.content = goodsDetail.value.content.replace(/\<img/gi, '<img style="max-width:100%;height:auto"');
-    });
-  }
-});
+function chooseDate(event: { fulldate: string }) { if (slots.value.some(item => item.date === event.fulldate)) date.value = event.fulldate; else uni.showToast({ title: '该日期暂无可用名额', icon: 'none' }); }
+function purchase(buy: boolean) {
+  attempt(() => {
+    if (!goods.value) throw new Error('商品尚未加载');
+    const selection = selectionFor(goods.value, spec.value, group.value, date.value, quantity.value);
+    if (buy) { mall.checkout([makeLine(selection)], 'buy'); go('checkout'); }
+    else { mall.add(selection); uni.showToast({ title: '已加入演示购物车', icon: 'none' }); }
+  });
+}
+onLoad(options => { id = String(options?.id || ''); if (id) void load(); });
+onUnload(() => { alive = false; });
 </script>
-
-<style lang="scss">
-@import './index.scss';
+<style scoped>
+.goods-gallery,.goods-image { display: block; width: 100%; height: 480rpx; background: #EAF6FD; }.choices { display: flex; flex-wrap: wrap; margin-top: 16rpx; }.choice { padding: 18rpx 24rpx; min-height: 88rpx; margin: 8rpx 16rpx 8rpx 0; font-size: 28rpx; line-height: 1.5; border-radius: 16rpx; background: #F4F6FA; color: #495566; }.choice::after { border: 0; }.choice.active { background: #DCEFFC; color: #164E70; box-shadow: inset 0 0 0 1px #8AD0F9; }.material { display: flex; align-items: center; padding-top: 20rpx; }.material text { margin-left: 16rpx; }.goods-cart { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 100rpx; padding: 0; margin: 0; background: transparent; font-size: 22rpx; color: #495566; line-height: 1.5; }.goods-cart::after { border: 0; }
 </style>

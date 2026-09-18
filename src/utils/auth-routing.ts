@@ -7,6 +7,7 @@ export interface LoginContext {
 export const LOGIN_PAGE = '/pages/login/index';
 export const ACCOUNT_PAGE = '/pages/account/index';
 export const HOME_PAGE = '/pages/mall/index';
+const TAB_PAGES = [HOME_PAGE, ACCOUNT_PAGE, '/pages/category/index'];
 export function currentUrl(): string {
   const pages = getCurrentPages();
   const page = pages[pages.length - 1] as unknown as { route?: string; options?: Record<string, string> } | undefined;
@@ -19,10 +20,11 @@ export function safeTarget(target?: string) {
     && !target.startsWith('/pages/service-agreement/') ? target : HOME_PAGE;
 }
 export function returnFromLogin(target: string, mode?: 'navigateTo' | 'switchTab') {
-  const url = safeTarget(target);
-  if (mode === 'switchTab') { uni.switchTab({ url, fail: () => uni.reLaunch({ url: HOME_PAGE }) }); return; }
+  const url = safeTarget(target), pathname = url.split('?')[0];
+  // 原生 Tab 不接受 redirectTo/navigateTo；不得因新增 Tab 破坏登录后的返回。
+  if (TAB_PAGES.includes(pathname)) { uni.switchTab({ url: pathname, fail: () => uni.reLaunch({ url: HOME_PAGE }) }); return; }
   const pages = getCurrentPages();
-  const index = pages.findIndex((page) => `/${page.route}` === url.split('?')[0]);
+  const index = pages.findIndex(page => `/${page.route}` === pathname);
   if (index >= 0 && index < pages.length - 1) {
     const page = pages[index] as unknown as { options?: Record<string, string> };
     const query = Object.entries(page.options || {}).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
