@@ -10,7 +10,7 @@
     {
       "path": "pages/catalog/index",
       "style": {
-        "navigationBarTitleText": "产品分类",
+        "navigationBarTitleText": "产品中心",
         "navigationStyle": "custom"
       }
     },

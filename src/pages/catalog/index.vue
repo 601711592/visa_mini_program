@@ -1,67 +1,69 @@
 <template>
-  <view class="catalog-page" :style="{ height: viewportHeight + 'px' }">
-    <view class="catalog-nav" :style="{ paddingTop: statusBarHeight + 'px' }">
-      <view class="catalog-nav-row" :style="{ height: navHeight + 'px', paddingRight: capsuleSpace + 'px' }">
+  <layout :navbar="{ title: '产品中心', backgroundColor: '#8AD0F9', fixed: true }">
+    <template #navbarDefault><view class="catalog-nav-title"><text>产品中心</text></view></template>
+    <view class="catalog-page" :style="{ height: pageHeight + 'px' }">
+      <view class="catalog-search-bar">
         <view class="nav-search" role="button" aria-label="搜索国家或商品" @tap="goSearch">
           <image class="search-icon" src="/static/images/center/search-ink.png" mode="aspectFit" />
           <text class="search-text">搜索国家或商品</text>
         </view>
-        <view class="cart-entry" role="button" aria-label="购物车" @tap="goCart">
+        <!-- 购物车入口暂时隐藏，后续需要时再恢复。 -->
+        <!-- <view class="cart-entry" role="button" aria-label="购物车" @tap="goCart">
           <image class="cart-icon" src="/static/images/center/shopping-cart.png" mode="aspectFit" />
-        </view>
+        </view> -->
       </view>
-    </view>
 
-    <view class="catalog-split">
-      <scroll-view scroll-y class="catalog-rail" :show-scrollbar="false">
-        <view class="rail-content">
-          <view
-            v-for="item in categories"
-            :key="item.id"
-            class="rail-item"
-            :class="{ 'rail-item--active': currentCategory === item.id }"
-            role="button"
-            :aria-label="item.name"
-            @tap="selectCategory(item.id)"
-          >
-            <text class="rail-label">{{ item.name }}</text>
+      <view class="catalog-split">
+        <scroll-view scroll-y class="catalog-rail" :show-scrollbar="false">
+          <view class="rail-content">
+            <view
+              v-for="item in categories"
+              :key="item.id"
+              class="rail-item"
+              :class="{ 'rail-item--active': currentCategory === item.id }"
+              role="button"
+              :aria-label="item.name"
+              @tap="selectCategory(item.id)"
+            >
+              <text class="rail-label">{{ item.name }}</text>
+            </view>
           </view>
-        </view>
-      </scroll-view>
+        </scroll-view>
 
-      <scroll-view scroll-y class="catalog-goods-area" :scroll-top="goodsScrollTop" :show-scrollbar="false" @scroll="onGoodsScroll">
-        <view class="goods-content">
-          <view class="goods-header">
-            <text class="goods-title">{{ activeCategoryName || '产品分类' }}</text>
-            <text v-if="!loading && !loadError" class="goods-count">{{ list.length }}款商品</text>
-          </view>
-          <view v-if="loading" class="catalog-state">正在加载商品…</view>
-          <view v-else-if="loadError" class="catalog-state">
-            <text>商品加载失败，请重试</text>
-            <button class="retry-button" @tap="loadCatalog">重新加载</button>
-          </view>
-          <view v-else-if="!list.length" class="catalog-state">该分类暂无商品</view>
-          <view v-else class="tiles-grid">
-            <view v-for="item in list" :key="item.id" class="catalog-tile" role="button" :aria-label="item.name" @tap="goGoods(item.id)">
-              <view class="catalog-goods">
-                <view class="cover-frame">
-                  <image v-if="item.cover && !failedCovers[item.id]" class="tile-cover" :src="item.cover" mode="aspectFill" @error="failedCovers[item.id] = true" />
-                  <view v-else class="cover-placeholder"><text class="cover-placeholder-text">暂无图片</text></view>
+        <scroll-view scroll-y class="catalog-goods-area" :scroll-top="goodsScrollTop" :show-scrollbar="false" @scroll="onGoodsScroll">
+          <view class="goods-content">
+            <view class="goods-header">
+              <text class="goods-title">{{ activeCategoryName || '产品分类' }}</text>
+              <text v-if="!loading && !loadError" class="goods-count">{{ list.length }}款商品</text>
+            </view>
+            <view v-if="loading" class="catalog-state">正在加载商品…</view>
+            <view v-else-if="loadError" class="catalog-state">
+              <text>商品加载失败，请重试</text>
+              <button class="retry-button" @tap="loadCatalog">重新加载</button>
+            </view>
+            <view v-else-if="!list.length" class="catalog-state">该分类暂无商品</view>
+            <view v-else class="tiles-grid">
+              <view v-for="item in list" :key="item.id" class="catalog-tile" role="button" :aria-label="item.name" @tap="goGoods(item.id)">
+                <view class="catalog-goods">
+                  <view class="cover-frame">
+                    <image v-if="item.cover && !failedCovers[item.id]" class="tile-cover" :src="item.cover" mode="aspectFill" @error="failedCovers[item.id] = true" />
+                    <view v-else class="cover-placeholder"><text class="cover-placeholder-text">暂无图片</text></view>
+                  </view>
+                  <text class="tile-name">{{ item.name }}</text>
                 </view>
-                <text class="tile-name">{{ item.name }}</text>
-              </view>
-              <view class="tile-bottom">
-                <text class="tile-price">¥<text class="tile-price-num" :class="{ 'tile-price-num--compact': priceLabel(item.price).length > 6 }">{{ priceLabel(item.price) }}</text></text>
-                <view class="tile-arrow" aria-hidden="true">
-                  <view class="arrow-disc"><image class="arrow-icon" src="/static/images/center/chevron-right.png" mode="aspectFit" /></view>
+                <view class="tile-bottom">
+                  <text class="tile-price">¥<text class="tile-price-num" :class="{ 'tile-price-num--compact': priceLabel(item.price).length > 6 }">{{ priceLabel(item.price) }}</text></text>
+                  <view class="tile-arrow" aria-hidden="true">
+                    <view class="arrow-disc"><image class="arrow-icon" src="/static/images/center/chevron-right.png" mode="aspectFit" /></view>
+                  </view>
                 </view>
               </view>
             </view>
           </view>
-        </view>
-      </scroll-view>
+        </scroll-view>
+      </view>
     </view>
-  </view>
+  </layout>
 </template>
 
 <script setup lang="ts">
@@ -71,20 +73,11 @@ import { formatMoney } from '@/utils';
 import { onResize, onShow } from '@dcloudio/uni-app';
 import { computed, nextTick, ref } from 'vue';
 
-const viewportHeight = ref(0);
-const statusBarHeight = ref(0);
-const navHeight = ref(44);
-const capsuleSpace = ref(0);
-// 原生胶囊由微信绘制；窗口与胶囊测量使用 px，不随 rpx 稿机械缩放。
+const pageHeight = ref(0);
+// layout 导航包含状态栏和 44px 标题栏，商品区域填满剩余窗口高度。
 function updateWindow() {
   const windowInfo = uni.getWindowInfo();
-  const capsule = uni.getMenuButtonBoundingClientRect();
-  viewportHeight.value = windowInfo.windowHeight;
-  statusBarHeight.value = windowInfo.statusBarHeight || 0;
-  const validCapsule = capsule.width > 0 && capsule.height > 0 && capsule.left > 0;
-  const gap = validCapsule ? Math.max(0, capsule.top - statusBarHeight.value) : 6;
-  navHeight.value = validCapsule ? capsule.height + gap * 2 : 44;
-  capsuleSpace.value = validCapsule ? windowInfo.windowWidth - capsule.left + 8 : 12;
+  pageHeight.value = windowInfo.windowHeight - (windowInfo.statusBarHeight || 0) - 44;
 }
 updateWindow();
 onResize(updateWindow);
@@ -136,19 +129,19 @@ async function selectCategory(id: number) {
 const priceLabel = (price: number) => formatMoney(price).replace(/\.00$/, '');
 const goGoods = (id: number) => uni.navigateTo({ url: `/pagesMall/goodsDetail/index?id=${id}` });
 const goSearch = () => uni.navigateTo({ url: '/pages/search/index' });
-const goCart = () => uni.navigateTo({ url: '/pagesMall/cart/index' });
+// const goCart = () => uni.navigateTo({ url: '/pagesMall/cart/index' });
 </script>
 
 <style scoped lang="scss">
 // 750rpx 确认稿；仅使用类选择器，兼容微信小程序样式编译。
 .catalog-page { display: flex; flex-direction: column; overflow: hidden; background: #fff; color: #202631; }
-.catalog-nav { flex: none; background: #8ad0f9; }
-.catalog-nav-row { display: flex; align-items: center; gap: 8rpx; padding-left: 24rpx; box-sizing: border-box; }
+.catalog-nav-title { display: flex; align-items: center; justify-content: center; width: 100%; color: #164e70; font-size: 32rpx; font-weight: 600; }
+.catalog-search-bar { display: flex; flex: none; align-items: center; gap: 8rpx; padding: 12rpx 24rpx 20rpx; box-sizing: border-box; background: #8ad0f9; }
 .nav-search { display: flex; align-items: center; flex: 1; min-width: 0; height: 70rpx; max-height: 100%; padding: 0 16rpx; gap: 12rpx; box-sizing: border-box; background: #eaf6fd; border-radius: 36rpx; }
 .search-icon { flex: none; width: 30rpx; height: 30rpx; }
 .search-text { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #495566; font-size: 25rpx; }
-.cart-entry { flex: none; width: 64rpx; height: 100%; display: flex; align-items: center; justify-content: center; }
-.cart-icon { width: 38rpx; height: 38rpx; }
+// .cart-entry { flex: none; width: 64rpx; height: 100%; display: flex; align-items: center; justify-content: center; }
+// .cart-icon { width: 38rpx; height: 38rpx; }
 .catalog-split { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 .catalog-rail { flex: none; width: 156rpx; height: 100%; background: #f4f6fa; }
 .rail-content { padding-top: 28rpx; }
