@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 新增地址</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="account/actions.js" defer>
+</script>
+<script src="account/address-edit.js" defer>
+</script>
+</head>
+<body data-page="editAddress" data-defaults="">
+<aside class="preview-tools">
+<strong>新增地址 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>新增地址</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="page-body">
+<form class="sheet-card form-card" data-form="address" data-id="">
+<label>收件人<input name="name" value="" required="" maxlength="30" autocomplete="name" placeholder="请输入收件人姓名">
+</label>
+<label>手机号码<input name="phone" type="tel" inputmode="numeric" pattern="1[0-9]{10}" maxlength="11" value="" required="" placeholder="请输入 11 位手机号">
+</label>
+<label>所在地区<input name="region" value="" required="" maxlength="80" placeholder="省 / 市 / 区">
+</label>
+<label>详细地址<textarea name="street" rows="3" maxlength="160" required="" placeholder="街道、楼栋与门牌号">
+</textarea>
+</label>
+<label class="check-row">
+<input name="default" type="checkbox">设为默认地址</label>
+<button type="submit" class="solid">保存地址</button>
+<p class="hint">仅在本次预览中保存；小程序版本使用原生地区选择器。</p>
+</form>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

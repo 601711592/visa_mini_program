@@ -63,3 +63,14 @@ VITE_API_PREFIX=http://127.0.0.1:8000/api/min npm run dev:mp-weixin:app1
 - 未验证：微信原生面板的真机展示、真实 code 兑换、微信后台权限/额度/隐私配置、正式服务协议内容、MySQL 多进程并发及生产部署。
 
 建议真机验收顺序：游客浏览 → 协议阅读 → 拒绝授权 → 首次登录 → 退出 → 重复登录 → 原页面恢复 → 会话失效 → 另一小程序独立登录。拒绝和失败不能困住游客，任何恢复不得自动下单或支付。
+
+
+## 2026-09-20 登录模块精简
+
+- 登录、当前会员和退出请求合并在 `src/services/mine.ts`，删除 `services/login.ts`。
+- token 存取、环境隔离和请求失效通知归入现有 `utils/request.ts`；公共工具入口继续导出 token 方法。
+- 微信登录调用及返回页面处理归入 `store/global.ts`，删除 `auth-session.ts`、`wechat-auth.ts`、`auth-routing.ts`。
+- 删除尚未接入业务的 `auth-drafts.ts`。登录失效、重新登录或退出时直接清理现有地址、出行人和优惠券选择，保留购物车商品。
+- 去掉未使用的 draftKey / 跳转 mode 参数，当前 tab 页面使用 switchTab；普通页面保留原页面返回及查询参数。
+- 保留重复点击保护、迟到响应校验、小程序与环境隔离、微信隐私授权。
+- 后端只保留会员表（含 unionid），每个会员一个缓存 token；新登录自动替换旧 token，前端不再额外请求撤销被替换的 token。

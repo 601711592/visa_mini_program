@@ -1,0 +1,3 @@
+const Page={render(){let html="",foot="";const t=total();html=`<div class="legacy-home"><button class="search-entry" data-action="go:search">${icon('search')} 点击搜索商品</button><section class="original-banner" aria-label="现有首页宣传图区域"><span>原有首页宣传图</span><small>此处沿用小程序现有素材</small></section><div class="category-tabs">${categories.map(c=>btn(c,'homeCategory:'+c,'choice '+(s.homeCategory===c?'active':''))).join('')}</div><div class="goods-grid">${inventory.map((g,i)=>g.category===s.homeCategory?goodsCard(g,i):'').join('')}</div></div>`;
+mountCommerce(html,foot)},click(a,v,z){if(a==='homeCategory'){s.homeCategory=v;render()}}};
+if(Preview.guard())render();

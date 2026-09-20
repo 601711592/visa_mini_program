@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 邀请好友</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="invite/actions.js" defer>
+</script>
+<script src="invite/invite.js" defer>
+</script>
+</head>
+<body data-page="invite" data-defaults="">
+<aside class="preview-tools">
+<strong>邀请好友 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>邀请好友</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="balance-hero">
+<span>与好友分享出行服务</span>
+<h2>邀请好友</h2>
+<p>一起发现适合自己的签证服务</p>
+</div>
+<div class="page-body">
+<section class="sheet-card">
+<div class="invite-metrics">
+<div>
+<b>—</b>
+<span>成功邀请</span>
+</div>
+<div>
+<b>—</b>
+<span>推荐奖励积分</span>
+</div>
+</div>
+<p class="hint">邀请功能尚未上线，记录与奖励暂未开放。</p>
+<button class="solid" data-do="share" data-id="">查看邀请方式</button>
+</section>
+<section class="sheet-card">
+<button class="menu-row" data-page="inviteRecords">
+<i data-lucide="users" aria-hidden="true">
+</i>
+<span>邀请记录</span>
+<i data-lucide="chevron-right" aria-hidden="true">
+</i>
+</button>
+<button class="menu-row" data-page="inviteRules">
+<i data-lucide="file-text" aria-hidden="true">
+</i>
+<span>奖励规则</span>
+<i data-lucide="chevron-right" aria-hidden="true">
+</i>
+</button>
+</section>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

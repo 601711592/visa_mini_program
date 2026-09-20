@@ -1,0 +1,773 @@
+// 个人中心设计语言共享样式（750 设计稿，1px → 1rpx）。
+// 依据 docs/mall-iteration/design/DESIGN-LANGUAGE.md 与 personal-center.css。
+$brand: #8ad0f9; // 主色：顶部、主要按钮、品牌色块
+$brand-ink: #164e70; // 深蓝前景：文字、链接、按钮文字、选中态
+$brand-soft: #eaf6fd; // 浅色底：去使用、去邀请按钮
+$icon-ink: #245b7a; // 单色线性图标
+$page: #f4f6fa; // 页面底
+$surface: #ffffff; // 卡片
+$text: #202631; // 标题
+$body: #495566; // 正文
+$muted: #737d8c; // 次级文本
+$line: #e3e8f0; // 分隔线
+$radius: 24rpx;
+
+.center-page {
+  min-height: 100vh;
+  background: $page;
+  color: $body;
+  font-size: 28rpx;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+// 小程序编译后 h3/p/b/strong/small 变为 view/text，元素选择器不命中；
+// 以下为等价的类选择器，页面统一使用这些类。
+.sheet-card .card-h,
+.sheet-card > .card-h:not(:first-child) {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $text;
+  margin: 0 0 20rpx;
+  display: block;
+}
+
+.sheet-card > .card-h:not(:first-child) {
+  margin-top: 34rpx;
+}
+
+.sheet-card .para {
+  margin: 16rpx 0;
+  color: $body;
+  font-size: 26rpx;
+  display: block;
+}
+
+.empty-state .empty-h {
+  font-size: 32rpx;
+  color: $text;
+  margin: 0 0 12rpx;
+  display: block;
+}
+
+.empty-state .empty-p {
+  font-size: 26rpx;
+  color: $muted;
+  margin-bottom: 28rpx;
+  display: block;
+}
+
+.order-product .product-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 8rpx;
+}
+
+.order-product .product-meta {
+  display: block;
+  font-size: 23rpx;
+  color: $muted;
+  line-height: 1.6;
+  margin: 2rpx 0;
+}
+
+.order-product .price .price-unit {
+  font-size: 23rpx;
+  font-weight: 400;
+}
+
+.coupon-face .coupon-amount {
+  font-size: 62rpx;
+  font-weight: 600;
+  line-height: 1.3;
+
+  .coupon-unit {
+    font-size: 28rpx;
+    margin-right: 4rpx;
+  }
+}
+
+.coupon-face .coupon-min {
+  font-size: 21rpx;
+  margin-top: 8rpx;
+  text-align: center;
+}
+
+.coupon-copy .coupon-name {
+  margin: 0 0 12rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $text;
+  display: block;
+}
+
+.coupon-copy .coupon-desc {
+  font-size: 22rpx;
+  color: $muted;
+  display: block;
+}
+
+.coupon-context .ctx-title {
+  font-weight: 600;
+}
+
+.coupon-context .ctx-desc {
+  font-size: 24rpx;
+  margin: 8rpx 0 0;
+  display: block;
+}
+
+.invite-metrics .metric-value {
+  font-size: 52rpx;
+  color: $brand-ink;
+  font-weight: 600;
+}
+
+.balance-hero .hero-h2 {
+  font-size: 46rpx;
+  color: $brand-ink;
+  margin: 22rpx 0 12rpx;
+  display: block;
+  font-weight: 600;
+}
+
+.balance-hero .hero-p {
+  color: #285d7a;
+  font-size: 25rpx;
+  margin: 12rpx 0 26rpx;
+  display: block;
+}
+
+.page-body {
+  padding: 24rpx 24rpx 52rpx;
+}
+
+.card {
+  background: $surface;
+  border-radius: $radius;
+  margin-bottom: 20rpx;
+}
+
+.sheet-card {
+  background: $surface;
+  padding: 30rpx;
+  border-radius: $radius;
+  margin-bottom: 20rpx;
+
+  h3 {
+    font-size: 30rpx;
+    font-weight: 600;
+    color: $text;
+    margin: 0 0 20rpx;
+  }
+
+  > h3:not(:first-child) {
+    margin-top: 34rpx;
+  }
+
+  p {
+    margin: 16rpx 0;
+    color: $body;
+    font-size: 26rpx;
+  }
+}
+
+.card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+
+  h3 {
+    margin: 0;
+  }
+
+  small {
+    font-size: 21rpx;
+    color: $muted;
+    overflow-wrap: anywhere;
+  }
+}
+
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 5rpx 12rpx;
+  color: $brand-ink;
+  background: $brand-soft;
+  border-radius: 8rpx;
+  font-size: 23rpx;
+  white-space: nowrap;
+}
+
+.filter-tabs {
+  display: flex;
+  align-items: center;
+  background: $surface;
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    font-size: 25rpx;
+    min-height: 94rpx;
+    line-height: 94rpx;
+    color: $muted;
+    border-bottom: 4rpx solid transparent;
+    white-space: nowrap;
+
+    &.selected {
+      color: $brand-ink;
+      border-bottom-color: $brand-ink;
+      font-weight: 600;
+    }
+  }
+}
+
+.hint {
+  font-size: 23rpx;
+  line-height: 1.7;
+  color: $muted;
+  margin: 0 0 20rpx;
+}
+
+.sheet-card .hint {
+  margin-top: 20rpx;
+  margin-bottom: 0;
+}
+
+// 商品摘要（订单、适用商品共用；封面接口接入前用图标符号占位）
+.order-product {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 18rpx 0;
+
+  .product-symbol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 112rpx;
+    height: 128rpx;
+    border-radius: 14rpx;
+    background: $brand-soft;
+
+    image {
+      width: 58rpx;
+      height: 58rpx;
+    }
+  }
+
+  h3 {
+    font-size: 28rpx;
+    font-weight: 600;
+    color: $text;
+    margin: 0 0 8rpx;
+  }
+
+  p {
+    font-size: 23rpx;
+    color: $muted;
+    line-height: 1.6;
+    margin: 2rpx 0;
+  }
+
+  .price {
+    font-size: 32rpx;
+    color: $brand-ink;
+
+    small {
+      font-size: 23rpx;
+      font-weight: 400;
+    }
+  }
+}
+
+.order-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1rpx solid $line;
+  margin-top: 18rpx;
+  padding-top: 24rpx;
+  font-size: 24rpx;
+  color: $muted;
+
+  b {
+    font-size: 32rpx;
+    color: $text;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  margin-top: 24rpx;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  min-height: 88rpx;
+  padding: 16rpx 30rpx;
+  border-radius: 44rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  box-sizing: border-box;
+
+  &::after {
+    border: 0;
+  }
+
+  &.solid {
+    background: $brand;
+    color: $brand-ink;
+  }
+
+  &.outline {
+    border: 1.5rpx solid #becbde;
+    color: $brand-ink;
+    background: $surface;
+  }
+
+  &.light-button {
+    background: $surface;
+    color: $brand-ink;
+  }
+
+  &.compact {
+    min-height: 80rpx;
+    padding: 10rpx 26rpx;
+    background: $brand-soft;
+    color: $brand-ink;
+    font-size: 25rpx;
+  }
+
+  &.full {
+    width: 100%;
+  }
+
+  &[disabled],
+  &.disabled {
+    background: #e1e6ee;
+    color: #818c9c;
+  }
+}
+
+.button-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+  margin-top: 24rpx;
+}
+
+.text-link {
+  color: $brand-ink;
+  font-size: 25rpx;
+  display: inline-flex;
+  align-items: center;
+  gap: 4rpx;
+  min-height: 88rpx;
+
+  image {
+    width: 24rpx;
+    height: 24rpx;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 68rpx 20rpx;
+
+  > image {
+    width: 88rpx;
+    height: 88rpx;
+    margin-bottom: 24rpx;
+  }
+
+  h3 {
+    font-size: 32rpx;
+    color: $text;
+    margin: 0 0 12rpx;
+  }
+
+  p {
+    font-size: 26rpx;
+    color: $muted;
+    margin: 0 0 28rpx;
+  }
+}
+
+.balance-hero,
+.status-hero {
+  background: $brand;
+  padding: 40rpx 36rpx;
+  color: $brand-ink;
+  font-size: 26rpx;
+
+  .card-heading {
+    margin: 0;
+  }
+
+  .text-link {
+    color: $brand-ink;
+  }
+
+  h2 {
+    font-size: 46rpx;
+    color: $brand-ink;
+    margin: 22rpx 0 12rpx;
+  }
+
+  p {
+    color: #285d7a;
+    font-size: 25rpx;
+    margin: 12rpx 0 26rpx;
+  }
+
+  .large-number {
+    font-size: 84rpx;
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: 1rpx;
+    margin: 16rpx 0;
+  }
+}
+
+.status-hero {
+  > image {
+    width: 58rpx;
+    height: 58rpx;
+    margin-bottom: 12rpx;
+  }
+
+  h2 {
+    font-size: 40rpx;
+  }
+
+  .large-number {
+    font-size: 70rpx;
+  }
+}
+
+.eyebrow {
+  font-size: 25rpx;
+  color: $muted;
+}
+
+.kv {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 18rpx 0;
+  font-size: 25rpx;
+  border-bottom: 1rpx solid $line;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  > text:first-child,
+  > span:first-child {
+    color: $muted;
+    flex-shrink: 0;
+  }
+
+  > text:last-child,
+  > span:last-child {
+    color: $body;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+}
+
+.traveller-list {
+  border-top: 1rpx solid $line;
+  margin-top: 20rpx;
+  padding-top: 12rpx;
+
+  h4 {
+    font-size: 25rpx;
+    color: $text;
+    margin: 12rpx 0;
+    font-weight: 500;
+  }
+}
+
+.ledger-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid $line;
+  gap: 24rpx;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  strong {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: $text;
+  }
+
+  p {
+    font-size: 24rpx;
+    margin: 8rpx 0;
+  }
+
+  small {
+    font-size: 22rpx;
+    color: $muted;
+  }
+
+  > b {
+    font-size: 36rpx;
+    flex: none;
+
+    &.positive {
+      color: $brand-ink;
+    }
+
+    &.negative {
+      color: $text;
+    }
+  }
+}
+
+.coupon-card {
+  display: flex;
+  margin-bottom: 22rpx;
+  background: $surface;
+  border-radius: $radius;
+  overflow: hidden;
+  border-left: 6rpx solid #c58b52;
+
+  &.dim {
+    border-left-color: #c5cdd9;
+
+    .coupon-face {
+      color: #818c9c;
+    }
+  }
+
+  .coupon-face {
+    width: 176rpx;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-right: 1rpx dashed #d1dae7;
+    padding: 20rpx 10rpx;
+    color: $brand-ink;
+    box-sizing: border-box;
+
+    strong {
+      font-size: 62rpx;
+      font-weight: 600;
+      line-height: 1.3;
+
+      small {
+        font-size: 28rpx;
+        margin-right: 4rpx;
+      }
+    }
+
+    > text {
+      font-size: 21rpx;
+      margin-top: 8rpx;
+      text-align: center;
+    }
+  }
+
+  .coupon-copy {
+    padding: 28rpx 24rpx;
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+      margin: 0 0 12rpx;
+      font-size: 30rpx;
+      font-weight: 600;
+      color: $text;
+    }
+
+    p {
+      font-size: 22rpx;
+      color: $muted;
+      margin: 0;
+    }
+  }
+
+  .coupon-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10rpx;
+    margin-top: 18rpx;
+  }
+}
+
+.coupon-context {
+  display: flex;
+  gap: 20rpx;
+  padding: 24rpx;
+  background: $brand-soft;
+  border-radius: 18rpx;
+  color: $brand-ink;
+  margin-bottom: 24rpx;
+
+  > image {
+    width: 44rpx;
+    height: 44rpx;
+    flex: none;
+  }
+
+  p {
+    font-size: 24rpx;
+    margin: 8rpx 0 0;
+  }
+}
+
+.invite-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 20rpx 0;
+
+  > view {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 10rpx;
+  }
+
+  > view + view {
+    border-left: 1rpx solid $line;
+  }
+
+  b {
+    font-size: 52rpx;
+    color: $brand-ink;
+  }
+
+  text {
+    font-size: 24rpx;
+    color: $muted;
+  }
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  min-height: 104rpx;
+  width: 100%;
+  border-bottom: 1rpx solid $line;
+  font-size: 28rpx;
+  color: $text;
+  box-sizing: border-box;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  text {
+    flex: 1;
+  }
+
+  image {
+    width: 32rpx;
+    height: 32rpx;
+  }
+}
+
+.address-copy {
+  font-size: 28rpx;
+  color: $body;
+  margin: 16rpx 0;
+  display: block;
+}
+
+.card-heading .card-h {
+  margin: 0;
+}
+
+.address-actions {
+  display: flex;
+  align-items: center;
+  gap: 26rpx;
+  border-top: 1rpx solid $line;
+  margin-top: 22rpx;
+  padding-top: 8rpx;
+
+  .spring {
+    flex: 1;
+  }
+}
+
+.bottom-action {
+  padding: 20rpx 0 0;
+
+  > .btn {
+    width: 100%;
+  }
+}
+
+.form-card {
+  label,
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 18rpx;
+    font-size: 27rpx;
+    color: $text;
+    margin-bottom: 28rpx;
+  }
+
+  input,
+  textarea {
+    font-size: 28rpx;
+    width: 100%;
+    border: 1rpx solid #ccd5e2;
+    border-radius: 12rpx;
+    padding: 22rpx 20rpx;
+    min-height: 88rpx;
+    background: #fafbfd;
+    color: $text;
+    box-sizing: border-box;
+  }
+
+  .check-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 14rpx;
+    min-height: 88rpx;
+    font-size: 27rpx;
+    color: $text;
+  }
+}
+
+.profile-edit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 34rpx;
+
+  .avatar {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 50%;
+    background: $brand-soft;
+  }
+}

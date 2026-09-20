@@ -1,8 +1,16 @@
 <template>
   <layout :navbar="{ backgroundColor: '#fff', fixed: true }">
-    <template #navbarRight><text class="account-entry" @tap="gotoAccount">我的</text></template>
+    <template #navbarRight>
+      <view class="navbar-cart" @tap="goCart">
+        <image src="/static/images/center/shopping-cart.png" class="navbar-cart-icon" mode="aspectFit" />
+        <view class="navbar-cart-badge" v-if="mall.cartCount > 0">{{ mall.cartCount > 99 ? '99+' : mall.cartCount }}</view>
+      </view>
+    </template>
     <view class="page">
-      <view class="search m-[0_24px] rd-1 h60 center mt-2 c-#cacaca" border="1px solid #DCDCDC" @click="gotoSearchPage">点击搜索商品</view>
+      <view class="search" @click="gotoSearchPage">
+        <image class="search-icon" src="/static/images/center/search.png" mode="aspectFit" />
+        <text>点击搜索商品</text>
+      </view>
       <view class="w700 h500 m-[24px_auto_0] company"></view>
       <view class="category flex justify-between p-[0_24px]">
         <view
@@ -30,11 +38,12 @@
 <script setup lang="ts">
 import type { Goods, GoodsCategory } from '@/services/shop';
 import { getGoodsList, getShopCagetorys } from '@/services/shop';
+import { useMallStore } from '@/store/mall';
 import { debounce, formatMoney } from '@/utils';
 import { onShareAppMessage, onShow } from '@dcloudio/uni-app';
 import { computed, ref } from 'vue';
 
-const gotoAccount = () => uni.navigateTo({ url: '/pages/account/index' });
+const mall = useMallStore();
 
 const currentCategory = ref(0);
 const shopCagetorys = ref<GoodsCategory[]>([]);
@@ -63,6 +72,10 @@ const gotoSearchPage = () => {
   uni.navigateTo({ url: `/pages/search/index` });
 };
 
+const goCart = () => {
+  uni.navigateTo({ url: '/pagesMall/cart/index' });
+};
+
 onShareAppMessage(() => {
   return {
     title: import.meta.env.VITE_APP_TITLE,
@@ -72,5 +85,4 @@ onShareAppMessage(() => {
 
 <style lang="scss">
 @import './index.scss';
-.account-entry { color: #164E70; font-size: 26rpx; min-height: 88rpx; display: flex; align-items: center; }
 </style>

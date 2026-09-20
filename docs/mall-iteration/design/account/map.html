@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 我司地图定位</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="account/actions.js" defer>
+</script>
+<script src="account/map.js" defer>
+</script>
+</head>
+<body data-page="map" data-defaults="">
+<aside class="preview-tools">
+<strong>我司地图定位 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>我司地图定位</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="page-body">
+<section class="sheet-card">
+<h3>董大象签证商城</h3>
+<div class="kv">
+<span>公司地址</span>
+<span>待配置</span>
+</div>
+<p class="hint">详细地址与坐标确认后，将在这里显示地图位置。</p>
+</section>
+<section class="sheet-card">
+<div class="empty-state">
+<i data-lucide="map-pinned" aria-hidden="true">
+</i>
+<h3>地图位置待配置</h3>
+<p>当前没有已确认的位置，暂不展示地图。</p>
+</div>
+</section>
+<button class="solid full" disabled="">打开地图导航</button>
+<p class="hint">正式小程序使用原生地图及位置导航；游客可访问本页。</p>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

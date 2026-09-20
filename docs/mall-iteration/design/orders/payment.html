@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 付款状态演示</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="orders/actions.js" defer>
+</script>
+<script src="orders/payment.js" defer>
+</script>
+</head>
+<body data-page="payment" data-defaults="id=DDX202609160001">
+<aside class="preview-tools">
+<strong>付款状态演示 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>付款状态演示</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="page-body">
+<section class="sheet-card">
+<span class="eyebrow">待支付</span>
+<div class="large-number">¥699.00</div>
+<div class="kv">
+<span>订单</span>
+<span>DDX202609160001</span>
+</div>
+<p class="hint">支付交互演示，不发起微信支付。</p>
+</section>
+<div class="button-stack">
+<button class="solid" data-do="paySuccess" data-id="DDX202609160001">模拟支付成功</button>
+<button class="outline" data-do="payCancel" data-id="DDX202609160001">模拟支付取消</button>
+<button class="outline" data-do="payFail" data-id="DDX202609160001">模拟支付失败</button>
+</div>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

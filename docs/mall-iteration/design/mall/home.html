@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 商城首页</title>
+<link rel="stylesheet" href="shared/site.css">
+<link rel="stylesheet" href="shared/commerce.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/commerce.js" defer>
+</script>
+<script src="mall/home.js" defer>
+</script>
+</head>
+<body data-page="home" data-defaults="">
+<aside class="preview-tools">
+<strong>商城首页 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen commerce-screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>商城首页</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div id="visa-proto">
+<div class="phone legacy">
+<main>
+<div class="legacy-home">
+<button class="search-entry" data-action="go:search">
+<i data-lucide="search" aria-hidden="true">
+</i> 点击搜索商品</button>
+<section class="original-banner" aria-label="现有首页宣传图区域">
+<span>原有首页宣传图</span>
+<small>此处沿用小程序现有素材</small>
+</section>
+<div class="category-tabs">
+<button class="choice active" data-action="homeCategory:签证服务">签证服务</button>
+<button class="choice " data-action="homeCategory:定制旅游">定制旅游</button>
+</div>
+<div class="goods-grid">
+<button class="browse-product" data-action="goods:0">
+<div class="product-cover-label">签证服务<small>原商品封面</small>
+</div>
+<div class="product-copy">
+<h3>美国旅游签证 · 专业办理</h3>
+<span>¥ 1299</span>
+</div>
+</button>
+<button class="browse-product" data-action="goods:1">
+<div class="product-cover-label">签证服务<small>原商品封面</small>
+</div>
+<div class="product-copy">
+<h3>日本单次旅游签证</h3>
+<span>¥ 699</span>
+</div>
+</button>
+</div>
+</div>
+</main>
+<footer hidden="">
+</footer>
+<nav>
+<button class="active" data-action="go:home">
+<i data-lucide="house" aria-hidden="true">
+</i>首页</button>
+<button class="" data-action="go:catalog">
+<i data-lucide="layout-grid" aria-hidden="true">
+</i>产品分类</button>
+<button class="" data-action="go:mine">
+<i data-lucide="user-round" aria-hidden="true">
+</i>我的</button>
+</nav>
+</div>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

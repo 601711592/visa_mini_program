@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 手机号授权</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="account/actions.js" defer>
+</script>
+<script src="account/phone.js" defer>
+</script>
+</head>
+<body data-page="phone" data-defaults="">
+<aside class="preview-tools">
+<strong>手机号授权 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>手机号授权</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="page-body">
+<section class="sheet-card">
+<span class="status-tag">微信原生手机号授权 · 示意</span>
+<h3>允许获取手机号</h3>
+<div class="kv">
+<span>示例号码</span>
+<span>138****6688</span>
+</div>
+<div class="button-stack">
+<button class="solid" data-do="loginSuccess" data-id="">允许（模拟）</button>
+<button class="outline" data-do="cancelLogin" data-id="">拒绝并返回</button>
+<button class="text-link" data-do="loginFail" data-id="">模拟网络失败</button>
+</div>
+<p class="hint">正式授权面板由微信提供。</p>
+</section>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

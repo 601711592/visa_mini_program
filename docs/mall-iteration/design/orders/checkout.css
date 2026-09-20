@@ -1,0 +1,17 @@
+/* Confirmation-only refinements, in the existing 375px commerce canvas. */
+body[data-page="checkout"] #visa-proto nav { display: none; }
+#visa-proto .traveller-entry { padding-top: 12px; }
+#visa-proto .traveller-action { flex: none; padding: 10px 12px; font-size: 13px; }
+#visa-proto .checkout-address { padding-top: 4px; padding-bottom: 4px; }
+#visa-proto .checkout-address .entry { display: flex; padding: 8px 0; min-height: 44px; }
+#visa-proto .address-action { display: flex; align-items: center; gap: 6px; color: #164e70; font-size: 13px; }
+#visa-proto .checkout-consent { padding-bottom: 0; margin-bottom: 0; }
+#visa-proto .checkout-rule-links { display: flex; align-items: center; padding-left: 30px; font-size: 12px; }
+#visa-proto .checkout-rule-links .link { font-size: 12px; text-decoration: underline; }
+body[data-page="checkout"] #visa-proto footer .primary { min-width: 140px; min-height: 48px; font-size: 16px; font-weight: 600; }
+body[data-page="checkout"] #visa-proto footer .row > div { min-width: 0; overflow-wrap: anywhere; }
+#visa-proto .checkout-rules-mask { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-end; justify-content: center; background: #20263173; }
+#visa-proto .checkout-rules-sheet { width: 375px; max-width: 100%; padding: 16px; border-radius: 16px 16px 0 0; background: #fff; }
+#visa-proto .checkout-rules-sheet h3 { margin: 0; }
+#visa-proto .checkout-rules-body { max-height: 60vh; overflow-y: auto; }
+#visa-proto .checkout-rules-body h3 { margin-top: 20px; }

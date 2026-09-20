@@ -37,24 +37,29 @@ const showPrivacy = ref(false);
 let resolves: PrivacyResolve[] = [];
 let dispose = () => {};
 let alive = true;
+// 协议勾选与微信隐私授权分别处理，需要授权时由微信回调驱动。
 onLoad(() => {
   global.loginOpen = true;
   const api = privacyApi();
   supported.value = !!api;
   dispose = receivePrivacy((resolve) => { resolves.push(resolve); showPrivacy.value = true; });
-  api?.getPrivacySetting({ success: () => {}, fail: () => { error.value = '隐私状态读取失败，请重试'; } });
 });
+// 离开页面时结束待处理授权，并取消尚未返回的登录操作。
 onUnload(() => {
   alive = false;
   resolvePrivacy(false);
   dispose();
-  if (global.loginOpen) global.cancelLogin(false);
+  if (global.loginOpen) global.cancelLogin();
 });
+/** 只记录本次页面的主动勾选，不默认代用户同意。 */
 function changeConsent(event: { detail: { value: string[] } }) { consent.value = event.detail.value.includes('agree'); }
+/** 条件不满足时只提示，不发起手机号获取。 */
 function explainRequired() {
   error.value = !supported.value ? '请在最新版微信小程序中使用手机号登录' : '请先阅读并勾选同意协议';
 }
+/** 阅读本地协议，返回后保留当前勾选状态。 */
 function readAgreement(kind: LoginAgreementKind = 'service') { uni.navigateTo({ url: `/pages/service-agreement/index?kind=${kind}` }); }
+/** 同意、拒绝和卸载都需结束全部微信隐私回调，避免授权一直等待。 */
 function resolvePrivacy(agree: boolean) {
   const waiting = resolves;
   resolves = [];
@@ -63,6 +68,7 @@ function resolvePrivacy(agree: boolean) {
 }
 function agreePrivacy() { resolvePrivacy(true); }
 function rejectPrivacy() { resolvePrivacy(false); error.value = '您未同意隐私授权，可继续浏览或主动重试'; }
+/** 拿到手机号 code 后发起业务登录，卸载后不再更新页面或跳转。 */
 async function handlePhone(event: { detail: { code?: string; errMsg?: string } }) {
   if (busy.value || !alive) return;
   if (!consent.value) { explainRequired(); return; }
@@ -83,12 +89,12 @@ async function handlePhone(event: { detail: { code?: string; errMsg?: string } }
 .illustration { display: block; width: 480rpx; height: 320rpx; margin: 32rpx auto 88rpx; }
 .actions { max-width: 654rpx; margin: auto; }
 button::after { border: 0; }
-.primary { background: #8AD0F9; color: #164E70; border-radius: 48rpx; min-height: 96rpx; font-size: 30rpx; font-weight: 600; }
+.primary { background: #8AD0F9; color: #164E70; border-radius: 48rpx; min-height: 96rpx; font-size: 30rpx; font-weight: 600; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1.4; }
 .primary[disabled] { background: #EAF6FD; color: #737D8C; }
 .consent-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; margin: 16rpx 0; font-size: 24rpx; }
 .checkbox-label { min-height: 88rpx; display: flex; align-items: center; }
 .agreement-link { display: inline-flex; align-items: center; min-height: 88rpx; background: transparent; color: #164E70; padding: 0; margin: 0; font-size: 24rpx; line-height: 1.5; }
-.text-button { background: transparent; color: #737D8C; min-height: 88rpx; font-size: 28rpx; }
+.text-button { background: transparent; color: #737D8C; min-height: 88rpx; font-size: 28rpx; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1.4; }
 .error { display: block; color: #A33232; font-size: 26rpx; line-height: 1.6; text-align: center; }
 .privacy-mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
 .privacy-card { width: 630rpx; box-sizing: border-box; background: #fff; border-radius: 24rpx; padding: 40rpx; }

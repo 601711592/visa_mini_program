@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 产品分类</title>
+<link rel="stylesheet" href="shared/site.css">
+<link rel="stylesheet" href="shared/commerce.css">
+<link rel="stylesheet" href="mall/catalog.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/commerce.js" defer>
+</script>
+<script src="mall/catalog.js" defer>
+</script>
+</head>
+<body data-page="catalog" data-defaults="">
+<aside class="preview-tools">
+<strong>产品分类 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen commerce-screen is-catalog">
+<div class="sub-nav standalone-nav">
+<div class="catalog-nav-tools">
+<button data-nav="cart" aria-label="购物车">
+<i data-lucide="shopping-cart">
+</i>
+</button>
+<button class="nav-search" data-nav="search">
+<i data-lucide="search">
+</i>
+<span>搜索国家或商品</span>
+</button>
+</div>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div id="visa-proto">
+<div class="phone legacy">
+<main>
+<div class="catalog-page catalog-reference">
+<div class="catalog-split">
+<aside class="catalog-rail" aria-label="产品分类">
+<button aria-pressed="true" class="active" data-action="category:签证服务">签证服务</button>
+<button aria-pressed="false" class="" data-action="category:定制旅游">定制旅游</button>
+</aside>
+<section class="catalog-results-pane" aria-label="签证服务">
+<div class="catalog-heading"><h2>签证服务</h2><p>2款商品</p></div>
+<div class="catalog-tiles">
+<article class="catalog-tile">
+<button class="catalog-goods" data-action="goods:0">
+<img class="checkout-cover" src="assets/product-1.jpg" alt="美国旅游签证 · 专业办理商品封面（示例）">
+<h3>美国旅游签证 · 专业办理</h3>
+</button>
+<div class="tile-bottom">
+<span class="tile-price">¥<strong>1299</strong>
+</span>
+<button class="tile-cart" data-action="goods:0" aria-label="选择美国旅游签证 · 专业办理的规格">
+<i data-lucide="chevron-right" aria-hidden="true">
+</i>
+</button>
+</div>
+</article>
+<article class="catalog-tile">
+<button class="catalog-goods" data-action="goods:1">
+<img class="checkout-cover" src="assets/product-2.jpg" alt="日本单次旅游签证商品封面（示例）">
+<h3>日本单次旅游签证</h3>
+</button>
+<div class="tile-bottom">
+<span class="tile-price">¥<strong>699</strong>
+</span>
+<button class="tile-cart" data-action="goods:1" aria-label="选择日本单次旅游签证的规格">
+<i data-lucide="chevron-right" aria-hidden="true">
+</i>
+</button>
+</div>
+</article>
+</div>
+</section>
+</div>
+</div>
+</main>
+<footer hidden="">
+</footer>
+<nav>
+<button class="" data-action="go:home">
+<i data-lucide="house" aria-hidden="true">
+</i>首页</button>
+<button class="active" data-action="go:catalog">
+<i data-lucide="layout-grid" aria-hidden="true">
+</i>产品分类</button>
+<button class="" data-action="go:mine">
+<i data-lucide="user-round" aria-hidden="true">
+</i>我的</button>
+</nav>
+</div>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

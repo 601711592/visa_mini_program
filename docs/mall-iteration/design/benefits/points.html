@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 积分中心</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="benefits/actions.js" defer>
+</script>
+<script src="benefits/points.js" defer>
+</script>
+</head>
+<body data-page="points" data-defaults="">
+<aside class="preview-tools">
+<strong>积分中心 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>积分中心</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="balance-hero">
+<div class="card-heading">
+<span>可用积分</span>
+<button class="text-link" data-page="pointsRules" data-params="{}">积分规则<i data-lucide="chevron-right" aria-hidden="true">
+</i>
+</button>
+</div>
+<div class="large-number">1,280</div>
+<p>积分永久有效 · 500 积分可抵 10 元</p>
+<button class="light-button" data-do="browse" data-id="">去使用积分</button>
+</div>
+<div class="filter-tabs" role="tablist">
+<button role="tab" aria-selected="true" class="selected" data-filter-key="filter" data-value="全部">全部</button>
+<button role="tab" aria-selected="false" class="" data-filter-key="filter" data-value="收入">收入</button>
+<button role="tab" aria-selected="false" class="" data-filter-key="filter" data-value="支出">支出</button>
+</div>
+<div class="page-body">
+<section class="sheet-card">
+<h3>积分明细</h3>
+<div class="ledger-row">
+<div>
+<strong>订单完成奖励</strong>
+<p>日本单次旅游签证</p>
+<small>2026-09-15 15:20</small>
+</div>
+<b class="positive">+699</b>
+</div>
+<div class="ledger-row">
+<div>
+<strong>下单积分抵扣</strong>
+<p>美国旅游签证</p>
+<small>2026-09-12 09:30</small>
+</div>
+<b class="negative">-500</b>
+</div>
+<div class="ledger-row">
+<div>
+<strong>订单完成奖励</strong>
+<p>签证办理服务</p>
+<small>2026-09-08 11:10</small>
+</div>
+<b class="positive">+1081</b>
+</div>
+</section>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

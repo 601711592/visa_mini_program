@@ -1,0 +1,240 @@
+[
+  {
+    "file": "account/personal-center.html",
+    "page": "mine",
+    "title": "个人中心",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "file": "orders/orders.html",
+    "page": "orders",
+    "title": "我的订单",
+    "options": "",
+    "module": "orders"
+  },
+  {
+    "file": "orders/order-detail.html",
+    "page": "order",
+    "title": "订单详情",
+    "options": "id=DDX202609150002",
+    "module": "orders"
+  },
+  {
+    "file": "benefits/points.html",
+    "page": "points",
+    "title": "积分中心",
+    "options": "",
+    "module": "benefits"
+  },
+  {
+    "file": "benefits/points-rules.html",
+    "page": "pointsRules",
+    "title": "积分规则",
+    "options": "",
+    "module": "benefits"
+  },
+  {
+    "file": "benefits/coupons.html",
+    "page": "coupons",
+    "title": "我的优惠券",
+    "options": "",
+    "module": "benefits"
+  },
+  {
+    "file": "benefits/coupon-detail.html",
+    "page": "coupon",
+    "title": "优惠券详情",
+    "options": "id=2",
+    "module": "benefits"
+  },
+  {
+    "file": "benefits/coupon-products.html",
+    "page": "eligible",
+    "title": "优惠券适用商品",
+    "options": "id=2",
+    "module": "benefits"
+  },
+  {
+    "file": "mall/home.html",
+    "page": "home",
+    "title": "商城首页",
+    "options": "",
+    "module": "mall"
+  },
+  {
+    "file": "mall/catalog.html",
+    "page": "catalog",
+    "title": "产品分类",
+    "options": "",
+    "module": "mall"
+  },
+  {
+    "file": "mall/search.html",
+    "page": "search",
+    "title": "搜索商品",
+    "options": "",
+    "module": "mall"
+  },
+  {
+    "file": "mall/product-detail.html",
+    "page": "goods",
+    "title": "商品详情",
+    "options": "",
+    "module": "mall"
+  },
+  {
+    "file": "mall/cart.html",
+    "page": "cart",
+    "title": "购物车",
+    "options": "",
+    "module": "mall"
+  },
+  {
+    "file": "orders/checkout.html",
+    "page": "checkout",
+    "title": "确认订单",
+    "options": "scenario=checkout",
+    "module": "orders"
+  },
+  {
+    "file": "orders/travellers.html",
+    "page": "travellers",
+    "title": "出行人填写",
+    "options": "scenario=checkout",
+    "module": "orders"
+  },
+  {
+    "file": "orders/checkout-coupons.html",
+    "page": "chooseCoupon",
+    "title": "选择优惠券",
+    "options": "scenario=checkout",
+    "module": "orders"
+  },
+  {
+    "file": "orders/payment.html",
+    "page": "payment",
+    "title": "付款状态演示",
+    "options": "id=DDX202609160001",
+    "module": "orders"
+  },
+  {
+    "file": "orders/payment-success.html",
+    "page": "success",
+    "title": "支付成功",
+    "options": "scenario=success",
+    "module": "orders"
+  },
+  {
+    "file": "orders/refund.html",
+    "page": "refund",
+    "title": "申请退款",
+    "options": "id=DDX202609080003",
+    "module": "orders"
+  },
+  {
+    "file": "orders/cancel.html",
+    "page": "cancel",
+    "title": "取消订单",
+    "options": "id=DDX202609160001",
+    "module": "orders"
+  },
+  {
+    "file": "account/profile.html",
+    "page": "profile",
+    "title": "个人资料",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "file": "account/login.html",
+    "page": "login",
+    "title": "手机号快捷登录",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "file": "account/address.html",
+    "page": "address",
+    "title": "收货地址管理",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "file": "account/address-edit.html",
+    "page": "editAddress",
+    "title": "新增地址",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "file": "account/map.html",
+    "page": "map",
+    "title": "我司地图定位",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "file": "invite/invite.html",
+    "page": "invite",
+    "title": "邀请好友",
+    "options": "",
+    "module": "invite"
+  },
+  {
+    "file": "invite/invite-records.html",
+    "page": "inviteRecords",
+    "title": "邀请记录",
+    "options": "",
+    "module": "invite"
+  },
+  {
+    "file": "invite/invite-rules.html",
+    "page": "inviteRules",
+    "title": "邀请奖励规则",
+    "options": "",
+    "module": "invite"
+  },
+  {
+    "file": "invite/invite-share.html",
+    "page": "share",
+    "title": "邀请方式",
+    "options": "",
+    "module": "invite"
+  },
+  {
+    "page": "privacy",
+    "file": "account/privacy.html",
+    "title": "隐私保护提示",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "page": "phone",
+    "file": "account/phone.html",
+    "title": "手机号授权",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "page": "terms",
+    "file": "account/terms.html",
+    "title": "协议说明",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "page": "logout",
+    "file": "account/logout.html",
+    "title": "退出登录",
+    "options": "",
+    "module": "account"
+  },
+  {
+    "page": "deleteAddress",
+    "file": "account/address-delete.html",
+    "title": "删除地址",
+    "options": "",
+    "module": "account"
+  }
+]

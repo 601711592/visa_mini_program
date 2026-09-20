@@ -1,5 +1,31 @@
 import { API_PREFIX } from './constant';
-import { getToken, invalidateSession } from './auth-session';
+
+
+/** 缓存按后端环境和小程序隔离；不读取旧版裸 token。 */
+export const authNamespace = `mini:${import.meta.env.VITE_ID || 'unconfigured'}:${API_PREFIX}`;
+const tokenKey = `${authNamespace}:token`;
+export const getToken = (): string => uni.getStorageSync(tokenKey) || '';
+export const setToken = (token: string) => uni.setStorageSync(tokenKey, token);
+export const removeToken = () => uni.removeStorageSync(tokenKey);
+
+let invalidated: (() => void) | undefined;
+/** 通知全局状态清理身份，请求工具不直接依赖业务 store。 */
+export const onSessionInvalidated = (handler: () => void) => { invalidated = handler; };
+export function invalidateSession(requestToken: string) {
+  // 老请求不能清除后来登录的新会话。
+  if (requestToken && getToken() === requestToken) {
+    removeToken();
+    invalidated?.();
+  }
+}
+
+/** 清除历史登录和敏感缓存；当前 token、购物车由各自流程管理。 */
+export function clearSensitiveStorage() {
+  const legacy = ['token', 'userInfo', 'travellers', 'travelers', 'address', 'addresses', 'contactPhone', 'checkoutDraft'];
+  uni.getStorageInfoSync().keys.forEach((key: string) => {
+    if (legacy.includes(key) || key.startsWith(`${authNamespace}:sensitive:`)) uni.removeStorageSync(key);
+  });
+}
 
 export const Method = { GET: 'GET', POST: 'POST', PUT: 'PUT', DELETE: 'DELETE' } as const;
 export const ApiPrefix = API_PREFIX;
@@ -10,12 +36,14 @@ export interface RequestOptions {
   contentType?: string;
   header?: Record<string, string>;
   auth?: boolean;
+  /** 固定本次请求的 token，避免异步操作误用后来登录的新 token。 */
   token?: string;
 }
 export class RequestError extends Error {
   constructor(public code: string, message: string, public statusCode = 0) { super(message); }
 }
 
+/** 仅向本站 API 自动附带 token；HTTP 成功还需检查业务 status。 */
 export default function request<T = unknown>(options: RequestOptions | string): Promise<T> {
   const opts = typeof options === 'string' ? { url: options } : options;
   const url = /^https?:\/\//.test(opts.url) ? opts.url : API_PREFIX + opts.url;
@@ -46,5 +74,6 @@ export default function request<T = unknown>(options: RequestOptions | string): 
   });
 }
 
+/** 兼容仍使用旧响应结构的业务页面。 */
 export const checkResponse = (data: { status?: number | string; resultCode?: string }) =>
   String(data.status) === '11' || data.resultCode === '0';

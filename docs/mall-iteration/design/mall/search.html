@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 搜索商品</title>
+<link rel="stylesheet" href="shared/site.css">
+<link rel="stylesheet" href="shared/commerce.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/commerce.js" defer>
+</script>
+<script src="mall/search.js" defer>
+</script>
+</head>
+<body data-page="search" data-defaults="">
+<aside class="preview-tools">
+<strong>搜索商品 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen commerce-screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>搜索商品</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div id="visa-proto">
+<div class="phone legacy">
+<main>
+<form id="v-search" class="row">
+<input name="query" aria-label="商品关键词" placeholder="请输入商品关键词" value="">
+<button type="submit" class="secondary">搜索</button>
+</form>
+<div class="goods-grid" style="margin-top:16px">
+</div>
+</main>
+<footer hidden="">
+</footer>
+<nav hidden="">
+<button class="" data-action="go:home">
+<i data-lucide="house" aria-hidden="true">
+</i>首页</button>
+<button class="" data-action="go:catalog">
+<i data-lucide="layout-grid" aria-hidden="true">
+</i>产品分类</button>
+<button class="" data-action="go:mine">
+<i data-lucide="user-round" aria-hidden="true">
+</i>我的</button>
+</nav>
+</div>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

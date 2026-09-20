@@ -1,0 +1,3 @@
+const Page={render(){let html="",foot="";const t=total();html=`<form id="v-search" class="row"><input name="query" aria-label="商品关键词" placeholder="请输入商品关键词" value="${esc(s.query)}"><button type="submit" class="secondary">搜索</button></form><div class="goods-grid" style="margin-top:16px">${s.query?inventory.map((g,i)=>g.name.includes(s.query)?goodsCard(g,i):'').join(''):''}</div>${s.query&&!inventory.some(g=>g.name.includes(s.query))?'<div class="empty">没有找到相关商品</div>':''}`;
+mountCommerce(html,foot)},click(a,v,z){},submit(form,f){s.query=String(f.get('query')||'').trim();render()}};
+if(Preview.guard())render();

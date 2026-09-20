@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 我的优惠券</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="benefits/actions.js" defer>
+</script>
+<script src="benefits/coupons.js" defer>
+</script>
+</head>
+<body data-page="coupons" data-defaults="">
+<aside class="preview-tools">
+<strong>我的优惠券 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>我的优惠券</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="filter-tabs" role="tablist">
+<button role="tab" aria-selected="true" class="selected" data-filter-key="filter" data-value="未使用">未使用</button>
+<button role="tab" aria-selected="false" class="" data-filter-key="filter" data-value="已使用">已使用</button>
+<button role="tab" aria-selected="false" class="" data-filter-key="filter" data-value="已过期">已过期</button>
+</div>
+<div class="page-body">
+<p class="hint">一单一张，可与积分叠加使用；券条件为演示配置。</p>
+<section class="coupon-card ">
+<div class="coupon-face">
+<strong>
+<small>¥</small>10</strong>
+<span>无门槛（演示）</span>
+</div>
+<div class="coupon-copy">
+<h3>新人专享券</h3>
+<p>全店商品 · 2026.10.15 到期</p>
+<div class="coupon-actions">
+<button class="text-link" data-page="coupon" data-params="{&quot;id&quot;:1}">使用规则<i data-lucide="chevron-right" aria-hidden="true">
+</i>
+</button>
+<button class="compact" data-do="eligible" data-id="1">去使用</button>
+</div>
+</div>
+</section>
+<section class="coupon-card ">
+<div class="coupon-face">
+<strong>
+<small>¥</small>50</strong>
+<span>满 1000 元可用</span>
+</div>
+<div class="coupon-copy">
+<h3>签证满减券</h3>
+<p>签证服务 · 2026.10.31 到期</p>
+<div class="coupon-actions">
+<button class="text-link" data-page="coupon" data-params="{&quot;id&quot;:2}">使用规则<i data-lucide="chevron-right" aria-hidden="true">
+</i>
+</button>
+<button class="compact" data-do="eligible" data-id="2">去使用</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

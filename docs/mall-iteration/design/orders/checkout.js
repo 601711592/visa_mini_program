@@ -1,0 +1,22 @@
+let rulesKind = '';
+function refinedCheckoutLine(x, i) {
+  const complete = assigned(x).length === x.qty;
+  return `<section class="panel checkout-line" data-line-key="${lineKey(x)}">${checkoutProduct(x)}<div class="line row"><span>¥${money(itemPrice(x))} / 人</span><span>共 ${x.qty} 人</span></div><div class="row traveller-entry"><div>本商品出行人<div class="muted">需 ${x.qty} 位 · 已填写 ${assigned(x).length} 位</div></div>${btn(complete ? '已完善 · 修改' : '填写出行人', 'editTravellers:'+i, complete ? 'secondary traveller-action' : 'primary traveller-action')}</div>${assigned(x).length ? travellerSummary(x) : ''}</section>`;
+}
+function checkoutBreakdown(t) {
+  return `<div class="line row"><span>商品总额</span><span>¥${money(t.base)}</span></div>${t.discount > 0 ? `<div class="line row"><span>多人优惠</span><span class="mini-price">−¥${money(t.discount)}</span></div>` : ''}${t.cp > 0 ? `<div class="line row"><span>优惠券</span><span class="mini-price">−¥${money(t.cp)}</span></div>` : ''}${t.pt > 0 ? `<div class="line row"><span>积分抵扣（${t.pt} 积分）</span><span class="mini-price">−¥${money(t.pt*.02)}</span></div>` : ''}<div class="line row"><strong>实付金额</strong><span class="price">¥${money(t.due)}</span></div>`;
+}
+function rulesSheet() {
+  if (!rulesKind) return '';
+  const title = rulesKind === 'booking' ? '预订须知' : '退改规则';
+  const content = rulesKind === 'booking' ? '请核对出行日期、套餐及材料要求后预订。' : '退款与变更按商品现有退改规则处理。';
+  const ids = [...new Set(rows().map(x => x.goodsId ?? 0))];
+  return `<div class="checkout-rules-mask"><section class="checkout-rules-sheet" role="dialog" aria-modal="true" aria-label="${title}"><div class="row"><h3>${title}</h3>${btn('关闭', 'closeRules', 'link')}</div><div class="checkout-rules-body">${ids.map(id => `<h3>${esc(inventory[id].name)}</h3><p>${content}</p>`).join('')}<p class="muted">以上为演示说明，正式规则以对应商品配置为准。</p></div></section></div>`;
+}
+const Page={render(){let html="",foot="";const t=total();html=rows().map(refinedCheckoutLine).join('')+`<section class="panel checkout-address"><button class="entry row" data-action="checkoutAddress"><div>邮寄地址（选填）${s.address ? `<div class="muted">${esc(s.address.name)} · ${esc(s.address.area)}</div>` : ''}</div><span class="address-action">${s.address ? '' : '添加地址'}${icon('chevron-right')}</span></button></section><section class="panel">${entry('优惠券',t.cp?`已优惠 ¥${t.cp}`:'选择优惠券，与积分同享','go:chooseCoupon')}<label class="row line"><div>使用积分<div class="muted">可用 ${s.balance}，本单抵 ¥${money(t.pt*.02)}</div></div><input type="checkbox" data-field="points" ${s.points?'checked':''}></label><small>500 积分 = 10 元，演示上限：商品原价的 20%（待确认）</small></section><section class="panel">${!s.boundPhone?`<label class="field">订单联系电话<input data-field="contact" type="tel" value="${esc(s.contact)}" placeholder="用于本次订单联系"></label><p class="rule">仅用于本次服务联系，不作为账号已验证手机号。</p>`:''}<h3>金额明细</h3>${checkoutBreakdown(t)}</section><label class="checkout-consent"><input type="checkbox" data-field="orderConsent" ${s.orderConsent?'checked':''}>我已阅读并同意</label><div class="checkout-rule-links">${btn('《预订须知》','rules:booking','link')}与${btn('《退改规则》','rules:refund','link')}</div>${rulesSheet()}`;foot=`<div class="row"><div><small>实付</small> <span class="price">¥${money(t.due)}</span></div>${btn('提交订单','submit','primary')}</div>`
+mountCommerce(html,foot)},click(a,v,z){if(a==='rules'){rulesKind=v;render()}if(a==='closeRules'){rulesKind='';render()}if(a==='editTravellers'){const item=rows()[Number(v)];if(item){s.editingItem=lineKey(item);go('travellers')}}
+if(a==='checkoutAddress'){s.returnTo='checkout';go('address')}
+
+if(a==='submit'){if(!s.orderConsent){s.notice='请先阅读并勾选商品预订须知与退改规则';render();return}if(!s.loggedIn){go('checkout');return}const t=total();if(!s.boundPhone&&!/^1[0-9]{10}$/.test(s.contact)){s.notice='请填写本次订单的联系电话';render();return}const missing=rows().find(x=>assigned(x).length!==x.qty);if(missing){s.notice=`请完善「${inventory[missing.goodsId??0].name} · ${packs[missing.pack].name} · ${missing.date}」的 ${missing.qty} 位出行人信息`;render();return}const o={no:'DDX20260915'+String(s.orders.length+1).padStart(4,'0'),items:rows().map(x=>({...x,travellers:assigned(x).map(p=>({...p}))})),t,coupon:s.coupon,state:'待付款'};s.orders.unshift(o);s.order=o;s.balance-=t.pt;s.coupon=0;if(s.checkoutCart)s.cart=s.cart.filter(x=>!x.selected);go('payment')}
+},change(el){if(el.dataset.field==='orderConsent'){s.orderConsent=el.checked;render()}if(el.dataset.field==='points'){s.points=el.checked;render()}if(el.dataset.field==='contact')s.contact=el.value}};
+if(Preview.guard())render();

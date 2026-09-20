@@ -1,0 +1,3 @@
+const Page={...BenefitActions,render(){let html="";const c=data.coupons.find(c=>c.id===p.id);html=`<div class="page-body"><div class="coupon-context">${ic('ticket')}<div><b>${c.name} · ¥${c.amount}</b><p>${c.scope}${c.min?' · 满 ¥'+c.min+' 可用':''}</p></div></div>${data.goods.filter(g=>c.goods.includes(g.id)).map(g=>card(`<div class="order-product"><span class="product-symbol">${ic('book-open')}</span><div><h3>${g.name}</h3><p>${g.category}</p><strong class="price">¥${g.price}<small> 起</small></strong></div></div><div class="actions">${button('查看商品','goods',g.id)}</div>`)).join('')}${hint('这里按券适用范围筛选商品；是否满足金额门槛以最终结算为准。')}</div>`
+mount(html)}};
+if(Preview.guard())render();

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 支付成功</title>
+<link rel="stylesheet" href="shared/site.css">
+<link rel="stylesheet" href="shared/commerce.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/commerce.js" defer>
+</script>
+<script src="orders/payment-success.js" defer>
+</script>
+</head>
+<body data-page="success" data-defaults="scenario=success">
+<aside class="preview-tools">
+<strong>支付成功 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen commerce-screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>支付成功</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div id="visa-proto">
+<div class="phone ">
+<main>
+<div class="panel success">
+<i data-lucide="circle-check" aria-hidden="true">
+</i>
+<h2>支付成功</h2>
+<p class="price">¥699.00</p>
+<p class="muted">订单已提交，顾问将尽快与您联系</p>
+<button class="primary full" data-action="go:order">查看订单</button>
+<button class="secondary full" data-action="go:mine">返回个人中心</button>
+<div class="notice">交易完成后发放消费积分</div>
+</div>
+</main>
+<footer hidden="">
+</footer>
+<nav hidden="">
+<button class="" data-action="go:home">
+<i data-lucide="house" aria-hidden="true">
+</i>首页</button>
+<button class="" data-action="go:catalog">
+<i data-lucide="layout-grid" aria-hidden="true">
+</i>产品分类</button>
+<button class="" data-action="go:mine">
+<i data-lucide="user-round" aria-hidden="true">
+</i>我的</button>
+</nav>
+</div>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

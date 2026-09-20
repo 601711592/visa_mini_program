@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 申请退款</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="orders/actions.js" defer>
+</script>
+<script src="orders/refund.js" defer>
+</script>
+</head>
+<body data-page="refund" data-defaults="id=DDX202609080003">
+<aside class="preview-tools">
+<strong>申请退款 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>申请退款</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="page-body">
+<section class="sheet-card">
+<h3>整单退款申请</h3>
+<div class="kv">
+<span>申请金额</span>
+<span>¥689.00</span>
+</div>
+<p class="hint">提交后由商家审核，退款成功后返还已使用积分及优惠券。</p>
+</section>
+<form class="sheet-card" data-form="refund" data-id="DDX202609080003">
+<label>退款原因<select name="reason" required="">
+<option value="">请选择退款原因</option>
+<option>出行计划变更</option>
+<option>重复下单</option>
+<option>其他原因</option>
+</select>
+</label>
+<label>补充说明<textarea name="note" maxlength="300" rows="4" placeholder="请补充说明退款原因（选填）">
+</textarea>
+</label>
+<button class="solid" type="submit">提交申请（模拟）</button>
+</form>
+<p class="hint">超半年在线申请限制及期限起算点待业务确认；本页演示近期订单。</p>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

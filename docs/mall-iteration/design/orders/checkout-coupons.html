@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 选择优惠券</title>
+<link rel="stylesheet" href="shared/site.css">
+<link rel="stylesheet" href="shared/commerce.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/commerce.js" defer>
+</script>
+<script src="orders/checkout-coupons.js" defer>
+</script>
+</head>
+<body data-page="chooseCoupon" data-defaults="scenario=checkout">
+<aside class="preview-tools">
+<strong>选择优惠券 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen commerce-screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>选择优惠券</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div id="visa-proto">
+<div class="phone ">
+<main>
+<div class="notice">每单限用一张，可与积分叠加使用。</div>
+<section class="panel coupon ">
+<div class="row">
+<div>
+<span class="price">¥10</span>
+<h3>新人专享券</h3>
+<small>无门槛 · 全店商品可用</small>
+</div>
+<button class="primary" data-action="coupon:1">选择</button>
+</div>
+<div class="line muted">有效期至 2026.10.15</div>
+</section>
+<section class="panel coupon ">
+<div class="row">
+<div>
+<span class="price">¥50</span>
+<h3>签证满减券</h3>
+<small>满 1000 元可用 · 签证商品可用</small>
+</div>
+<small>未达门槛</small>
+</div>
+<div class="line muted">有效期至 2026.10.31</div>
+</section>
+<button class="secondary full" data-action="coupon:0">不使用优惠券</button>
+</main>
+<footer hidden="">
+</footer>
+<nav hidden="">
+<button class="" data-action="go:home">
+<i data-lucide="house" aria-hidden="true">
+</i>首页</button>
+<button class="" data-action="go:catalog">
+<i data-lucide="layout-grid" aria-hidden="true">
+</i>产品分类</button>
+<button class="" data-action="go:mine">
+<i data-lucide="user-round" aria-hidden="true">
+</i>我的</button>
+</nav>
+</div>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 优惠券适用商品</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="benefits/actions.js" defer>
+</script>
+<script src="benefits/coupon-products.js" defer>
+</script>
+</head>
+<body data-page="eligible" data-defaults="id=2">
+<aside class="preview-tools">
+<strong>优惠券适用商品 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>优惠券适用商品</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="page-body">
+<div class="coupon-context">
+<i data-lucide="ticket" aria-hidden="true">
+</i>
+<div>
+<b>签证满减券 · ¥50</b>
+<p>签证服务 · 满 ¥1000 可用</p>
+</div>
+</div>
+<section class="sheet-card">
+<div class="order-product">
+<span class="product-symbol">
+<i data-lucide="book-open" aria-hidden="true">
+</i>
+</span>
+<div>
+<h3>美国旅游签证 · 专业办理</h3>
+<p>签证服务</p>
+<strong class="price">¥1299<small> 起</small>
+</strong>
+</div>
+</div>
+<div class="actions">
+<button class="solid" data-do="goods" data-id="0">查看商品</button>
+</div>
+</section>
+<section class="sheet-card">
+<div class="order-product">
+<span class="product-symbol">
+<i data-lucide="book-open" aria-hidden="true">
+</i>
+</span>
+<div>
+<h3>日本单次旅游签证</h3>
+<p>签证服务</p>
+<strong class="price">¥699<small> 起</small>
+</strong>
+</div>
+</div>
+<div class="actions">
+<button class="solid" data-do="goods" data-id="1">查看商品</button>
+</div>
+</section>
+<p class="hint">这里按券适用范围筛选商品；是否满足金额门槛以最终结算为准。</p>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

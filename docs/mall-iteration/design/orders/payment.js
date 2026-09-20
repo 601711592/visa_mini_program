@@ -1,0 +1,3 @@
+const Page={...OrderActions,render(){if(['order','payment','refund','cancel'].includes(Preview.page)&&!order(p.id)){mount('<div class="page-body">订单不存在或已重置。<button data-nav="orders">查看订单</button></div>');return;}let html="";const o=order(p.id);html=`<div class="page-body">${card(`<span class="eyebrow">待支付</span><div class="large-number">¥${money(o.due)}</div>${row('订单',o.id)}${hint('支付交互演示，不发起微信支付。')}`)}<div class="button-stack">${button('模拟支付成功','paySuccess',o.id)}${button('模拟支付取消','payCancel',o.id,'outline')}${button('模拟支付失败','payFail',o.id,'outline')}</div></div>`
+mount(html)}};
+if(Preview.guard())render();

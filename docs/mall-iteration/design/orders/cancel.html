@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 取消订单</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="orders/actions.js" defer>
+</script>
+<script src="orders/cancel.js" defer>
+</script>
+</head>
+<body data-page="cancel" data-defaults="id=DDX202609160001">
+<aside class="preview-tools">
+<strong>取消订单 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>取消订单</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="page-body">
+<section class="sheet-card">
+<h3>确认取消这笔订单？</h3>
+<p>取消后将无法继续支付这笔订单，您可以重新选购。</p>
+<div class="kv">
+<span>订单号</span>
+<span>DDX202609160001</span>
+</div>
+<div class="button-stack">
+<button class="solid" data-do="confirmCancel" data-id="DDX202609160001">确认取消</button>
+<button class="outline" data-do="back" data-id="">保留订单</button>
+</div>
+</section>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

@@ -32,7 +32,7 @@ export const queryNode = (select: string, isAll: boolean, time: number, that: an
   });
 };
 
-export { getToken, setToken, removeToken } from './auth-session';
+export { getToken, setToken, removeToken } from './request';
 
 // 格式化金额分转元
 export const formatMoney = (value?: number, decimal: number = 2) => {

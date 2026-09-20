@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 订单详情</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="orders/actions.js" defer>
+</script>
+<script src="orders/order-detail.js" defer>
+</script>
+</head>
+<body data-page="order" data-defaults="id=DDX202609150002">
+<aside class="preview-tools">
+<strong>订单详情 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>订单详情</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="status-hero">
+<i data-lucide="file-clock" aria-hidden="true">
+</i>
+<h2>办理中</h2>
+<p>您的订单正在办理，请关注办理情况</p>
+</div>
+<div class="page-body">
+<section class="sheet-card">
+<div class="order-product">
+<span class="product-symbol">
+<i data-lucide="book-open" aria-hidden="true">
+</i>
+</span>
+<div>
+<h3>美国旅游签证 · 专业办理</h3>
+<p>标准办理 · 成人</p>
+<p>2026-10-15 · 1 人</p>
+</div>
+</div>
+<div class="traveller-list">
+<h4>本商品出行人 · 1 位</h4>
+<div class="kv">
+<span>张女士</span>
+<span>护照尾号 5628</span>
+</div>
+<div class="kv">
+<span>生日</span>
+<span>1992-05-12</span>
+</div>
+</div>
+</section>
+<section class="sheet-card">
+<div class="order-product">
+<span class="product-symbol">
+<i data-lucide="book-open" aria-hidden="true">
+</i>
+</span>
+<div>
+<h3>美国旅游签证 · 专业办理</h3>
+<p>标准办理 · 成人</p>
+<p>2026-10-20 · 1 人</p>
+</div>
+</div>
+<div class="traveller-list">
+<h4>本商品出行人 · 1 位</h4>
+<div class="kv">
+<span>李先生</span>
+<span>护照尾号 9031</span>
+</div>
+<div class="kv">
+<span>生日</span>
+<span>1990-08-21</span>
+</div>
+</div>
+</section>
+<section class="sheet-card">
+<h3>价格明细</h3>
+<div class="kv">
+<span>商品总额</span>
+<span>¥2598.00</span>
+</div>
+<div class="kv">
+<span>多人优惠</span>
+<span>−¥0.00</span>
+</div>
+<div class="kv">
+<span>优惠券</span>
+<span>−¥50.00</span>
+</div>
+<div class="kv">
+<span>积分抵扣（500 积分）</span>
+<span>−¥10.00</span>
+</div>
+<div class="kv">
+<span>订单金额</span>
+<span>
+<b>¥2538.00</b>
+</span>
+</div>
+</section>
+<section class="sheet-card">
+<div class="kv">
+<span>订单编号</span>
+<span>DDX202609150002</span>
+</div>
+<div class="kv">
+<span>创建时间</span>
+<span>2026-09-15 14:30</span>
+</div>
+<p class="hint">办理进度及快递信息接入既有体系后展示。</p>
+</section>
+<div class="actions">
+<button class="outline" data-do="refund" data-id="DDX202609150002">申请退款</button>
+</div>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

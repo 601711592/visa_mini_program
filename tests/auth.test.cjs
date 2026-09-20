@@ -7,7 +7,7 @@ const esbuild = require('esbuild');
 let bundle;
 before(async () => {
   const result = await esbuild.build({
-    stdin: { contents: `export { createPinia, setActivePinia } from 'pinia'; export { useGlobalStore } from './src/store/global'; export * from './src/utils/auth-session'; export * from './src/utils/auth-drafts'; export * from './src/utils/auth-routing'; export { default as request } from './src/utils/request'; export * from './src/utils/wechat-privacy'; export { default as LoginPage } from './src/pages/login/index.vue'; export { default as AgreementPage } from './src/pages/service-agreement/index.vue'; export * from './src/content/login-agreements';`, resolveDir: process.cwd(), loader: 'ts' },
+    stdin: { contents: `export { createPinia, setActivePinia } from 'pinia'; export * from './src/store/global'; export * from './src/utils/request'; export { useMallStore } from './src/store/mall'; export { useCenterStore } from './src/store/center'; export { default as request } from './src/utils/request'; export * from './src/utils/wechat-privacy'; export { default as LoginPage } from './src/pages/login/index.vue'; export { default as AgreementPage } from './src/pages/service-agreement/index.vue'; export * from './src/content/login-agreements';`, resolveDir: process.cwd(), loader: 'ts' },
     bundle: true, write: false, format: 'cjs', platform: 'node',
     define: { 'import.meta.env.VITE_MALL_PREVIEW': '"false"', 'import.meta.env.VITE_ID': '"1"', 'import.meta.env.VITE_API_PREFIX': '"https://test.invalid/api/min"' },
     plugins: [{ name: 'vue-page-harness', setup(build) {
@@ -19,7 +19,7 @@ before(async () => {
       build.onResolve({ filter: /^@dcloudio\/uni-app$/ }, () => ({ path: 'uni-hooks', namespace: 'test-hooks' }));
       build.onLoad({ filter: /.*/, namespace: 'test-hooks' }, () => ({ contents: 'export const onLoad = fn => globalThis.__hooks.load = fn; export const onUnload = fn => globalThis.__hooks.unload = fn;' }));
     } }, { name: 'weixin-conditionals', setup(build) {
-      build.onLoad({ filter: /wechat-auth\.ts$/ }, (args) => ({
+      build.onLoad({ filter: /global\.ts$/ }, (args) => ({
         contents: fs.readFileSync(args.path, 'utf8').replace(/\/\/ #ifndef MP-WEIXIN[\s\S]*?\/\/ #endif/g, '').replace(/\/\/ #(?:ifdef MP-WEIXIN|endif)/g, ''), loader: 'ts',
       }));
     } }],
@@ -97,7 +97,7 @@ test('微信会话失效时用新 code 核对身份，不将业务 token 存在�
 });
 test('取消登录后的迟到成功响应不会重新登录，并尝试撤销迟到会话', async () => {
   const h = harness(); const pending = h.store.completePhoneLogin('phone-code', 'v1'); await tick();
-  h.store.cancelLogin(false); ok(h.requests[0], { token: 'late', expires_at: '', member: member() });
+  h.store.cancelLogin(); ok(h.requests[0], { token: 'late', expires_at: '', member: member() });
   assert.equal(await pending, false); assert.equal(h.store.isLogin, false); assert.equal(h.api.getToken(), '');
   assert.ok(h.requests[1].url.endsWith('/auth/logout')); ok(h.requests[1], null);
 });
@@ -107,11 +107,12 @@ test('重复点击只发一次登录请求，两种 code 分别提交', async ()
   assert.equal(h.requests[0].data.login_code, 'wx-login-code'); assert.equal(h.requests[0].data.phone_code, 'phone-code');
   ok(h.requests[0], { token: 'valid', expires_at: '', member: member() }); assert.equal(await one, true); assert.equal(h.store.isLogin, true);
 });
-test('敏感草稿失效时隐藏，同账号恢复、跨账号清除，商品选择不受影响', () => {
-  const h = harness(); h.api.resumeSensitiveDrafts(1); h.api.saveSensitiveDraft('item:1', { passport: 'test-only' });
-  h.api.suspendSensitiveDrafts(); assert.equal(h.api.readSensitiveDraft('item:1'), undefined);
-  h.api.resumeSensitiveDrafts(1); assert.ok(h.api.readSensitiveDraft('item:1'));
-  h.api.suspendSensitiveDrafts(); h.api.resumeSensitiveDrafts(2); assert.equal(h.api.readSensitiveDraft('item:1'), undefined);
+test('登录失效清理实际地址和出行人，保留商品选择', () => {
+  const h = harness(); const mall = h.api.useMallStore(); const center = h.api.useCenterStore();
+  mall.travellers = { item: [{ passport: 'test-only' }] }; mall.cart = [{ key: 'item' }];
+  center.addresses = [{ id: 1, phone: 'private' }];
+  h.store.expireSession();
+  assert.equal(Object.keys(mall.travellers).length, 0); assert.equal(center.addresses.length, 0); assert.equal(mall.cart.length, 1);
 });
 test('业务返回保留原页面实例和参数，不提交订单或支付', async () => {
   const h = harness(); h.setPages([{ route: 'pagesMall/goodsDetail/index', options: { id: '42' } }]);
@@ -125,8 +126,8 @@ test('不同查询参数的目标重新跳转，外部返回地址回到首页',
   assert.equal(h.api.safeTarget('https://evil.invalid'), '/pages/mall/index');
 });
 test('退出立即清理身份和草稿；网络失败不阻碍本地退出', async () => {
-  const h = harness(); h.api.setToken('token'); h.api.resumeSensitiveDrafts(1); h.api.saveSensitiveDraft('item', 'private'); h.storage.set('cart', ['item']);
-  const leaving = h.store.logout(); assert.equal(h.api.getToken(), ''); assert.equal(h.api.readSensitiveDraft('item'), undefined);
+  const h = harness(); h.api.setToken('token'); h.api.useMallStore().travellers = { item: [{ passport: 'private' }] }; h.storage.set('cart', ['item']);
+  const leaving = h.store.logout(); assert.equal(h.api.getToken(), ''); assert.equal(Object.keys(h.api.useMallStore().travellers).length, 0);
   h.requests[0].fail(); await leaving; assert.ok(h.storage.has('cart')); assert.equal(h.notices.length, 1);
 });
 test('没有活跃登录页时隐私回调被拒绝，监听只注册一次', () => {
@@ -138,7 +139,7 @@ test('没有活跃登录页时隐私回调被拒绝，监听只注册一次', ()
 
 test('在 wx.login 返回前取消，不向服务端发送注册请求', async () => {
   const h = harness(); let callback; h.uni.login = (opts) => { callback = opts; };
-  const pending = h.store.completePhoneLogin('phone', 'v1'); h.store.cancelLogin(false); callback.success({ code: 'late-code' });
+  const pending = h.store.completePhoneLogin('phone', 'v1'); h.store.cancelLogin(); callback.success({ code: 'late-code' });
   assert.equal(await pending, false); assert.equal(h.requests.length, 0);
 });
 test('退出后迟到的校验响应不会触发微信会话更新或恢复用户', async () => {
@@ -177,4 +178,20 @@ test('两份本地协议可离线阅读，未知类型回到服务协议', () =>
   const h = harness(); const page = h.api.AgreementPage.setup({}, { expose() {} });
   h.hooks.load({ kind: 'privacy' }); assert.equal(page.agreement.value.title, '隐私保护指引'); assert.ok(page.agreement.value.content.length > 100);
   h.hooks.load({ kind: 'unknown' }); assert.equal(page.agreement.value.title, '用户服务协议'); assert.equal(h.requests.length, 0);
+});
+
+test('登录返回当前三个 tab 页面时使用 switchTab', () => {
+  for (const target of ['/pages/mall/index', '/pages/catalog/index', '/pages/account/index']) {
+    const h = harness(); h.api.returnFromLogin(target);
+    assert.equal(h.navigation[0][0], 'switchTab'); assert.equal(h.navigation[0][1].url, target);
+  }
+});
+test('HTTP 200 的业务失败保留提示且不误清理 token', async () => {
+  for (const status of [0, '00']) {
+    const h = harness(); h.api.setToken('current');
+    const pending = h.api.request({ url: '/member/current' });
+    h.requests[0].success({ statusCode: 200, data: { status, msg: '业务失败提示' } });
+    await assert.rejects(pending, (error) => error.message === '业务失败提示');
+    assert.equal(h.api.getToken(), 'current');
+  }
 });

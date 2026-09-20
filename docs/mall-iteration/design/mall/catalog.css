@@ -1,0 +1,36 @@
+/* Catalog only. Outer navigation uses 750 design units; commerce content uses 375 at 2x. */
+.is-catalog { min-height: 1623px; background: var(--surface); }
+.is-catalog .standalone-nav { height: 130px; background: var(--brand); }
+.is-catalog .catalog-nav-tools { top: 21px; left: 24px; right: 190px; gap: 8px; }
+.is-catalog .catalog-nav-tools .nav-search { order: -1; padding: 0 16px; background: var(--brand-soft); }
+.is-catalog .catalog-nav-tools > button:not(.nav-search) { min-width: 64px; width: 64px; }
+.is-catalog .capsule { top: 36px; background: var(--surface); color: #245b7a; }
+.is-catalog .catalog-nav-tools svg { color: #245b7a; }
+.is-catalog #visa-proto .phone { min-height: 746.5px; background: var(--surface); }
+.is-catalog #visa-proto main { display: flex; padding: 0; background: var(--surface); }
+.is-catalog #visa-proto .catalog-reference { margin: 0; min-height: 0; width: 100%; display: flex; background: var(--surface); }
+.is-catalog #visa-proto .catalog-split { flex: 1; grid-template-columns: 78px minmax(0, 1fr); }
+.is-catalog #visa-proto .catalog-rail { background: var(--page); padding-top: 14px; }
+.is-catalog #visa-proto .catalog-rail button { min-height: 52px; padding: 12px 6px; font-size: 14px; color: var(--body); }
+.is-catalog #visa-proto .catalog-rail button.active { background: var(--brand-soft); color: var(--brand-ink); }
+.is-catalog #visa-proto .catalog-rail button.active::before { top: 0; bottom: 0; border-radius: 0; background: var(--brand); }
+.is-catalog #visa-proto .catalog-results-pane { min-width: 0; padding: 18px 10px; background: var(--surface); }
+.is-catalog #visa-proto .catalog-heading { margin: 0 4px 18px; }
+.is-catalog #visa-proto .catalog-heading h2 { margin: 0 0 4px; font-size: 24px; line-height: 1.4; font-weight: 600; color: var(--text); }
+.is-catalog #visa-proto .catalog-heading p { margin: 0; font-size: 14px; color: var(--muted); }
+.is-catalog #visa-proto .catalog-tiles { padding: 0; min-height: 0; gap: 10px; border-radius: 0; background: transparent; }
+.is-catalog #visa-proto .catalog-tile { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; box-shadow: none; background: var(--surface); }
+.is-catalog #visa-proto .catalog-goods { padding: 7px 7px 0; flex: 1; }
+/* Explicit 1:1 ratio, independent of the source image's intrinsic dimensions. */
+.is-catalog #visa-proto .catalog-goods .checkout-cover { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 7px; }
+.is-catalog #visa-proto .catalog-goods h3 { margin: 10px 1px 0; min-height: 44px; font-size: 14px; line-height: 22px; font-weight: 500; color: var(--text); }
+.is-catalog #visa-proto .tile-bottom { padding: 2px 3px 5px 8px; gap: 0; }
+.is-catalog #visa-proto .tile-price { font-size: 12px; color: var(--brand-ink); }
+.is-catalog #visa-proto .tile-price strong { font-size: 20px; font-weight: 600; margin-left: 1px; }
+.is-catalog #visa-proto .tile-cart { position: relative; width: 44px; height: 44px; padding: 12px; background: transparent; color: #245b7a; }
+.is-catalog #visa-proto .tile-cart::before { content: ''; position: absolute; inset: 7px; border-radius: 50%; background: var(--brand-soft); }
+.is-catalog #visa-proto .tile-cart svg { position: relative; width: 20px; height: 20px; }
+.is-catalog #visa-proto nav { min-height: 64px; padding: 7px 6px; border-color: var(--line); }
+.is-catalog #visa-proto nav svg { width: 26px; height: 26px; }
+.is-catalog #visa-proto nav button.active { color: var(--brand-ink); font-weight: 500; }
+.is-catalog #visa-proto nav button.active svg { fill: var(--brand-ink); stroke: var(--brand-ink) !important; }

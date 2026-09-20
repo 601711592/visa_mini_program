@@ -11,6 +11,7 @@ import { onLoad } from '@dcloudio/uni-app';
 import { LOGIN_AGREEMENTS, type LoginAgreementKind } from '@/content/login-agreements';
 const kind = ref<LoginAgreementKind>('service');
 const agreement = computed(() => LOGIN_AGREEMENTS[kind.value]);
+// 只读取本地协议；未知类型回退到服务协议，不请求后端。
 onLoad((query) => {
   kind.value = query?.kind === 'privacy' ? 'privacy' : 'service';
   uni.setNavigationBarTitle({ title: agreement.value.title });

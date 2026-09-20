@@ -1,0 +1,1 @@
+const BenefitActions={click(b){const a=b.dataset.do;if(a==='browse')flow('catalog');if(a==='eligible')push('eligible',{id:Number(b.dataset.id)});if(a==='goods')flow('goods',{goodsId:Number(b.dataset.id)});}};

@@ -83,3 +83,21 @@ pages.html 为统一评审目录。flow.html + flow.css 补齐购物车、确认
 最新分类页按用户提供参考图调整：顶部浅蓝搜索区、左侧分类导航、右侧双列商品卡。使用已确认分类与商品，不照搬参考中的虚构类别及价格。商品卡的购物车入口先进入详情选择规格。此条替代此前顶部双标签方案；本轮未追加截图识图。
 
 分类页搜索和购物车移至顶部自定义导航示意，替代分类页标题与返回按钮，右侧预留微信胶囊区域；进入搜索或购物车后恢复普通返回导航。正式小程序需使用自定义导航并按微信胶囊位置测量避让。
+
+## 独立 HTML 入口（2026-09-20）
+
+每个页面有独立 HTML 文件，可从 pages.html 目录直接打开，不再依赖 personal-center.html?page= 参数。入口通过 body 的 data-page 与 data-page-options 声明页面及演示数据，共享 personal-center.css、personal-center.js、subpages.js 和商城 flow.html 渲染逻辑。页内模拟跳转保持内存状态，不整页刷新；旧参数链接继续兼容。page-manifest.json 列出所有独立入口。
+
+页面入口按 mall、orders、benefits、account、invite 五个模块归档；共享资源仍放 design 根目录与 assets，模块入口通过 base 指向根目录，完整映射见 page-manifest.json。
+
+## 当前页面架构（2026-09-20，更正此前入口拆分）
+
+此前仅复制入口的实现已替换。当前 34 个 HTML 均含各自内容，加载同名页面 JS；静态页不通过 JS 重建主体，动态页仅由本页脚本更新。移除 subpages.js、personal-center.js、flow.html 及 iframe；跨页使用真实 URL，以 sessionStorage 衔接临时演示状态。共享样式改为 shared/site.css、shared/commerce.css。此节替代上文关于统一容器、内存导航栈和 iframe 的历史说明，维护指南见 README.md。
+
+清理结果：移除旧根目录 personal-center.html 兼容跳转页；当前保留 34 个模块页面及 pages.html 目录。历史需求原型 prototype/ 仍保留。
+
+## 分类页确认稿更新（2026-09-20）
+
+采用合并方案：紧凑浅蓝顶部搜索／购物车／胶囊、左侧纯文字分类、右侧分类标题与数量、双列独立商品卡片。每张卡片包含严格 1:1 封面（aspect-ratio: 1 / 1，object-fit: cover）、商品名、价格和圆形详情箭头；点击进入详情选择规格。卡片白底、#E3E8F0 细边框、无阴影；主色 #8AD0F9、深蓝文字 #164E70、单色图标 #245B7A，沿用既有文字与背景变量。分类专用样式位于 mall/catalog.css，静态 HTML 与 catalog.js 动态渲染同步维护。本次仅更新 HTML 设计预览，未修改小程序业务页面。
+
+验证：34 页既有交互回归通过；浏览器中两张封面实际宽高均为 122.296875px，顶部计算色值 rgb(138, 208, 249)，价格 rgb(22, 78, 112)。

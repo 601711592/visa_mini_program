@@ -11,27 +11,19 @@ export default defineConfig(({ mode }) => {
   // 加载环境变量
   const env = loadEnv(mode, process.cwd());
 
+  // uni() 初始化时就可能读取并缓存 manifest，必须在创建插件前写入当前环境的 AppID。
+  if (env.VITE_APP_ID) {
+    const manifestPath = path.resolve(__dirname, 'src/manifest.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    if (manifest['mp-weixin']) {
+      manifest['mp-weixin'].appid = env.VITE_APP_ID;
+    }
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    console.log(`✅ 已更新 manifest.json 中的 appid 为: ${env.VITE_APP_ID}`);
+  }
+
   return {
     plugins: [
-      // 在 uni 插件之前修改 manifest.json
-      {
-        name: 'update-manifest',
-        enforce: 'pre',
-        config() {
-          if (env.VITE_APP_ID) {
-            const manifestPath = path.resolve(__dirname, 'src/manifest.json');
-            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-
-            // 更新微信小程序的 appid
-            if (manifest['mp-weixin']) {
-              manifest['mp-weixin'].appid = env.VITE_APP_ID;
-            }
-
-            fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-            console.log(`✅ 已更新 manifest.json 中的 appid 为: ${env.VITE_APP_ID}`);
-          }
-        },
-      },
       uni(),
       VueTypeImports(),
       Unocss(),

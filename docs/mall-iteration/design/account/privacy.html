@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 隐私保护提示</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="account/actions.js" defer>
+</script>
+<script src="account/privacy.js" defer>
+</script>
+</head>
+<body data-page="privacy" data-defaults="">
+<aside class="preview-tools">
+<strong>隐私保护提示 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>隐私保护提示</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="page-body">
+<section class="sheet-card">
+<h3>手机号使用说明</h3>
+<p>为绑定账号并联系订单服务，我们需要在您主动授权后使用手机号。</p>
+<p>头像、昵称自愿完善；拒绝授权仍可继续浏览。</p>
+<button class="text-link" data-page="terms" data-params="{&quot;kind&quot;:&quot;privacy&quot;}">阅读隐私保护指引<i data-lucide="chevron-right" aria-hidden="true">
+</i>
+</button>
+<div class="button-stack">
+<button class="solid" data-do="privacyAccept" data-id="">同意并继续</button>
+<button class="outline" data-do="cancelLogin" data-id="">拒绝并返回</button>
+</div>
+<p class="hint">微信隐私授权交互示意，与商户协议勾选分别处理。</p>
+</section>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>

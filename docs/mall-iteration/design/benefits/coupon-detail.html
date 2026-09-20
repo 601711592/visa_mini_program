@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>董大象 · 优惠券详情</title>
+<link rel="stylesheet" href="shared/site.css">
+<script src="assets/lucide.min.js" defer>
+</script>
+<script src="shared/seed.js" defer>
+</script>
+<script src="shared/preview.js" defer>
+</script>
+<script src="shared/components.js" defer>
+</script>
+<script src="benefits/actions.js" defer>
+</script>
+<script src="benefits/coupon-detail.js" defer>
+</script>
+</head>
+<body data-page="coupon" data-defaults="id=2">
+<aside class="preview-tools">
+<strong>优惠券详情 · 微信小程序</strong>
+<label>预览宽度 <select id="width">
+<option>375</option>
+<option selected>390</option>
+<option>430</option>
+<option>750</option>
+</select>
+</label>
+<a href="pages.html">页面目录</a>
+<button id="reset-preview">重置演示数据</button>
+</aside>
+<div id="stage">
+<div id="screen" class="screen ">
+<div class="sub-nav standalone-nav">
+<button data-back aria-label="返回">
+<i data-lucide="chevron-left">
+</i>
+</button>
+<h2>优惠券详情</h2>
+<div class="capsule" aria-label="微信胶囊示意">
+<i data-lucide="ellipsis">
+</i>
+<span>
+</span>
+<i data-lucide="circle-dot">
+</i>
+</div>
+</div>
+<main id="page-content">
+<div class="page-body">
+<section class="coupon-card ">
+<div class="coupon-face">
+<strong>
+<small>¥</small>50</strong>
+<span>满 1000 元可用</span>
+</div>
+<div class="coupon-copy">
+<h3>签证满减券</h3>
+<p>签证服务 · 2026.10.31 到期</p>
+<div class="coupon-actions">
+<button class="text-link" data-page="coupon" data-params="{&quot;id&quot;:2}">使用规则<i data-lucide="chevron-right" aria-hidden="true">
+</i>
+</button>
+<button class="compact" data-do="eligible" data-id="2">去使用</button>
+</div>
+</div>
+</section>
+<section class="sheet-card">
+<h3>使用规则</h3>
+<div class="kv">
+<span>使用门槛</span>
+<span>订单满足 ¥1000</span>
+</div>
+<div class="kv">
+<span>适用范围</span>
+<span>签证服务</span>
+</div>
+<div class="kv">
+<span>有效期至</span>
+<span>2026.10.31</span>
+</div>
+<div class="kv">
+<span>当前状态</span>
+<span>未使用</span>
+</div>
+<p>每个订单限用一张优惠券，可叠加积分使用。</p>
+<p>退款后退回已使用优惠券；过期券返还后的有效性待确认。</p>
+<p class="hint">本页金额、门槛与有效期均为演示配置，以正式券规则为准。</p>
+</section>
+</div>
+</main>
+<div id="page-notice" class="page-notice" role="status" hidden>
+</div>
+</div>
+</div>
+<p class="preview-note">设计预览 · 授权与支付均为模拟</p>
+</body>
+</html>
