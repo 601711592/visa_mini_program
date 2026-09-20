@@ -57,7 +57,7 @@
       "path": "pages/account/index",
       "style": {
         "navigationBarTitleText": "个人中心",
-        "navigationStyle": "default",
+        "navigationStyle": "custom",
         "navigationBarBackgroundColor": "#8AD0F9",
         "navigationBarTextStyle": "black"
       }

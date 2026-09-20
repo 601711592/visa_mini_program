@@ -10,7 +10,7 @@
         </template>
         <template v-slot:default class="uni-navbar__header-container-inner uni-nav-bar-text flex-r-c-c">
           <slot name="navbarDefault">
-            <image v-if="logoUrl" :src="logoUrl" class="navbar-logo" mode="aspectFit" />
+            <!-- <image v-if="logoUrl" :src="logoUrl" class="navbar-logo" mode="aspectFit" /> -->
             <text>{{ _navbar.title }}</text>
           </slot>
         </template>

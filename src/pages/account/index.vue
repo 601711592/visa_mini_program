@@ -1,45 +1,48 @@
 <template>
-  <view class="center-page account-page">
-    <profile-header
-      :logged="global.isLogin"
-      :nickname="global.userInfo?.nickname || '微信用户'"
-      :phone="global.userInfo?.phone_masked || ''"
-      :avatar="global.userInfo?.avatar || ''"
-      @tap="onProfile"
-    />
-    <view class="main">
-      <order-shortcuts @open="openOrders" />
-      <view class="card benefits">
-        <benefit-row
-          icon="/static/images/center/coins.png"
-          title="积分中心"
-          :description="pointsDescription"
-          link-text="明细"
-          pill-text="去使用"
-          @detail="go('/pagesCenter/points/index')"
-          @action="usePoints"
-        />
-        <benefit-row
-          icon="/static/images/center/ticket-percent.png"
-          title="优惠券"
-          :description="couponDescription"
-          link-text="查看全部"
-          pill-text="去使用"
-          @detail="go('/pagesCenter/coupons/index')"
-          @action="go('/pagesCenter/coupons/index?purpose=use')"
-        />
-        <benefit-row
-          icon="/static/images/center/user-round-plus.png"
-          title="邀请好友"
-          description="查看邀请记录与奖励规则"
-          pill-text="去邀请"
-          @detail="go('/pagesCenter/invite/index')"
-          @action="go('/pagesCenter/invite/index')"
-        />
+  <layout :navbar="{ title: '个人中心', backgroundColor: '#8AD0F9', fixed: true }">
+    <template #navbarDefault><view class="account-nav-title"><text>个人中心</text></view></template>
+    <view class="center-page account-page">
+      <profile-header
+        :logged="global.isLogin"
+        :nickname="global.userInfo?.nickname || '微信用户'"
+        :phone="global.userInfo?.phone_masked || ''"
+        :avatar="global.userInfo?.avatar || ''"
+        @tap="onProfile"
+      />
+      <view class="main">
+        <order-shortcuts @open="openOrders" />
+        <view class="card benefits">
+          <benefit-row
+            icon="/static/images/center/coins.png"
+            title="积分中心"
+            :description="pointsDescription"
+            link-text="明细"
+            pill-text="去使用"
+            @detail="go('/pagesCenter/points/index')"
+            @action="usePoints"
+          />
+          <benefit-row
+            icon="/static/images/center/ticket-percent.png"
+            title="优惠券"
+            :description="couponDescription"
+            link-text="查看全部"
+            pill-text="去使用"
+            @detail="go('/pagesCenter/coupons/index')"
+            @action="go('/pagesCenter/coupons/index?purpose=use')"
+          />
+          <benefit-row
+            icon="/static/images/center/user-round-plus.png"
+            title="邀请好友"
+            description="查看邀请记录与奖励规则"
+            pill-text="去邀请"
+            @detail="go('/pagesCenter/invite/index')"
+            @action="go('/pagesCenter/invite/index')"
+          />
+        </view>
+        <service-list @open="openService" />
       </view>
-      <service-list @open="openService" />
     </view>
-  </view>
+  </layout>
 </template>
 
 <script setup lang="ts">
@@ -104,7 +107,18 @@ function openService(key: string) {
 @import '@/styles/center.scss';
 
 .account-page {
+  min-height: calc(100vh - var(--navbar-height));
   padding-bottom: 60rpx;
+}
+
+.account-nav-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  color: #164e70;
+  font-size: 32rpx;
+  font-weight: 600;
 }
 
 .main {
