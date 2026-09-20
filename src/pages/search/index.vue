@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import type { Goods, GoodsCategory } from '@/services/shop';
-import { getGoodsList, getShopCagetorys } from '@/services/shop';
+import { getGoodsList, getShopCategories } from '@/services/shop';
 import { debounce, formatMoney } from '@/utils';
 import { onShareAppMessage, onShow } from '@dcloudio/uni-app';
 import { computed, ref } from 'vue';

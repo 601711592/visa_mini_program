@@ -1,4 +1,3 @@
-import { getLaunchWxPayParams } from '@/services/pay';
 import { ASSET_DOMAIN } from './constant';
 
 /**
@@ -69,35 +68,6 @@ export const base64ToFile = (base64data) => {
     } else {
       resolve(base64data);
     }
-  });
-};
-
-/**
- * 唤起支付
- */
-export const requestPayment = async (orderNo: string, callback?: (e: boolean) => void) => {
-  uni.showLoading();
-  const res = await getLaunchWxPayParams(orderNo);
-  uni.hideLoading();
-  uni.requestPayment({
-    provider: 'wxpay',
-    orderInfo: {},
-    ...res.data,
-    success: (res) => {
-      if (callback) {
-        callback(true);
-      } else {
-        uni.navigateTo({ url: '/pagesPay/success/index' });
-      }
-    },
-    fail: (err) => {
-      if (callback) {
-        callback(false);
-      } else {
-        uni.navigateTo({ url: '/pagesOrder/index/index' });
-      }
-      console.log('fail:' + JSON.stringify(err));
-    },
   });
 };
 

@@ -1,4 +1,4 @@
-import request, { Method } from '@/utils/request';
+import request from '@/utils/request';
 
 // 商品类别接口
 export interface GoodsCategory {
@@ -23,7 +23,7 @@ export interface Goods {
   cover: string; // 封面图片链接
   images: string[]; // 轮播图
   price: number; // 价格
-  category_id: number; // 类别 ID 列表，逗号分隔
+  category_id: number; // 所属类别 ID
   stock: number; // 库存
   content: string; // 产品详情 HTML
   limitBuy: number; // 限购数量
@@ -35,27 +35,27 @@ export interface Goods {
   specification: GoodsSpecification[]; // 规格参数
 }
 
-/**
- * 查询商品分类列表
- * @param {{}} data
- * @returns
- */
-export const getShopCagetorys = () => {
-  return request<API.ResponseBody<GoodsCategory[]>>({ url: '/goods/category/list', method: Method.GET });
-};
+/** 查询商品分类。 */
+export function getShopCategories() {
+  return request<API.ResponseBody<GoodsCategory[]>>({
+    url: '/goods/category/list',
+    method: 'GET',
+  });
+}
 
-/**
- * 查询商品列表
- * @param {{}} data
- * @returns
- */
-export const getGoodsList = (data?: API.RequestPage<{ name?: string }>) => {
-  return request<API.ResponseBodyPage<Goods>>({ url: '/goods/page', data, method: Method.GET });
-};
+/** 按名称分页查询商品。 */
+export function getGoodsList(data?: API.RequestPage<{ name?: string }>) {
+  return request<API.ResponseBodyPage<Goods>>({
+    url: '/goods/page',
+    method: 'GET',
+    data,
+  });
+}
 
-/**
- * 查询商品详情
- */
-export const getGoodsDetail = (id: string) => {
-  return request<API.ResponseBody<Goods>>({ url: `/goods/${id}`, method: Method.GET });
-};
+/** 根据商品 ID 查询详情。 */
+export function getGoodsDetail(id: string) {
+  return request<API.ResponseBody<Goods>>({
+    url: `/goods/${id}`,
+    method: 'GET',
+  });
+}

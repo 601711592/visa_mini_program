@@ -114,7 +114,7 @@
 import type { Goods, GoodsSpecification } from '@/services/shop';
 import { computed, ref, watch } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import { getGoodsDetail, getShopCagetorys } from '@/services/shop';
+import { getGoodsDetail, getShopCategories } from '@/services/shop';
 import { useMallStore, type CartItem } from '@/store/mall';
 import { formatMoney } from '@/utils';
 import moment from 'moment';
@@ -247,7 +247,7 @@ onLoad((options) => {
     getGoodsDetail(id).then((res) => {
       goodsDetail.value = res.data;
       goodsDetail.value.content = goodsDetail.value.content.replace(/\<img/gi, '<img style="max-width:100%;height:auto"');
-      getShopCagetorys().then((cateRes) => {
+      getShopCategories().then((cateRes) => {
         categoryName.value = cateRes.data.find((c) => c.id === goodsDetail.value?.category_id)?.name || '';
       });
     });

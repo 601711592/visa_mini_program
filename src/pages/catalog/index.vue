@@ -66,7 +66,7 @@
 
 <script setup lang="ts">
 import type { Goods, GoodsCategory } from '@/services/shop';
-import { getGoodsList, getShopCagetorys } from '@/services/shop';
+import { getGoodsList, getShopCategories } from '@/services/shop';
 import { formatMoney } from '@/utils';
 import { onResize, onShow } from '@dcloudio/uni-app';
 import { computed, nextTick, ref } from 'vue';
@@ -105,7 +105,7 @@ async function loadCatalog() {
   loading.value = true;
   loadError.value = false;
   try {
-    const [categoryResult, goodsResult] = await Promise.all([getShopCagetorys(), getGoodsList({ pageSize: 100 })]);
+    const [categoryResult, goodsResult] = await Promise.all([getShopCategories(), getGoodsList({ pageSize: 100 })]);
     categories.value = categoryResult.data;
     goods.value = goodsResult.data.data;
     if (!categories.value.some(category => category.id === currentCategory.value)) {

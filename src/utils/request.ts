@@ -1,6 +1,5 @@
 import { API_PREFIX } from './constant';
 
-
 /** 缓存按后端环境和小程序隔离；不读取旧版裸 token。 */
 export const authNamespace = `mini:${import.meta.env.VITE_ID || 'unconfigured'}:${API_PREFIX}`;
 const tokenKey = `${authNamespace}:token`;
@@ -8,14 +7,16 @@ export const getToken = (): string => uni.getStorageSync(tokenKey) || '';
 export const setToken = (token: string) => uni.setStorageSync(tokenKey, token);
 export const removeToken = () => uni.removeStorageSync(tokenKey);
 
-let invalidated: (() => void) | undefined;
+let sessionInvalidatedHandler: (() => void) | undefined;
 /** 通知全局状态清理身份，请求工具不直接依赖业务 store。 */
-export const onSessionInvalidated = (handler: () => void) => { invalidated = handler; };
+export function onSessionInvalidated(handler: () => void) {
+  sessionInvalidatedHandler = handler;
+}
 export function invalidateSession(requestToken: string) {
   // 老请求不能清除后来登录的新会话。
   if (requestToken && getToken() === requestToken) {
     removeToken();
-    invalidated?.();
+    sessionInvalidatedHandler?.();
   }
 }
 
@@ -23,7 +24,9 @@ export function invalidateSession(requestToken: string) {
 export function clearSensitiveStorage() {
   const legacy = ['token', 'userInfo', 'travellers', 'travelers', 'address', 'addresses', 'contactPhone', 'checkoutDraft'];
   uni.getStorageInfoSync().keys.forEach((key: string) => {
-    if (legacy.includes(key) || key.startsWith(`${authNamespace}:sensitive:`)) uni.removeStorageSync(key);
+    if (legacy.includes(key) || key.startsWith(`${authNamespace}:sensitive:`)) {
+      uni.removeStorageSync(key);
+    }
   });
 }
 
@@ -40,30 +43,36 @@ export interface RequestOptions {
   token?: string;
 }
 export class RequestError extends Error {
-  constructor(public code: string, message: string, public statusCode = 0) { super(message); }
+  constructor(public code: string, message: string, public statusCode = 0) {
+    super(message);
+  }
 }
 
 /** 仅向本站 API 自动附带 token；HTTP 成功还需检查业务 status。 */
 export default function request<T = unknown>(options: RequestOptions | string): Promise<T> {
-  const opts = typeof options === 'string' ? { url: options } : options;
-  const url = /^https?:\/\//.test(opts.url) ? opts.url : API_PREFIX + opts.url;
-  const trusted = url.startsWith(API_PREFIX + '/');
-  const token = opts.auth === false || !trusted ? '' : (opts.token ?? getToken());
+  const requestOptions = typeof options === 'string' ? { url: options } : options;
+  const url = /^https?:\/\//.test(requestOptions.url) ? requestOptions.url : API_PREFIX + requestOptions.url;
+  const isOwnApi = url.startsWith(API_PREFIX + '/');
+  const token = requestOptions.auth === false || !isOwnApi ? '' : (requestOptions.token ?? getToken());
   return new Promise<T>((resolve, reject) => {
     uni.request({
       url,
-      data: { ...opts.data, mini_program_id: import.meta.env.VITE_ID },
-      method: opts.method || 'GET',
+      data: { ...requestOptions.data, mini_program_id: import.meta.env.VITE_ID },
+      method: requestOptions.method || 'GET',
       timeout: 30000,
       header: {
-        'content-type': opts.contentType || 'application/json',
-        ...opts.header,
+        'content-type': requestOptions.contentType || 'application/json',
+        ...requestOptions.header,
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       success: (res) => {
         const body = res.data as { status?: number | string; code?: string; msg?: string } | null;
-        if (res.statusCode === 401) invalidateSession(token);
-        if (res.statusCode < 200 || res.statusCode >= 300 || (body?.status !== undefined && String(body.status) !== '11')) {
+        if (res.statusCode === 401) {
+          invalidateSession(token);
+        }
+        const httpFailed = res.statusCode < 200 || res.statusCode >= 300;
+        const businessFailed = body?.status !== undefined && String(body.status) !== '11';
+        if (httpFailed || businessFailed) {
           reject(new RequestError(body?.code || `HTTP_${res.statusCode}`, body?.msg || '请求失败，请稍后重试', res.statusCode));
           return;
         }

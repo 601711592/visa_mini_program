@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import type { Goods, GoodsCategory } from '@/services/shop';
-import { getGoodsList, getShopCagetorys } from '@/services/shop';
+import { getGoodsList, getShopCategories } from '@/services/shop';
 import { useMallStore } from '@/store/mall';
 import { debounce, formatMoney } from '@/utils';
 import { onShareAppMessage, onShow } from '@dcloudio/uni-app';
@@ -50,7 +50,7 @@ const shopCagetorys = ref<GoodsCategory[]>([]);
 const goods = ref<Goods[]>([]);
 
 onShow(() => {
-  getShopCagetorys().then((res) => {
+  getShopCategories().then((res) => {
     shopCagetorys.value = res.data;
     currentCategory.value = res.data[0].id;
   });

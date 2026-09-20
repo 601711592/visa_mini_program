@@ -55,7 +55,7 @@ import { computed, ref } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { useGlobalStore } from '@/store/global';
 import { useCenterStore } from '@/store/center';
-import { getGoodsList, getShopCagetorys, type Goods, type GoodsCategory } from '@/services/shop';
+import { getGoodsList, getShopCategories, type Goods, type GoodsCategory } from '@/services/shop';
 import { formatMoney } from '@/utils';
 
 const global = useGlobalStore();
@@ -94,7 +94,7 @@ async function loadGoods() {
   loading.value = true;
   error.value = '';
   try {
-    const [categoryRes, goodsRes] = await Promise.all([getShopCagetorys(), getGoodsList({ pageSize: 100 })]);
+    const [categoryRes, goodsRes] = await Promise.all([getShopCategories(), getGoodsList({ pageSize: 100 })]);
     categories.value = categoryRes.data;
     goods.value = goodsRes.data.data;
   } catch {
