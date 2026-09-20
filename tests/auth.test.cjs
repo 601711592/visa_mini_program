@@ -36,6 +36,7 @@ function harness() {
   const uni = {
     getStorageSync: (key) => storage.get(key), setStorageSync: (key, val) => storage.set(key, val), removeStorageSync: (key) => storage.delete(key),
     getStorageInfoSync: () => ({ keys: [...storage.keys()] }),
+    canIUse: () => true,
     request: (opts) => requests.push(opts), login: (opts) => opts.success({ code: 'wx-login-code' }), checkSession: (opts) => opts.success(),
     navigateTo: (opts) => navigation.push(['navigateTo', opts]), navigateBack: (opts) => navigation.push(['navigateBack', opts]),
     redirectTo: (opts) => navigation.push(['redirectTo', opts]), switchTab: (opts) => navigation.push(['switchTab', opts]), reLaunch: (opts) => navigation.push(['reLaunch', opts]),
@@ -130,13 +131,6 @@ test('退出立即清理身份和草稿；网络失败不阻碍本地退出', as
   const leaving = h.store.logout(); assert.equal(h.api.getToken(), ''); assert.equal(Object.keys(h.api.useMallStore().travellers).length, 0);
   h.requests[0].fail(); await leaving; assert.ok(h.storage.has('cart')); assert.equal(h.notices.length, 1);
 });
-test('没有活跃登录页时隐私回调被拒绝，监听只注册一次', () => {
-  const h = harness(); let resolve;
-  const dispose = h.api.receivePrivacy((r) => { resolve = r; }); let answer;
-  h.privacy((value) => { answer = value; }); resolve({ event: 'agree', buttonId: 'test' }); assert.equal(answer.event, 'agree');
-  dispose(); h.privacy((value) => { answer = value; }); assert.equal(answer.event, 'disagree');
-});
-
 test('在 wx.login 返回前取消，不向服务端发送注册请求', async () => {
   const h = harness(); let callback; h.uni.login = (opts) => { callback = opts; };
   const pending = h.store.completePhoneLogin('phone', 'v1'); h.store.cancelLogin(); callback.success({ code: 'late-code' });
@@ -160,11 +154,15 @@ test('协议阅读返回保留勾选，手机号拒绝可继续浏览', async ()
   await page.handlePhone({ detail: { errMsg: 'getPhoneNumber:fail user deny' } }); assert.match(page.error.value, /未完成/);
   assert.equal(h.requests.length, 0); h.hooks.unload(); assert.equal(h.store.loginOpen, false);
 });
-test('隐私拒绝及页面卸载结束全部等待回调', () => {
-  const h = harness(); const page = loginPage(h); const results = [];
-  h.privacy((r) => results.push(r.event)); h.privacy((r) => results.push(r.event));
-  assert.equal(page.showPrivacy.value, true); page.rejectPrivacy(); assert.deepEqual(results, ['disagree', 'disagree']);
-  h.privacy((r) => results.push(r.event)); h.hooks.unload(); assert.deepEqual(results, ['disagree', 'disagree', 'disagree']);
+test('默认隐私授权不注册自定义监听，用户拒绝不发登录请求', async () => {
+  const h = harness(); const page = loginPage(h);
+  assert.throws(() => h.privacy(() => {}), TypeError);
+  page.changeConsent({ detail: { value: ['agree'] } });
+  await page.handlePhone({ detail: { errMsg: 'getPhoneNumber:fail privacy permission is not authorized' } });
+  assert.equal(h.requests.length, 0); assert.match(page.error.value, /未完成/);
+  h.hooks.unload();
+  await page.handlePhone({ detail: { code: 'late-phone-code' } });
+  assert.equal(h.requests.length, 0);
 });
 test('登录直接提交前端协议版本，不加载后端协议', async () => {
   const h = harness(); const page = loginPage(h); assert.equal(h.requests.length, 0);

@@ -11,15 +11,7 @@
       </view>
       <text v-if="error" class="error" role="alert">{{ error }}</text>
     </view>
-    <view v-if="showPrivacy" class="privacy-mask">
-      <view class="privacy-card">
-        <text class="privacy-title">手机号使用说明</text>
-        <text class="privacy-copy">为绑定账号并联系订单服务，我们需要在您主动授权后使用手机号。拒绝授权仍可继续浏览。</text>
-        <button class="agreement-link" @tap="openPrivacyContract">阅读《隐私保护指引》</button>
-        <button id="login-privacy-agree" class="primary" open-type="agreePrivacyAuthorization" @agreeprivacyauthorization="agreePrivacy">同意并继续</button>
-        <button class="text-button" @tap="rejectPrivacy">拒绝并返回</button>
-      </view>
-    </view>
+
   </view>
 </template>
 <script setup lang="ts">
@@ -27,28 +19,22 @@ import { ref } from 'vue';
 import { onLoad, onUnload } from '@dcloudio/uni-app';
 import { LOGIN_AGREEMENT_VERSION, type LoginAgreementKind } from '@/content/login-agreements';
 import { useGlobalStore } from '@/store/global';
-import { privacyApi, receivePrivacy, openPrivacyContract, type PrivacyResolve } from '@/utils/wechat-privacy';
 const global = useGlobalStore();
 const consent = ref(false);
 const supported = ref(false);
 const busy = ref(false);
 const error = ref('');
-const showPrivacy = ref(false);
-let resolves: PrivacyResolve[] = [];
-let dispose = () => {};
 let alive = true;
-// 协议勾选与微信隐私授权分别处理，需要授权时由微信回调驱动。
+// 不注册隐私授权监听，由微信在需要时展示官方默认弹窗。
 onLoad(() => {
   global.loginOpen = true;
-  const api = privacyApi();
-  supported.value = !!api;
-  dispose = receivePrivacy((resolve) => { resolves.push(resolve); showPrivacy.value = true; });
+  // #ifdef MP-WEIXIN
+  supported.value = uni.canIUse('button.open-type.getPhoneNumber');
+  // #endif
 });
-// 离开页面时结束待处理授权，并取消尚未返回的登录操作。
+// 页面卸载后取消未完成登录，不再接收或处理微信隐私回调。
 onUnload(() => {
   alive = false;
-  resolvePrivacy(false);
-  dispose();
   if (global.loginOpen) global.cancelLogin();
 });
 /** 只记录本次页面的主动勾选，不默认代用户同意。 */
@@ -59,15 +45,6 @@ function explainRequired() {
 }
 /** 阅读本地协议，返回后保留当前勾选状态。 */
 function readAgreement(kind: LoginAgreementKind = 'service') { uni.navigateTo({ url: `/pages/service-agreement/index?kind=${kind}` }); }
-/** 同意、拒绝和卸载都需结束全部微信隐私回调，避免授权一直等待。 */
-function resolvePrivacy(agree: boolean) {
-  const waiting = resolves;
-  resolves = [];
-  showPrivacy.value = false;
-  waiting.forEach((resolve) => resolve(agree ? { event: 'agree', buttonId: 'login-privacy-agree' } : { event: 'disagree' }));
-}
-function agreePrivacy() { resolvePrivacy(true); }
-function rejectPrivacy() { resolvePrivacy(false); error.value = '您未同意隐私授权，可继续浏览或主动重试'; }
 /** 拿到手机号 code 后发起业务登录，卸载后不再更新页面或跳转。 */
 async function handlePhone(event: { detail: { code?: string; errMsg?: string } }) {
   if (busy.value || !alive) return;
@@ -94,10 +71,5 @@ button::after { border: 0; }
 .consent-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; margin: 16rpx 0; font-size: 24rpx; }
 .checkbox-label { min-height: 88rpx; display: flex; align-items: center; }
 .agreement-link { display: inline-flex; align-items: center; min-height: 88rpx; background: transparent; color: #164E70; padding: 0; margin: 0; font-size: 24rpx; line-height: 1.5; }
-.text-button { background: transparent; color: #737D8C; min-height: 88rpx; font-size: 28rpx; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1.4; }
 .error { display: block; color: #A33232; font-size: 26rpx; line-height: 1.6; text-align: center; }
-.privacy-mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
-.privacy-card { width: 630rpx; box-sizing: border-box; background: #fff; border-radius: 24rpx; padding: 40rpx; }
-.privacy-title { display: block; color: #202631; font-size: 34rpx; font-weight: 600; margin-bottom: 24rpx; }
-.privacy-copy { display: block; font-size: 28rpx; line-height: 1.7; }
 </style>
