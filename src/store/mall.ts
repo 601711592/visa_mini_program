@@ -60,6 +60,7 @@ export const useMallStore = defineStore('mall', {
     directItem: null as CartItem | null,
     couponId: 0,
     usePoints: true,
+    checkoutAddressId: null as number | null, // null 使用默认地址，0 不使用地址，正数为本单选中的地址 ID
   }),
   getters: {
     cartCount: (state) => state.cart.reduce((n, x) => n + x.qty, 0),
@@ -83,6 +84,7 @@ export const useMallStore = defineStore('mall', {
       this.checkoutFromCart = false;
       this.couponId = 0;
       this.usePoints = true;
+      this.checkoutAddressId = null;
       return key;
     },
     setQty(key: string, delta: number) {
@@ -109,6 +111,7 @@ export const useMallStore = defineStore('mall', {
       this.directItem = null;
       this.couponId = 0;
       this.usePoints = true;
+      this.checkoutAddressId = null;
     },
     setCoupon(id: number) {
       this.couponId = id;
@@ -151,6 +154,10 @@ export const useMallStore = defineStore('mall', {
     /** 提交订单（模拟）：写入个人中心订单、扣减积分、占用优惠券、清理已购明细。 */
     submitOrder(): CenterOrder {
       const center = useCenterStore();
+      const selectedAddress = this.checkoutAddressId === 0 ? undefined
+        : this.checkoutAddressId === null
+          ? center.addresses.find((a) => a.is_default) || center.addresses[0]
+          : center.addresses.find((a) => a.id === this.checkoutAddressId);
       const t = this.totals();
       const rows = this.checkoutRows;
       const d = new Date();
@@ -174,6 +181,14 @@ export const useMallStore = defineStore('mall', {
         couponId: t.couponAmount ? this.couponId : null,
         points: t.points,
         due: t.due,
+        address: selectedAddress ? {
+          name: selectedAddress.name,
+          phone: selectedAddress.phone,
+          province: selectedAddress.province,
+          city: selectedAddress.city,
+          district: selectedAddress.district,
+          street: selectedAddress.street,
+        } : null,
       };
       center.orders.unshift(order);
       if (t.points) {
@@ -189,6 +204,7 @@ export const useMallStore = defineStore('mall', {
       this.directItem = null;
       this.couponId = 0;
       this.usePoints = true;
+      this.checkoutAddressId = null;
       return order;
     },
     /** 模拟支付成功：订单转办理中，按实付金额四舍五入发放积分。 */

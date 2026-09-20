@@ -288,5 +288,6 @@ function clearPrivateData() {
   clearSensitiveStorage();
   useMallStore().travellers = {};
   useMallStore().couponId = 0;
+  useMallStore().checkoutAddressId = null;
   useCenterStore().clearPrivate();
 }

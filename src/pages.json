@@ -260,7 +260,7 @@
           "path": "address/index",
           "style": {
             "navigationBarTitleText": "收货地址管理",
-            "navigationStyle": "default",
+            "navigationStyle": "custom",
             "navigationBarBackgroundColor": "#8AD0F9",
             "navigationBarTextStyle": "black"
           }
@@ -269,7 +269,7 @@
           "path": "addressEdit/index",
           "style": {
             "navigationBarTitleText": "编辑收货地址",
-            "navigationStyle": "default",
+            "navigationStyle": "custom",
             "navigationBarBackgroundColor": "#8AD0F9",
             "navigationBarTextStyle": "black"
           }

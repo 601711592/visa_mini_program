@@ -1,9 +1,14 @@
 import { defineStore } from 'pinia';
+import { getToken } from '@/utils/request';
+import { addAddress, updateAddress, deleteAddress, setDefaultAddress, getAddresses, type Address, type AddressInput } from '@/services/address';
+
+export type { Address } from '@/services/address';
+
+let addressRequestId = 0;
 
 /**
- * 个人中心静态阶段演示数据中心。
- * 全部数据为内存模拟，不接真实接口、不发生真实支付；
- * 正式金额、库存、优惠资格与订单状态以后续服务端接口为准。
+ * 个人中心数据中心。收货地址从服务端加载；订单、积分和优惠券仍为内存演示，
+ * 不发生真实支付。正式金额、库存、优惠资格与订单状态以后续服务端接口为准。
  */
 
 export type OrderState = '待付款' | '办理中' | '已完成' | '售后退款' | '已取消';
@@ -36,6 +41,7 @@ export interface CenterOrder {
   couponId: number | null;
   points: number; // 使用积分
   due: number; // 实付/待支付
+  address?: Pick<Address, 'name' | 'phone' | 'province' | 'city' | 'district' | 'street'> | null; // 下单时的邮寄地址快照
   reason?: string;
   note?: string;
 }
@@ -56,15 +62,6 @@ export interface Coupon {
   scope: string;
   categoryKeyword: string; // 适用商品分类匹配关键词，空串表示全店
   end: string;
-}
-
-export interface Address {
-  id: number;
-  name: string;
-  phone: string;
-  region: string;
-  street: string;
-  default: boolean;
 }
 
 const demoTraveller: OrderTraveller = { name: '张女士', passport: '5628', birthday: '1992-05-12' };
@@ -116,7 +113,10 @@ export const useCenterStore = defineStore('center', {
     ] as LedgerEntry[],
     coupons: demoCoupons(),
     orders: demoOrders(),
-    addresses: [] as Address[],
+    addresses: [] as Address[], // 当前会员的服务端收货地址
+    addressesLoading: false, // 是否正在加载地址列表
+    addressesLoaded: false, // 当前会话是否成功加载过地址列表
+    addressesError: '', // 地址列表加载错误提示
   }),
   getters: {
     availableCouponCount: (state) => state.coupons.filter((c) => c.status === '未使用').length,
@@ -149,32 +149,62 @@ export const useCenterStore = defineStore('center', {
       order.reason = reason;
       order.note = note;
     },
-    saveAddress(input: Omit<Address, 'id' | 'default'> & { id?: number; default?: boolean }) {
-      const id = input.id || Date.now();
-      const previous = this.addresses.find((a) => a.id === id);
-      const item: Address = {
-        id,
-        name: input.name,
-        phone: input.phone,
-        region: input.region,
-        street: input.street,
-        default: input.default || previous?.default || this.addresses.length === 0,
-      };
-      if (item.default) this.addresses.forEach((a) => (a.default = false));
+    async loadAddresses() {
+      const token = getToken();
+      if (!token) return;
+      const requestId = ++addressRequestId;
+      this.addressesLoading = true;
+      this.addressesError = '';
+      try {
+        const response = await getAddresses();
+        if (requestId !== addressRequestId || token !== getToken()) return;
+        this.addresses = response.data;
+        this.addressesLoaded = true;
+      } catch (error) {
+        if (requestId !== addressRequestId || token !== getToken()) return;
+        this.addressesError = error instanceof Error ? error.message : '地址加载失败，请重试';
+        throw error;
+      } finally {
+        if (requestId === addressRequestId) this.addressesLoading = false;
+      }
+    },
+    async saveAddress(input: AddressInput & { id?: number }) {
+      const token = getToken();
+      const { id, ...data } = input;
+      const response = id ? await updateAddress(id, data) : await addAddress(data);
+      if (token !== getToken()) return;
+      this.addresses = this.addresses.filter((a) => a.id !== response.data.id);
+      if (response.data.is_default) this.addresses.forEach((a) => (a.is_default = false));
+      this.addresses.unshift(response.data);
+      try { await this.loadAddresses(); } catch { /* 已保存，列表可稍后重试 */ }
+    },
+    async deleteAddress(id: number) {
+      const token = getToken();
+      await deleteAddress(id);
+      if (token !== getToken()) return;
+      const wasDefault = this.addresses.find((a) => a.id === id)?.is_default;
       this.addresses = this.addresses.filter((a) => a.id !== id);
-      this.addresses.push(item);
+      if (wasDefault) {
+        const next = [...this.addresses].sort((a, b) => b.id - a.id)[0];
+        if (next) next.is_default = true;
+      }
+      try { await this.loadAddresses(); } catch { /* 服务端删除已经成功 */ }
     },
-    deleteAddress(id: number) {
-      const wasDefault = this.addresses.find((a) => a.id === id)?.default;
-      this.addresses = this.addresses.filter((a) => a.id !== id);
-      if (wasDefault && this.addresses[0]) this.addresses[0].default = true;
+    async setDefaultAddress(id: number) {
+      const token = getToken();
+      await setDefaultAddress(id);
+      if (token !== getToken()) return;
+      this.addresses.forEach((a) => (a.is_default = a.id === id));
+      try { await this.loadAddresses(); } catch { /* 服务端设置已经成功 */ }
     },
-    setDefaultAddress(id: number) {
-      this.addresses.forEach((a) => (a.default = a.id === id));
-    },
-    /** 退出登录时清理本机隐私草稿（地址）。 */
+    /** 退出登录时清理地址缓存及可能包含邮寄信息的模拟订单。 */
     clearPrivate() {
+      addressRequestId++;
       this.addresses = [];
+      this.addressesLoading = false;
+      this.addressesLoaded = false;
+      this.addressesError = '';
+      this.orders = demoOrders();
     },
   },
 });

@@ -40,11 +40,12 @@
           <view class="menu-row address-entry" @tap="goAddress">
             <view class="row-main">
               <text class="row-title">邮寄地址（选填）</text>
-              <text v-if="defaultAddress" class="row-sub">{{ addressHint }}</text>
+              <text class="row-sub">{{ addressHint }}</text>
             </view>
-            <text v-if="!defaultAddress" class="address-add">添加地址</text>
+            <text v-if="!selectedAddress && mall.checkoutAddressId !== 0" class="address-add">添加地址</text>
             <image class="entry-arrow" src="/static/images/center/chevron-right.png" mode="aspectFit" />
           </view>
+          <view v-if="center.addressesError" class="row-sub" @tap="refreshAddresses">{{ center.addressesError }} · 点击重试</view>
         </view>
 
         <view class="sheet-card">
@@ -178,22 +179,37 @@ function travellersComplete(item: CartItem) { return mall.travellersOf(item.key)
 const rows = computed(() => mall.checkoutRows);
 const totals = computed(() => mall.totals());
 
-const defaultAddress = computed(() => center.addresses.find((a) => a.default) || center.addresses[0]);
+const selectedAddress = computed(() => mall.checkoutAddressId === 0 ? undefined
+  : mall.checkoutAddressId === null
+    ? center.addresses.find((a) => a.is_default) || center.addresses[0]
+    : center.addresses.find((a) => a.id === mall.checkoutAddressId));
 const addressHint = computed(() => {
-  const address = defaultAddress.value;
-  return address ? `${address.name} · ${address.region} ${address.street}` : '如需邮寄护照，请添加地址';
+  const address = selectedAddress.value;
+  if (mall.checkoutAddressId === 0) return '本单不使用邮寄地址';
+  return address ? `${address.name} · ${address.province} ${address.city} ${address.district} ${address.street}` : '如需邮寄护照，请添加地址';
 });
 
 onShow(async () => {
   if (!(await global.ensureLogin({ target: '/pagesMall/checkout/index' }))) return;
+  await refreshAddresses();
 });
+
+async function refreshAddresses() {
+  try {
+    await center.loadAddresses();
+    if (global.isLogin && center.addressesLoaded && mall.checkoutAddressId && !selectedAddress.value) {
+      mall.checkoutAddressId = 0;
+      uni.showToast({ title: '所选地址已删除，本单不使用邮寄地址', icon: 'none' });
+    }
+  } catch { /* 地址卡片显示错误与重试入口 */ }
+}
 
 function goTravellers(item: CartItem) {
   uni.navigateTo({ url: `/pagesMall/travellers/index?key=${encodeURIComponent(item.key)}` });
 }
 
 function goAddress() {
-  uni.navigateTo({ url: '/pagesCenter/address/index' });
+  uni.navigateTo({ url: '/pagesCenter/address/index?select=1' });
 }
 
 function goCoupons() {
@@ -213,6 +229,10 @@ function onConsentChange(event: { detail: { value: string[] } }) {
 }
 
 function submit() {
+  if (!center.addressesLoaded || center.addressesLoading || center.addressesError) {
+    uni.showToast({ title: '请先加载收货地址', icon: 'none' });
+    return;
+  }
   if (!agreed.value) {
     uni.showToast({ title: '请先阅读并勾选预订须知与退改规则', icon: 'none' });
     return;

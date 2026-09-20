@@ -32,6 +32,11 @@
             </template>
           </view>
         </view>
+        <view v-if="order.address" class="sheet-card">
+          <view class="card-title">邮寄地址</view>
+          <view class="kv"><text>收件人</text><text>{{ order.address.name }} · {{ order.address.phone }}</text></view>
+          <view class="kv"><text>地址</text><text>{{ order.address.province }} {{ order.address.city }} {{ order.address.district }} {{ order.address.street }}</text></view>
+        </view>
         <view class="sheet-card">
           <view class="card-title">价格明细</view>
           <view class="kv">
