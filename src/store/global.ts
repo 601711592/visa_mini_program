@@ -15,7 +15,7 @@ function pageUrl(page?: { route?: string; options?: Record<string, string> }): s
 }
 /** 登录完成后仅返回站内业务页面，不返回登录页或协议页。 */
 export function safeTarget(target?: string) {
-  return target && /^\/(pages|pagesMall)\/[\w/-]+(?:\?[^#]*)?$/.test(target) && !target.startsWith('/pages/login/')
+  return target && /^\/(pages|pagesMall|pagesOrder|pagesCenter)\/[\w/-]+(?:\?[^#]*)?$/.test(target) && !target.startsWith('/pages/login/')
     && !target.startsWith('/pages/service-agreement/') ? target : HOME_PAGE;
 }
 /** tab 页直接切换，普通页面优先返回已有实例以保留页面状态。 */

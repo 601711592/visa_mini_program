@@ -193,7 +193,7 @@ function goTravellers(item: CartItem) {
 }
 
 function goAddress() {
-  uni.navigateTo({ url: '/pages/address/index' });
+  uni.navigateTo({ url: '/pagesCenter/address/index' });
 }
 
 function goCoupons() {

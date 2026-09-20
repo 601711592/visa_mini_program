@@ -193,3 +193,33 @@ test('HTTP 200 的业务失败保留提示且不误清理 token', async () => {
     assert.equal(h.api.getToken(), 'current');
   }
 });
+
+test('新增分包登录回跳保留订单、筛选和地址参数及原页面实例', async () => {
+  for (const [route, options] of [
+    ['pagesOrder/orderDetail/index', { id: '42' }],
+    ['pagesOrder/orders/index', { filter: 'pending' }],
+    ['pagesCenter/addressEdit/index', { id: '7' }],
+    ['pagesCenter/coupons/index', { purpose: 'use' }],
+  ]) {
+    const h = harness();
+    const target = `/${route}?${new URLSearchParams(options)}`;
+    assert.equal(h.api.safeTarget(target), target);
+    h.setPages([{ route, options }]);
+    assert.equal(await h.store.ensureLogin({ target }), false);
+    assert.equal(h.store.pendingLogin, target);
+    h.setPages([{ route, options }, { route: 'pages/login/index', options: {} }]);
+    h.store.finishLogin();
+    assert.equal(h.navigation.at(-1)[0], 'navigateBack');
+    const direct = harness();
+    direct.api.returnFromLogin(target);
+    assert.equal(direct.navigation.at(-1)[0], 'redirectTo');
+    assert.equal(direct.navigation.at(-1)[1].url, target);
+  }
+});
+
+test('新增分包不放宽站外地址和登录协议页的回跳限制', () => {
+  const h = harness();
+  for (const target of ['https://evil.invalid/pagesOrder/orders/index', '/pagesOther/index', '/pagesCenter/../login/index', '/pages/login/index', '/pages/service-agreement/index']) {
+    assert.equal(h.api.safeTarget(target), '/pages/mall/index');
+  }
+});

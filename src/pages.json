@@ -61,159 +61,6 @@
         "navigationBarBackgroundColor": "#8AD0F9",
         "navigationBarTextStyle": "black"
       }
-    },
-    {
-      "path": "pages/orders/index",
-      "style": {
-        "navigationBarTitleText": "我的订单",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/orderDetail/index",
-      "style": {
-        "navigationBarTitleText": "订单详情",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/orderPay/index",
-      "style": {
-        "navigationBarTitleText": "继续付款",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/orderRefund/index",
-      "style": {
-        "navigationBarTitleText": "申请退款",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/points/index",
-      "style": {
-        "navigationBarTitleText": "积分中心",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/pointsRules/index",
-      "style": {
-        "navigationBarTitleText": "积分规则",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/coupons/index",
-      "style": {
-        "navigationBarTitleText": "我的优惠券",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/couponDetail/index",
-      "style": {
-        "navigationBarTitleText": "优惠券详情",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/couponGoods/index",
-      "style": {
-        "navigationBarTitleText": "适用商品",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/invite/index",
-      "style": {
-        "navigationBarTitleText": "邀请好友",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/inviteRecords/index",
-      "style": {
-        "navigationBarTitleText": "邀请记录",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/inviteRules/index",
-      "style": {
-        "navigationBarTitleText": "奖励规则",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/inviteShare/index",
-      "style": {
-        "navigationBarTitleText": "邀请方式",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/address/index",
-      "style": {
-        "navigationBarTitleText": "收货地址管理",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/addressEdit/index",
-      "style": {
-        "navigationBarTitleText": "编辑收货地址",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/map/index",
-      "style": {
-        "navigationBarTitleText": "我司地图定位",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/profile/index",
-      "style": {
-        "navigationBarTitleText": "个人资料",
-        "navigationStyle": "default",
-        "navigationBarBackgroundColor": "#8AD0F9",
-        "navigationBarTextStyle": "black"
-      }
     }
   ],
   "subPackages": [
@@ -277,6 +124,169 @@
           "path": "paySuccess/index",
           "style": {
             "navigationBarTitleText": "支付成功",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pagesOrder",
+      "pages": [
+        {
+          "path": "orders/index",
+          "style": {
+            "navigationBarTitleText": "我的订单",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "orderDetail/index",
+          "style": {
+            "navigationBarTitleText": "订单详情",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "orderPay/index",
+          "style": {
+            "navigationBarTitleText": "继续付款",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "orderRefund/index",
+          "style": {
+            "navigationBarTitleText": "申请退款",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pagesCenter",
+      "pages": [
+        {
+          "path": "points/index",
+          "style": {
+            "navigationBarTitleText": "积分中心",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "pointsRules/index",
+          "style": {
+            "navigationBarTitleText": "积分规则",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "coupons/index",
+          "style": {
+            "navigationBarTitleText": "我的优惠券",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "couponDetail/index",
+          "style": {
+            "navigationBarTitleText": "优惠券详情",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "couponGoods/index",
+          "style": {
+            "navigationBarTitleText": "适用商品",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "invite/index",
+          "style": {
+            "navigationBarTitleText": "邀请好友",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "inviteRecords/index",
+          "style": {
+            "navigationBarTitleText": "邀请记录",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "inviteRules/index",
+          "style": {
+            "navigationBarTitleText": "奖励规则",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "inviteShare/index",
+          "style": {
+            "navigationBarTitleText": "邀请方式",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "address/index",
+          "style": {
+            "navigationBarTitleText": "收货地址管理",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "addressEdit/index",
+          "style": {
+            "navigationBarTitleText": "编辑收货地址",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "map/index",
+          "style": {
+            "navigationBarTitleText": "我司地图定位",
+            "navigationStyle": "default",
+            "navigationBarBackgroundColor": "#8AD0F9",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "profile/index",
+          "style": {
+            "navigationBarTitleText": "个人资料",
             "navigationStyle": "default",
             "navigationBarBackgroundColor": "#8AD0F9",
             "navigationBarTextStyle": "black"

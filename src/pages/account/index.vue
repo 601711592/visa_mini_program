@@ -16,7 +16,7 @@
           :description="pointsDescription"
           link-text="明细"
           pill-text="去使用"
-          @detail="go('/pages/points/index')"
+          @detail="go('/pagesCenter/points/index')"
           @action="usePoints"
         />
         <benefit-row
@@ -25,16 +25,16 @@
           :description="couponDescription"
           link-text="查看全部"
           pill-text="去使用"
-          @detail="go('/pages/coupons/index')"
-          @action="go('/pages/coupons/index?purpose=use')"
+          @detail="go('/pagesCenter/coupons/index')"
+          @action="go('/pagesCenter/coupons/index?purpose=use')"
         />
         <benefit-row
           icon="/static/images/center/user-round-plus.png"
           title="邀请好友"
           description="查看邀请记录与奖励规则"
           pill-text="去邀请"
-          @detail="go('/pages/invite/index')"
-          @action="go('/pages/invite/index')"
+          @detail="go('/pagesCenter/invite/index')"
+          @action="go('/pagesCenter/invite/index')"
         />
       </view>
       <service-list @open="openService" />
@@ -71,14 +71,14 @@ async function go(url: string) {
 
 function onProfile() {
   if (global.isLogin) {
-    uni.navigateTo({ url: '/pages/profile/index' });
+    uni.navigateTo({ url: '/pagesCenter/profile/index' });
     return;
   }
   void global.ensureLogin({ target: ACCOUNT_PAGE });
 }
 
 function openOrders(filter: string) {
-  void go(filter ? `/pages/orders/index?filter=${encodeURIComponent(filter)}` : '/pages/orders/index');
+  void go(filter ? `/pagesOrder/orders/index?filter=${encodeURIComponent(filter)}` : '/pagesOrder/orders/index');
 }
 
 /** 去使用积分：进入商品浏览；产品分类页接入前回到首页商品列表。 */
@@ -93,10 +93,10 @@ async function usePoints() {
 function openService(key: string) {
   if (key === 'map') {
     // 地图定位游客可访问
-    uni.navigateTo({ url: '/pages/map/index' });
+    uni.navigateTo({ url: '/pagesCenter/map/index' });
     return;
   }
-  void go('/pages/address/index');
+  void go('/pagesCenter/address/index');
 }
 </script>
 

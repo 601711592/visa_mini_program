@@ -43,7 +43,7 @@ onShow(async () => {
 });
 
 function viewOrder() {
-  uni.redirectTo({ url: `/pages/orderDetail/index?id=${orderId.value}` });
+  uni.redirectTo({ url: `/pagesOrder/orderDetail/index?id=${orderId.value}` });
 }
 
 function goAccount() {
