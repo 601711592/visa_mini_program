@@ -1,4 +1,4 @@
-import request from '@/utils/request';
+import request, { upload } from '@/utils/request';
 
 /** 后端公开的会员资料，不含原始手机号、openid 或 unionid。 */
 export interface Member {
@@ -34,6 +34,29 @@ export function getCurrentUserInfo(token?: string) {
     url: '/member/current',
     method: 'GET',
     token,
+  });
+}
+
+/** 头像大小上限（字节），与后端校验一致。 */
+export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+
+/**
+ * 保存昵称（空字符串表示清空）；传入 avatarPath 时同时上传新头像，后端会删除旧头像文件。
+ * 两种提交方式走同一接口，返回更新后的会员资料。
+ */
+export function updateProfile(data: { nickname: string; avatarPath?: string }) {
+  if (data.avatarPath) {
+    return upload<API.ResponseBody<Member>>({
+      url: '/member/profile',
+      filePath: data.avatarPath,
+      name: 'avatar',
+      data: { nickname: data.nickname },
+    });
+  }
+  return request<API.ResponseBody<Member>>({
+    url: '/member/profile',
+    method: 'POST',
+    data: { nickname: data.nickname },
   });
 }
 

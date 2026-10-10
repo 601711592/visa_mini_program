@@ -65,18 +65,58 @@ export default function request<T = unknown>(options: RequestOptions | string): 
         ...requestOptions.header,
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
+      success: (res) => settle<T>(res.statusCode, res.data, token, resolve, reject),
+      fail: () => reject(new RequestError('NETWORK_ERROR', '网络连接失败，请检查网络后重试')),
+    });
+  });
+}
+
+/** 普通请求和上传共用的结果判定：401 清理会话，HTTP 或业务失败抛出 RequestError。 */
+function settle<T>(statusCode: number, data: unknown, token: string, resolve: (value: T) => void, reject: (reason: RequestError) => void) {
+  const body = data as { status?: number | string; code?: string; msg?: string } | null;
+  if (statusCode === 401) {
+    invalidateSession(token);
+  }
+  const httpFailed = statusCode < 200 || statusCode >= 300;
+  const businessFailed = body?.status !== undefined && String(body.status) !== '11';
+  if (httpFailed || businessFailed) {
+    reject(new RequestError(body?.code || `HTTP_${statusCode}`, body?.msg || '请求失败，请稍后重试', statusCode));
+    return;
+  }
+  resolve(data as T);
+}
+
+export interface UploadOptions {
+  url: string;
+  /** 本地文件路径，如选择头像返回的临时路径。 */
+  filePath: string;
+  /** 文件在表单中的字段名。 */
+  name: string;
+  /** 随文件一起提交的表单字段。 */
+  data?: Record<string, string | number>;
+}
+
+/** 向本站 API 上传单个本地文件；附带 token，结果判定与 request 相同。 */
+export function upload<T = unknown>(options: UploadOptions): Promise<T> {
+  const token = getToken();
+  return new Promise<T>((resolve, reject) => {
+    uni.uploadFile({
+      url: API_PREFIX + options.url,
+      filePath: options.filePath,
+      name: options.name,
+      formData: { ...options.data, mini_program_id: import.meta.env.VITE_ID },
+      timeout: 30000,
+      header: token ? { Authorization: `Bearer ${token}` } : {},
       success: (res) => {
-        const body = res.data as { status?: number | string; code?: string; msg?: string } | null;
-        if (res.statusCode === 401) {
-          invalidateSession(token);
-        }
-        const httpFailed = res.statusCode < 200 || res.statusCode >= 300;
-        const businessFailed = body?.status !== undefined && String(body.status) !== '11';
-        if (httpFailed || businessFailed) {
-          reject(new RequestError(body?.code || `HTTP_${res.statusCode}`, body?.msg || '请求失败，请稍后重试', res.statusCode));
+        // 上传返回原始字符串；网关错误页等非 JSON 内容（如文件超出服务器限制）按失败处理。
+        let body: unknown;
+        try {
+          body = JSON.parse(res.data);
+        } catch {
+          reject(new RequestError(`HTTP_${res.statusCode}`, res.statusCode === 413 ? '上传的文件过大' : '请求失败，请稍后重试', res.statusCode));
           return;
         }
-        resolve(res.data as T);
+        settle<T>(res.statusCode, body, token, resolve, reject);
       },
       fail: () => reject(new RequestError('NETWORK_ERROR', '网络连接失败，请检查网络后重试')),
     });

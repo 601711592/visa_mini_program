@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { phoneLogin, wechatLogin, revokeSession, getCurrentUserInfo, type Member } from '@/services/mine';
+import { phoneLogin, wechatLogin, revokeSession, getCurrentUserInfo, updateProfile, type Member } from '@/services/mine';
 import { getToken, setToken, removeToken, clearSensitiveStorage, onSessionInvalidated, RequestError, authNamespace } from '@/utils/request';
 import { getInviteCode, clearInviteCode } from '@/utils/invite';
 import { useMallStore } from './mall';
@@ -217,10 +217,12 @@ export const useGlobalStore = defineStore('global', {
       this.loginOpen = false;
       returnFromLogin(pending || HOME_PAGE);
     },
-    /** 静态阶段仅在内存更新头像昵称，接口接入后改为请求后端。 */
-    updateProfileLocal(patch: { nickname?: string; avatar?: string }) {
-      if (this.userInfo) {
-        Object.assign(this.userInfo, patch);
+    /** 保存昵称和可选的新头像到后端，成功后以返回的会员资料为准；期间退出或换号则不回写。 */
+    async saveProfile(data: { nickname: string; avatarPath?: string }) {
+      const token = getToken();
+      const response = await updateProfile(data);
+      if (this.isLogin && getToken() === token) {
+        this.userInfo = response.data;
       }
     },
     /** 页面卸载时取消未完成的登录，导航由页面返回操作负责。 */
