@@ -7,12 +7,12 @@ export interface GoodsCategory {
 }
 
 export interface GoodsSpecification {
-  information: string; // 规格参数名称
+  information: string | null; // 材料清单，换行分隔，后台未填时为 null
   key: string; // 规格参数键
   person: string[]; // 人群
   price: string; // 价格
   priceCalender: any; // 价格日历
-  timeSlot: string[]; // 时间段
+  timeSlot: string[] | null; // 时间段
   title: string; // 规格参数标题
 }
 

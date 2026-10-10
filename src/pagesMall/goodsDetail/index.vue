@@ -59,10 +59,10 @@
         </view>
         <view class="muted-tip mt-2">已选：{{ selectedDate || (calendarSelected.length ? '请选择' : '暂无可预订日期') }} · {{ currentPersonName }}</view>
       </view>
-      <view class="goods-detail mt-3 mb-3 p-2" v-if="selectPackage">
+      <view class="goods-detail mt-3 mb-3 p-2" v-if="materialList.length">
         <view class="font-bold">材料清单</view>
         <view class="mt-1 flex materialList">
-          <view class="item" v-for="item in selectPackage.information.split('\n')" :key="item"
+          <view class="item" v-for="item in materialList" :key="item"
             ><iconfont type="checkmarkempty" size="16" color="#245B7A" />{{ item }}</view
           >
         </view>
@@ -155,9 +155,13 @@ const calendarSelected = computed(() => {
 });
 
 const calendarRange = computed(() => {
-  if (!selectPackage.value) return [undefined, undefined];
-  return [moment(selectPackage.value.timeSlot[0]).format('YYYY-MM-DD'), moment(selectPackage.value.timeSlot[1]).format('YYYY-MM-DD')];
+  const timeSlot = selectPackage.value?.timeSlot;
+  if (!timeSlot?.[0] || !timeSlot?.[1]) return [undefined, undefined];
+  return [moment(timeSlot[0]).format('YYYY-MM-DD'), moment(timeSlot[1]).format('YYYY-MM-DD')];
 });
+
+// 后台未填写材料清单时 information 为 null
+const materialList = computed(() => (selectPackage.value?.information || '').split('\n').filter((item) => item.trim()));
 
 watch(calendarSelected, (list) => {
   if (!list.length) {
