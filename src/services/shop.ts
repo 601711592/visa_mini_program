@@ -33,6 +33,9 @@ export interface Goods {
   refund_description: string; // 退款说明
   booking_description: string; // 预订说明
   specification: GoodsSpecification[]; // 规格参数
+  needs_travellers: boolean; // 当前商品是否需要出行人资料
+  visa_type_id: number | null; // 支付后办理的签证类型
+  purchase_limit: number; // 服务端限购人数
 }
 
 /** 查询商品分类。 */

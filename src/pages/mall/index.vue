@@ -1,10 +1,6 @@
 <template>
   <layout :navbar="{ backgroundColor: '#fff', fixed: true }">
     <template #navbarRight>
-      <view class="navbar-cart" @tap="goCart">
-        <image src="/static/images/center/shopping-cart.png" class="navbar-cart-icon" mode="aspectFit" />
-        <view class="navbar-cart-badge" v-if="mall.cartCount > 0">{{ mall.cartCount > 99 ? '99+' : mall.cartCount }}</view>
-      </view>
     </template>
     <view class="page">
       <view class="search" @click="gotoSearchPage">
@@ -72,9 +68,6 @@ const gotoSearchPage = () => {
   uni.navigateTo({ url: `/pages/search/index` });
 };
 
-const goCart = () => {
-  uni.navigateTo({ url: '/pagesMall/cart/index' });
-};
 
 onShareAppMessage(() => {
   return {

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
-import { phoneLogin, revokeSession, verifyWechatSession, getCurrentUserInfo, type Member } from '@/services/mine';
-import { getToken, setToken, removeToken, clearSensitiveStorage, onSessionInvalidated, RequestError } from '@/utils/request';
+import { phoneLogin, wechatLogin, revokeSession, getCurrentUserInfo, type Member } from '@/services/mine';
+import { getToken, setToken, removeToken, clearSensitiveStorage, onSessionInvalidated, RequestError, authNamespace } from '@/utils/request';
+import { getInviteCode, clearInviteCode } from '@/utils/invite';
 import { useMallStore } from './mall';
 import { useCenterStore } from './center';
 
@@ -11,6 +12,10 @@ export const HOME_PAGE = '/pages/mall/index';
 // 并发恢复共用一个请求；authOperationId 变化让取消、退出之前的迟到响应失效。
 let sessionRestorePromise: Promise<void> | null = null;
 let authOperationId = 0;
+
+// 主动退出后记在本机，之后不再自动登录，直到用户在登录页再次登录。
+const signedOutKey = `${authNamespace}:signed-out`;
+const isSignedOut = (): boolean => !!uni.getStorageSync(signedOutKey);
 
 export const useGlobalStore = defineStore('global', {
   state: () => ({
@@ -24,12 +29,14 @@ export const useGlobalStore = defineStore('global', {
     pendingLogin: null as string | null,
     // 登录页是否已打开，用于避免重复跳转，以及回到前台时重复恢复登录状态。
     loginOpen: false,
+    // 本次启动已确认当前微信身份尚未注册：登录必须授权手机号，不再重复尝试静默登录。
+    phoneRequired: false,
   }),
   getters: {
     isLogin: (state) => state.status === 'authenticated' && !!state.userInfo?.phone_bound,
   },
   actions: {
-    /** 启动时注册 401 通知，清理历史缓存后校验已有 token。 */
+    /** 启动时注册 401 通知，清理历史缓存后恢复登录状态。 */
     initialize() {
       onSessionInvalidated(() => this.expireSession());
       clearPrivateData();
@@ -44,53 +51,65 @@ export const useGlobalStore = defineStore('global', {
       this.sessionError = '登录已失效，请重新登录';
       clearPrivateData();
     },
-    /** 先校验业务 token，再按需核对微信身份，全部通过才展示会员资料。 */
+    /**
+     * 恢复登录状态：本机有 token 时向服务端校验；没有或已过期时凭微信身份静默登录，老会员无需再次授权手机号。
+     * 已登录时不重复校验，回到前台不会清空资料；之后任一接口返回 401 会立即触发失效清理。
+     */
     async restoreSession() {
       if (sessionRestorePromise) {
         return sessionRestorePromise;
       }
-      if (!getToken() || this.status === 'authenticating') {
+      if (this.status !== 'guest') {
         return;
       }
-      const operationId = ++authOperationId;
+      const canSilentLogin = () => !this.phoneRequired && !isSignedOut();
       const token = getToken();
+      if (!token && !canSilentLogin()) {
+        return;
+      }
+      let operationId = ++authOperationId;
       this.status = 'checking';
       this.userInfo = null;
       this.sessionError = '';
 
       sessionRestorePromise = (async () => {
         try {
-          const response = await getCurrentUserInfo(token);
-          if (operationId !== authOperationId) {
-            return;
-          }
-          const validWechatSession = await checkWechatSession();
-          if (operationId !== authOperationId) {
-            return;
-          }
-          if (!validWechatSession) {
-            const code = await getWechatLoginCode();
-            if (operationId !== authOperationId) {
+          if (token) {
+            try {
+              const response = await getCurrentUserInfo(token);
+              if (operationId !== authOperationId) {
+                return;
+              }
+              if (!response.data.phone_bound) {
+                this.expireSession();
+                return;
+              }
+              this.userInfo = response.data;
+              this.status = 'authenticated';
+              clearInviteCode();
               return;
+            } catch (error) {
+              if (!(error instanceof RequestError && error.statusCode === 401)) {
+                throw error;
+              }
+              // 401 已清除过期 token；期间没有其他登录操作接管时继续静默登录。
+              if (this.status !== 'guest' || getToken() || !canSilentLogin()) {
+                return;
+              }
+              operationId = ++authOperationId;
+              this.status = 'checking';
+              this.sessionError = '';
             }
-            await verifyWechatSession(code, token);
           }
-          if (operationId !== authOperationId) {
-            return;
-          }
-          if (!response.data.phone_bound) {
-            this.expireSession();
-            return;
-          }
-          this.userInfo = response.data;
-          this.status = 'authenticated';
+          await loginWithWechat(this, operationId);
         } catch (error) {
           if (operationId !== authOperationId) {
             return;
           }
           this.status = 'guest';
           this.userInfo = null;
-          this.sessionError = error instanceof Error ? error.message : '登录状态校验失败，请重试';
+          // token 仍在但暂时无法确认时提示可重试；静默登录失败不打扰游客，下次需要登录时再试。
+          this.sessionError = getToken() ? (error instanceof Error ? error.message : '登录状态校验失败，请重试') : '';
         }
       })();
       try {
@@ -107,11 +126,10 @@ export const useGlobalStore = defineStore('global', {
       if (this.isLogin) {
         return true;
       }
-      if (getToken()) {
-        await this.restoreSession();
-        if (this.isLogin) {
-          return true;
-        }
+      // 本机 token 待确认，或尚未确认是否注册时，先尝试恢复；确认未注册或已主动退出则直接进入登录页。
+      await this.restoreSession();
+      if (this.isLogin) {
+        return true;
       }
       if (this.loginOpen) {
         return false;
@@ -129,7 +147,25 @@ export const useGlobalStore = defineStore('global', {
       });
       return false;
     },
-    /** 防重复提交；离开页面后的迟到 token 只撤销，不再恢复登录。 */
+    /** 登录页的微信一键登录：已注册直接登录返回 true；未注册返回 false，并改为要求手机号授权。 */
+    async completeWechatLogin() {
+      if (this.status === 'authenticating') {
+        return false;
+      }
+      const operationId = ++authOperationId;
+      this.status = 'authenticating';
+      this.userInfo = null;
+      clearPrivateData();
+      try {
+        return await loginWithWechat(this, operationId);
+      } catch (error) {
+        if (operationId === authOperationId) {
+          this.status = 'guest';
+        }
+        throw error;
+      }
+    },
+    /** 首次注册。防重复提交；离开页面后的迟到 token 只撤销，不再恢复登录。 */
     async completePhoneLogin(phoneCode: string, agreementVersion: string) {
       if (this.status === 'authenticating') {
         return false;
@@ -144,10 +180,12 @@ export const useGlobalStore = defineStore('global', {
         if (operationId !== authOperationId) {
           return false;
         }
+        const inviteCode = getInviteCode();
         const response = await phoneLogin({
           phone_code: phoneCode,
           login_code: code,
           agreement_version: agreementVersion,
+          ...(inviteCode ? { invite_code: inviteCode } : {}),
         });
         if (operationId !== authOperationId) {
           // 用户已经取消，服务端刚签发的 token 不再用于本机登录。
@@ -158,9 +196,12 @@ export const useGlobalStore = defineStore('global', {
           throw new RequestError('PHONE_NOT_BOUND', '手机号绑定未完成');
         }
         setToken(response.data.token);
+        uni.removeStorageSync(signedOutKey);
+        clearInviteCode();
         this.userInfo = response.data.member;
         this.status = 'authenticated';
         this.sessionError = '';
+        this.phoneRequired = false;
         return true;
       } catch (error) {
         if (operationId === authOperationId) {
@@ -191,11 +232,12 @@ export const useGlobalStore = defineStore('global', {
       this.pendingLogin = null;
       this.loginOpen = false;
     },
-    /** 先清理本机再通知服务端，网络失败不阻碍本地退出。 */
+    /** 先清理本机再通知服务端，网络失败不阻碍本地退出；记下主动退出，之后不自动登录。 */
     async logout() {
       const token = getToken();
       authOperationId++;
       removeToken();
+      uni.setStorageSync(signedOutKey, '1');
       clearPrivateData();
 
       this.userInfo = null;
@@ -253,6 +295,41 @@ export function returnFromLogin(target: string) {
   uni.redirectTo({ url, fail: () => uni.reLaunch({ url: HOME_PAGE }) });
 }
 
+/**
+ * 凭 wx.login 的凭证登录已注册会员；未注册时标记需要手机号授权并返回 false。
+ * 操作已被取消或被其他登录接管时，迟到的 token 只撤销，不恢复登录。
+ */
+async function loginWithWechat(
+  store: { status: 'guest' | 'checking' | 'authenticating' | 'authenticated'; userInfo: Member | null; sessionError: string; phoneRequired: boolean },
+  operationId: number,
+): Promise<boolean> {
+  const code = await getWechatLoginCode();
+  if (operationId !== authOperationId) {
+    return false;
+  }
+  const { data } = await wechatLogin(code);
+  if (operationId !== authOperationId) {
+    if (data.registered) {
+      void revokeSession(data.token).catch(() => {});
+    }
+    return false;
+  }
+  if (!data.registered) {
+    store.phoneRequired = true;
+    store.status = 'guest';
+    return false;
+  }
+  setToken(data.token);
+  uni.removeStorageSync(signedOutKey);
+  // 已是会员，邀请关系只在注册时建立，暂存的邀请码不再有用。
+  clearInviteCode();
+  store.userInfo = data.member;
+  store.status = 'authenticated';
+  store.sessionError = '';
+  store.phoneRequired = false;
+  return true;
+}
+
 /** 每次获取新登录 code，与手机号授权 code 分别提交，不缓存或重放。 */
 const getWechatLoginCode = (): Promise<string> => new Promise((resolve, reject) => {
   // #ifdef MP-WEIXIN
@@ -273,16 +350,6 @@ const getWechatLoginCode = (): Promise<string> => new Promise((resolve, reject) 
   reject(new RequestError('PLATFORM_UNSUPPORTED', '请在微信小程序中登录'));
   // #endif
 });
-/** 微信会话失效需重新核对身份，不直接延长业务 token 的有效期。 */
-const checkWechatSession = (): Promise<boolean> => new Promise((resolve) => {
-  // #ifdef MP-WEIXIN
-  uni.checkSession({ success: () => resolve(true), fail: () => resolve(false) });
-  // #endif
-  // #ifndef MP-WEIXIN
-  resolve(false);
-  // #endif
-});
-
 /** 清理已接入的私人数据，保留购物车中的商品选择。 */
 function clearPrivateData() {
   clearSensitiveStorage();

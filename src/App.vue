@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app';
 import { useGlobalStore } from './store/global';
+import { INVITE_QUERY, rememberInviteCode } from './utils/invite';
 
 const global = useGlobalStore();
 
@@ -8,7 +9,9 @@ onLaunch(() => {
   console.log('App Launch');
   void global.initialize();
 });
-onShow(() => {
+onShow((options) => {
+  // 通过好友的分享卡片进入时记下邀请码，注册时随手机号登录提交。
+  rememberInviteCode(options?.query?.[INVITE_QUERY]);
   if (global.status !== 'authenticating' && !global.loginOpen) void global.restoreSession();
 });
 onHide(() => {

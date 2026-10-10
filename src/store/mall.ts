@@ -1,10 +1,8 @@
 import { defineStore } from 'pinia';
-import { useCenterStore, type CenterOrder } from './center';
+import type { OrderQuote, OrderSelection } from '@/services/orders';
 
 /**
- * 商城下单链路静态阶段数据中心（购物车 / 结算 / 出行人 / 模拟支付）。
- * 全部为内存模拟数据，不接真实下单与支付接口；正式金额、库存、优惠资格以后续服务端为准。
- * 金额内部以"分"计算（与商品接口一致），写入个人中心订单时换算为元。
+ * 商品选择与出行人草稿只保存在内存；金额采用服务端报价，不在客户端推算优惠。
  */
 
 export interface Traveller {
@@ -19,7 +17,9 @@ export interface CartItem {
   goodsName: string;
   cover: string;
   category: string; // 分类名，用于优惠券适用范围匹配
+  categoryId?: number; // 服务端商品分类编号
   packIndex: number;
+  packageKey?: string; // 商品配置中的稳定套餐 key；旧购物车草稿不参与真实结算
   packTitle: string;
   personIndex: number;
   personName: string;
@@ -40,32 +40,28 @@ export interface MallTotals {
   due: number; // 实付（元）
 }
 
+/** 根据商品、套餐、人群和日期生成明细键。 */
 export function lineKeyOf(x: { goodsId: number; packIndex: number; personIndex: number; date: string }) {
   return `${x.goodsId}|${x.packIndex}|${x.personIndex}|${x.date}`;
 }
 
-const now = () => {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
-};
-
-let orderSeq = 0;
-
 export const useMallStore = defineStore('mall', {
   state: () => ({
-    cart: [] as CartItem[],
-    travellers: {} as Record<string, Traveller[]>,
-    checkoutFromCart: true,
-    directItem: null as CartItem | null,
-    couponId: 0,
-    usePoints: true,
-    checkoutAddressId: null as number | null, // null 使用默认地址，0 不使用地址，正数为本单选中的地址 ID
+    cart: [] as CartItem[], // 保留的购物车草稿，本轮不参与结算
+    travellers: {} as Record<string, Traveller[]>, // 按商品选择键保存的出行人草稿
+    checkoutFromCart: true, // 是否来自购物车，当前只开放立即购买
+    directItem: null as CartItem | null, // 立即购买的商品选择
+    couponId: 0, // 选中的优惠券编号，0 表示不使用
+    usePoints: true, // 是否希望使用积分抵扣
+    checkoutAddressId: null as number | null, // null 使用默认地址；提交时必须落实为有效 ID
+    quote: null as OrderQuote | null, // 与当前选择匹配的服务端报价
   }),
   getters: {
     cartCount: (state) => state.cart.reduce((n, x) => n + x.qty, 0),
+    /** 获取当前参与结算的商品。 */
     checkoutRows(state): CartItem[] {
-      return state.checkoutFromCart ? state.cart.filter((x) => x.selected) : state.directItem ? [state.directItem] : [];
+      // 本轮只开放商品详情的单明细「立即购买」。
+      return state.checkoutFromCart ? [] : state.directItem ? [state.directItem] : [];
     },
   },
   actions: {
@@ -85,8 +81,10 @@ export const useMallStore = defineStore('mall', {
       this.couponId = 0;
       this.usePoints = true;
       this.checkoutAddressId = null;
+      this.quote = null;
       return key;
     },
+    /** 调整购买数量并裁剪多余出行人。 */
     setQty(key: string, delta: number) {
       const item = this.cart.find((x) => x.key === key);
       if (!item) return;
@@ -94,13 +92,16 @@ export const useMallStore = defineStore('mall', {
       const list = this.travellers[key];
       if (list && list.length > item.qty) this.travellers[key] = list.slice(0, item.qty);
     },
+    /** 切换商品选中状态。 */
     toggleSelect(key: string) {
       const item = this.cart.find((x) => x.key === key);
       if (item) item.selected = !item.selected;
     },
+    /** 全选或取消选择购物车商品。 */
     toggleAll(selected: boolean) {
       this.cart.forEach((x) => (x.selected = selected));
     },
+    /** 移除商品及其出行人草稿。 */
     removeItem(key: string) {
       this.cart = this.cart.filter((x) => x.key !== key);
       delete this.travellers[key];
@@ -112,112 +113,43 @@ export const useMallStore = defineStore('mall', {
       this.couponId = 0;
       this.usePoints = true;
       this.checkoutAddressId = null;
+      this.quote = null;
     },
+    /** 两个结算页面共用当前选择，金额与券资格均由服务端计算。 */
+    selection(): OrderSelection | null {
+      const item = this.checkoutRows[0];
+      if (!item?.packageKey) return null;
+      return {
+        goods_id: item.goodsId, package_key: item.packageKey, person_name: item.personName,
+        travel_date: item.date, quantity: item.qty, coupon_id: this.couponId || null,
+        use_points: this.usePoints,
+      };
+    },
+    /** 选择优惠券并清空旧报价。 */
     setCoupon(id: number) {
       this.couponId = id;
+      this.quote = null;
     },
+    /** 切换积分抵扣并清空旧报价。 */
     setUsePoints(value: boolean) {
       this.usePoints = value;
+      this.quote = null;
     },
+    /** 保存当前商品的出行人资料。 */
     setTravellers(key: string, list: Traveller[]) {
       this.travellers[key] = list;
     },
+    /** 获取当前商品的出行人资料。 */
     travellersOf(key: string): Traveller[] {
       return this.travellers[key] || [];
     },
-    /**
-     * 统一演示计价：多人优惠（同明细满 2 人 9 折）→ 优惠券 → 积分。
-     * 门槛、上限均为演示值，正式规则以服务端为准。
-     */
-    totals(): MallTotals {
-      const center = useCenterStore();
-      const rows = this.checkoutRows;
-      const baseCents = rows.reduce((a, x) => a + x.unitPrice * x.qty, 0);
-      const people = rows.reduce((a, x) => a + x.qty, 0);
-      const discountCents = rows.reduce((a, x) => a + (x.qty >= 2 ? Math.round(x.unitPrice * x.qty * 0.1) : 0), 0);
-      const base = baseCents / 100;
-      const discount = discountCents / 100;
-      const coupon = center.coupons.find((c) => c.id === this.couponId);
-      const eligible =
-        !!coupon &&
-        coupon.status === '未使用' &&
-        (!coupon.categoryKeyword || rows.every((x) => x.category.includes(coupon.categoryKeyword))) &&
-        base - discount >= coupon.min;
-      const couponAmount = eligible ? coupon!.amount : 0;
-      const points = this.usePoints
-        ? Math.min(center.balance, Math.floor((base * 0.2) / 0.02), Math.max(0, Math.floor((base - discount - couponAmount) / 0.02)))
-        : 0;
-      const pointsDeduct = Number((points * 0.02).toFixed(2));
-      const due = Math.max(0, Number((base - discount - couponAmount - pointsDeduct).toFixed(2)));
-      return { base: Number(base.toFixed(2)), people, discount: Number(discount.toFixed(2)), couponAmount, points, pointsDeduct, due };
-    },
-    /** 提交订单（模拟）：写入个人中心订单、扣减积分、占用优惠券、清理已购明细。 */
-    submitOrder(): CenterOrder {
-      const center = useCenterStore();
-      const selectedAddress = this.checkoutAddressId === 0 ? undefined
-        : this.checkoutAddressId === null
-          ? center.addresses.find((a) => a.is_default) || center.addresses[0]
-          : center.addresses.find((a) => a.id === this.checkoutAddressId);
-      const t = this.totals();
-      const rows = this.checkoutRows;
-      const d = new Date();
-      const p = (n: number) => String(n).padStart(2, '0');
-      const order: CenterOrder = {
-        id: `DDX${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}${String(++orderSeq + 100).padStart(4, '0')}`,
-        state: '待付款',
-        created: now(),
-        items: rows.map((x) => ({
-          goodsId: x.goodsId,
-          goodsName: x.goodsName,
-          pack: x.packTitle,
-          group: x.personName,
-          date: x.date,
-          qty: x.qty,
-          travellers: this.travellersOf(x.key).map((v) => ({ name: v.name, passport: v.passport.slice(-4), birthday: v.birthday })),
-        })),
-        base: t.base,
-        discount: t.discount,
-        coupon: t.couponAmount,
-        couponId: t.couponAmount ? this.couponId : null,
-        points: t.points,
-        due: t.due,
-        address: selectedAddress ? {
-          name: selectedAddress.name,
-          phone: selectedAddress.phone,
-          province: selectedAddress.province,
-          city: selectedAddress.city,
-          district: selectedAddress.district,
-          street: selectedAddress.street,
-        } : null,
-      };
-      center.orders.unshift(order);
-      if (t.points) {
-        center.balance -= t.points;
-        center.ledger.unshift({ name: '下单积分抵扣', note: order.items[0]?.goodsName || '商城订单', date: now(), amount: -t.points });
-      }
-      if (order.couponId) {
-        const coupon = center.coupons.find((c) => c.id === order.couponId);
-        if (coupon) coupon.status = '已使用';
-      }
-      rows.forEach((x) => delete this.travellers[x.key]);
-      if (this.checkoutFromCart) this.cart = this.cart.filter((x) => !x.selected);
-      this.directItem = null;
-      this.couponId = 0;
-      this.usePoints = true;
-      this.checkoutAddressId = null;
-      return order;
-    },
-    /** 模拟支付成功：订单转办理中，按实付金额四舍五入发放积分。 */
-    completePayment(orderId: string) {
-      const center = useCenterStore();
-      const order = center.findOrder(orderId);
-      if (!order || order.state !== '待付款') return;
-      center.mockPaySuccess(orderId);
-      const reward = Math.round(order.due);
-      if (reward > 0) {
-        center.balance += reward;
-        center.ledger.unshift({ name: '订单完成奖励', note: order.items[0]?.goodsName || '商城订单', date: now(), amount: reward });
-      }
+    /** 将服务端分金额转换成页面使用的元金额。 */
+    totals(q: OrderQuote | null = this.quote): MallTotals {
+      return q ? {
+        base: q.base_cents / 100, people: q.quantity, discount: q.group_discount_cents / 100,
+        couponAmount: q.coupon_cents / 100, points: q.points_used,
+        pointsDeduct: q.points_cents / 100, due: q.due_cents / 100,
+      } : { base: 0, people: 0, discount: 0, couponAmount: 0, points: 0, pointsDeduct: 0, due: 0 };
     },
   },
 });

@@ -75,6 +75,7 @@ onShow(async () => {
   await loadExisting();
 });
 
+/** 加载待编辑地址，新建时设置默认值。 */
 async function loadExisting() {
   if (invalidId.value) {
     loadError.value = '地址编号无效';
@@ -107,16 +108,19 @@ async function loadExisting() {
   } finally { loading.value = false; }
 }
 
+/** 更新选择的省市区。 */
 function onRegionChange(e: { detail: { value: string[] } }) {
   const values = e.detail.value;
   if (!Array.isArray(values) || values.length < 3 || values.some((v) => !v)) return;
   [province.value, city.value, district.value] = values;
 }
 
+/** 更新是否设为默认地址。 */
 function onDefaultChange(e: { detail: { value: boolean } }) {
   isDefault.value = e.detail.value;
 }
 
+/** 校验并保存收货地址。 */
 async function save() {
   if (saving.value || loading.value || loadError.value) return;
   if (!name.value.trim() || !province.value || !city.value || !district.value || !street.value.trim()) {

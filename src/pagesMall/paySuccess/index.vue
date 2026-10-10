@@ -1,24 +1,26 @@
 <template>
-  <view class="center-page">
-    <view class="page-body">
-      <view v-if="order" class="sheet-card success-card">
-        <image class="success-icon" src="/static/images/center/circle-check.png" />
-        <view class="success-title">支付成功</view>
-        <view class="success-amount">¥{{ order.due.toFixed(2) }}</view>
-        <view class="success-note">订单已提交，顾问将尽快与您联系</view>
-        <view class="button-stack">
-          <view class="btn solid full" @tap="viewOrder">查看订单</view>
-          <view class="btn outline full" @tap="goAccount">返回个人中心</view>
+  <layout :show-navbar="false">
+    <view class="center-page">
+      <view class="page-body">
+        <view v-if="order && order.state !== '待付款' && order.state !== '已取消'" class="sheet-card success-card">
+          <image class="success-icon" src="/static/images/center/circle-check.png" />
+          <view class="success-title">支付成功</view>
+          <view class="success-amount">¥{{ order.due.toFixed(2) }}</view>
+          <view class="success-note">订单已提交，顾问将尽快与您联系</view>
+          <view class="button-stack">
+            <view class="btn solid full" @tap="viewOrder">查看订单</view>
+            <view class="btn outline full" @tap="goAccount">返回个人中心</view>
+          </view>
+          <view class="hint success-hint">交易完成后发放消费积分</view>
         </view>
-        <view class="hint success-hint">交易完成后发放消费积分</view>
-      </view>
-      <view v-else class="sheet-card empty-state">
-        <view class="empty-h">未找到该订单</view>
-        <view class="empty-p">订单可能已失效，请返回后重试</view>
-        <view class="btn solid full" @tap="goBack">返回</view>
+        <view v-else class="sheet-card empty-state">
+          <view class="empty-h">未找到该订单</view>
+          <view class="empty-p">订单可能已失效，请返回后重试</view>
+          <view class="btn solid full" @tap="goBack">返回</view>
+        </view>
       </view>
     </view>
-  </view>
+  </layout>
 </template>
 
 <script setup lang="ts">
@@ -40,16 +42,20 @@ onLoad((query) => {
 
 onShow(async () => {
   if (!(await global.ensureLogin({ target: `/pagesMall/paySuccess/index?id=${orderId.value}` }))) return;
+  try { await center.loadOrder(orderId.value); } catch { /* 无有效订单时显示返回入口 */ }
 });
 
+/** 查看本次支付的订单详情。 */
 function viewOrder() {
   uni.redirectTo({ url: `/pagesOrder/orderDetail/index?id=${orderId.value}` });
 }
 
+/** 返回个人中心。 */
 function goAccount() {
   uni.switchTab({ url: '/pages/account/index' });
 }
 
+/** 返回上一页，无上一页时进入个人中心。 */
 function goBack() {
   uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/account/index' }) });
 }

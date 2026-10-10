@@ -57,7 +57,7 @@
             @change="onCalendarChange"
           />
         </view>
-        <view class="muted-tip mt-2">已选：{{ selectedDate || '请选择' }} · {{ currentPersonName }}</view>
+        <view class="muted-tip mt-2">已选：{{ selectedDate || (calendarSelected.length ? '请选择' : '暂无可预订日期') }} · {{ currentPersonName }}</view>
       </view>
       <view class="goods-detail mt-3 mb-3 p-2" v-if="selectPackage">
         <view class="font-bold">材料清单</view>
@@ -96,14 +96,9 @@
             <view class="stepper-btn" :class="{ disabled: maxQty > 0 && qty >= maxQty }" @tap="changeQty(1)">+</view>
           </view>
         </view>
-        <view class="muted-tip mt-2">演示活动：同商品同套餐满 2 人享 9 折</view>
+        <view class="muted-tip mt-2">优惠金额以结算页服务端报价为准</view>
       </view>
       <view class="footer-bar">
-        <view class="cart-btn" @tap="goCart">
-          <image src="/static/images/center/shopping-cart.png" class="cart-icon" mode="aspectFit" />
-          <view class="cart-badge" v-if="mall.cartCount > 0">{{ mall.cartCount > 99 ? '99+' : mall.cartCount }}</view>
-        </view>
-        <view class="footer-btn outline" @tap="onAddCart">加入购物车</view>
         <view class="footer-btn primary" @tap="onBuyNow">立即购买</view>
       </view>
     </view>
@@ -113,7 +108,7 @@
 <script setup lang="ts">
 import type { Goods, GoodsSpecification } from '@/services/shop';
 import { computed, ref, watch } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShow } from '@dcloudio/uni-app';
 import { getGoodsDetail, getShopCategories } from '@/services/shop';
 import { useMallStore, type CartItem } from '@/store/mall';
 import { formatMoney } from '@/utils';
@@ -127,15 +122,17 @@ const selectPackage = ref<GoodsSpecification | undefined>();
 const selectPersonIndex = ref(0);
 const selectedDate = ref('');
 const qty = ref(1);
+const today = ref(moment().format('YYYY-MM-DD'));
+onShow(() => { today.value = moment().format('YYYY-MM-DD'); });
 const categoryName = ref('');
 
 const currentPersonName = computed(() => selectPackage.value?.person?.[selectPersonIndex.value] || '');
 
-const maxQty = computed(() => (goodsDetail.value?.limitBuy && goodsDetail.value.limitBuy > 0 ? goodsDetail.value.limitBuy : 0));
+const maxQty = computed(() => (goodsDetail.value?.purchase_limit && goodsDetail.value.purchase_limit > 0 ? goodsDetail.value.purchase_limit : 0));
 
 watch(selectPackage, () => {
   if (!selectPackage.value?.person) return;
-  selectPersonIndex.value = selectPackage.value?.person.length < selectPersonIndex.value ? 0 : selectPersonIndex.value;
+  selectPersonIndex.value = selectPackage.value?.person.length <= selectPersonIndex.value ? 0 : selectPersonIndex.value;
 });
 
 const calendarSelected = computed(() => {
@@ -143,12 +140,14 @@ const calendarSelected = computed(() => {
 
   const currentPerson = selectPackage.value?.person[selectPersonIndex.value];
   const res: any = [];
-  selectPackage.value.priceCalender.forEach((item: any) => {
-    const obj = item.list.find((v: any) => v.person === currentPerson);
-    if (obj && obj.quota > 0) {
+  (selectPackage.value.priceCalender || []).forEach((item: any) => {
+    const obj = item.list?.find((v: any) => v.person === currentPerson);
+    const price = (obj?.price == null || Number(obj.price) === 0) ? Number(selectPackage.value.price) : Number(obj?.price);
+    if (obj && Number.isFinite(price) && price > 0 && (obj.quota == null || obj.quota === '' || obj.quota > 0)
+      && moment(item.date, 'YYYY-MM-DD', true).isValid() && item.date >= today.value) {
       res.push({
         date: item.date,
-        info: '¥' + obj.price,
+        info: '¥' + formatMoney(price),
       });
     }
   });
@@ -170,6 +169,7 @@ watch(calendarSelected, (list) => {
   }
 });
 
+/** 更新选择的出发日期。 */
 const onCalendarChange = (e: { fulldate: string }) => {
   const date = e.fulldate;
   if (calendarSelected.value.some((d: any) => d.date === date)) {
@@ -177,6 +177,7 @@ const onCalendarChange = (e: { fulldate: string }) => {
   }
 };
 
+/** 在限购范围内调整购买人数。 */
 const changeQty = (delta: number) => {
   const next = qty.value + delta;
   if (next < 1) return;
@@ -184,6 +185,7 @@ const changeQty = (delta: number) => {
   qty.value = next;
 };
 
+/** 检查商品选择并组装结算明细。 */
 const buildItem = (): Omit<CartItem, 'key' | 'selected'> | null => {
   const goods = goodsDetail.value;
   const spec = selectPackage.value;
@@ -191,46 +193,56 @@ const buildItem = (): Omit<CartItem, 'key' | 'selected'> | null => {
     uni.showToast({ title: '请先选择套餐', icon: 'none' });
     return null;
   }
+  today.value = moment().format('YYYY-MM-DD');
+  if (!calendarSelected.value.length) {
+    uni.showToast({ title: '当前套餐暂无可预订日期', icon: 'none' });
+    return null;
+  }
   if (!selectedDate.value) {
     uni.showToast({ title: '请选择出发日期', icon: 'none' });
+    return null;
+  }
+  if (!moment(selectedDate.value, 'YYYY-MM-DD', true).isValid() || selectedDate.value < today.value) {
+    uni.showToast({ title: '所选日期已失效，请重新选择', icon: 'none' });
     return null;
   }
   let unitPrice = +spec.price;
   const day = spec.priceCalender?.find((item: any) => item.date === selectedDate.value);
   const hit = day?.list?.find((v: any) => v.person === currentPersonName.value);
-  if (hit) unitPrice = Math.round(Number(hit.price) * 100);
+  if (hit && hit.price != null && Number(hit.price) !== 0) unitPrice = Number(hit.price);
+  if (!hit || !Number.isFinite(unitPrice) || unitPrice <= 0) {
+    uni.showToast({ title: '所选日期暂无有效价格，请重新选择', icon: 'none' });
+    return null;
+  }
+  if (!Number.isInteger(qty.value) || qty.value < 1 || qty.value > 50
+    || (maxQty.value > 0 && qty.value > maxQty.value) || (hit.quota != null && hit.quota !== '' && (Number(hit.quota) < qty.value || !Number.isFinite(Number(hit.quota))))) {
+    uni.showToast({ title: '购买人数超过可用名额或限购数量', icon: 'none' });
+    return null;
+  }
   return {
     goodsId: goods.id,
     goodsName: goods.name,
     cover: goods.images?.[0] || '',
     category: categoryName.value,
+    categoryId: goods.category_id,
     packIndex: goods.specification.indexOf(spec),
+    packageKey: String(spec.key),
     packTitle: spec.title,
     personIndex: selectPersonIndex.value,
     personName: currentPersonName.value,
     date: selectedDate.value,
     qty: qty.value,
     unitPrice,
-    needsTravellers: true,
+    needsTravellers: goods.needs_travellers !== false,
   };
 };
 
-const onAddCart = () => {
-  const item = buildItem();
-  if (!item) return;
-  mall.addToCart(item);
-  uni.showToast({ title: '已加入购物车', icon: 'success' });
-};
-
+/** 保存立即购买的商品并进入结算页。 */
 const onBuyNow = () => {
   const item = buildItem();
   if (!item) return;
   mall.buyNow(item);
   uni.navigateTo({ url: '/pagesMall/checkout/index' });
-};
-
-const goCart = () => {
-  uni.navigateTo({ url: '/pagesMall/cart/index' });
 };
 
 const descriptionList = ['行程说明', '费用说明', '退改规划', '预定须知'];

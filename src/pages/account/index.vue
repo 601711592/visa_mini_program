@@ -47,11 +47,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
 import { useGlobalStore, ACCOUNT_PAGE, HOME_PAGE } from '@/store/global';
 import { useCenterStore } from '@/store/center';
 
 const global = useGlobalStore();
 const center = useCenterStore();
+
+onShow(async () => {
+  if (global.isLogin) {
+    try { await center.loadBenefits(); } catch { /* 继续显示已加载的数据 */ }
+  }
+});
 
 const checking = computed(() => global.status === 'checking');
 const pointsDescription = computed(() => {

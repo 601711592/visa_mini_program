@@ -114,21 +114,18 @@ test('列表加载失败可重试，登录失效后迟到响应不能恢复私�
   assert.equal(h.center.addresses.length, 0);
 });
 
-test('本单选择不改变默认地址，模拟订单保存独立地址快照', () => {
+test('本单选择不改变默认地址，登录失效清理地址选择', () => {
   const h = harness();
   h.center.addresses = [address(1), { ...address(2, false), name: '李先生' }];
   h.mall.buyNow({ goodsId: 1, goodsName: '签证', cover: '', category: '签证', packIndex: 0,
     packTitle: '标准', personIndex: 0, personName: '成人', date: '2026-10-01', qty: 1,
     unitPrice: 10000, needsTravellers: false });
   h.mall.checkoutAddressId = 2;
-  const order = h.mall.submitOrder();
-  assert.equal(order.address.name, '李先生');
   assert.equal(h.center.addresses[0].is_default, true);
-  h.center.addresses[1].name = '后来改名';
-  assert.equal(order.address.name, '李先生');
-  assert.equal(h.mall.checkoutAddressId, null);
+  assert.equal(h.center.addresses[1].is_default, false);
   h.global.expireSession();
-  assert.equal(h.center.orders.some((item) => item.id === order.id), false);
+  assert.equal(h.mall.checkoutAddressId, null);
+  assert.equal(h.center.addresses.length, 0);
 });
 
 test('地址列表可为本单选非默认地址或明确不使用地址', async () => {

@@ -1,6 +1,6 @@
 <template>
   <div class="layout flex-c" :style="`--navbar-height: ${navBarHeight}px`">
-    <div class="layout-navbar flex-s-0" v-if="navbar">
+    <div class="layout-navbar flex-s-0" v-if="navbar && showNavbar">
       <uni-nav-bar v-bind="_navbar" @clickLeft="handleClickLeft" ref="navBar">
         <template v-slot:left>
           <slot name="navbarLeft">
@@ -37,6 +37,11 @@ defineOptions({
 });
 
 const props = defineProps({
+  // 使用原生导航栏的页面仅复用布局，不再绘制自定义导航栏。
+  showNavbar: {
+    type: Boolean,
+    default: true,
+  },
   navbar: {
     type: Object as PropType<UniNavBarProps & Partial<{ leftSearch: boolean; leftBack: boolean }>>,
     default: () => ({}),

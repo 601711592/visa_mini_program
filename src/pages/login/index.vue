@@ -2,8 +2,9 @@
   <view class="login-page">
     <image class="illustration" src="/static/images/login-travel.png" mode="aspectFit" aria-hidden="true" />
     <view class="actions">
+      <button v-if="!global.phoneRequired" class="primary" :disabled="busy" :loading="busy" @tap="handleWechat">微信一键登录</button>
       <button
-        v-if="consent && supported"
+        v-else-if="consent && supported"
         class="primary"
         open-type="getPhoneNumber"
         :disabled="busy"
@@ -14,7 +15,7 @@
       </button>
       <button v-else class="primary" @tap="explainRequired">手机号快捷登录</button>
 
-      <view class="consent-row">
+      <view v-if="global.phoneRequired" class="consent-row">
         <checkbox-group @change="changeConsent">
           <label class="checkbox-label">
             <checkbox value="agree" :checked="consent" color="#164E70" :disabled="busy" />
@@ -55,6 +56,33 @@ onUnload(() => {
     global.cancelLogin();
   }
 });
+/** 老会员凭微信身份直接登录；尚未注册时切换为手机号授权，协议只在注册时确认。 */
+async function handleWechat() {
+  if (busy.value || !alive) {
+    return;
+  }
+  busy.value = true;
+  error.value = '';
+  try {
+    const success = await global.completeWechatLogin();
+    if (!alive) {
+      return;
+    }
+    if (success) {
+      global.finishLogin();
+    } else if (global.phoneRequired) {
+      error.value = '首次登录需要授权手机号，请阅读并同意协议后继续';
+    }
+  } catch (e) {
+    if (alive) {
+      error.value = e instanceof Error ? e.message : '登录失败，请重试';
+    }
+  } finally {
+    if (alive) {
+      busy.value = false;
+    }
+  }
+}
 /** 只记录本次页面的主动勾选，不默认代用户同意。 */
 function changeConsent(event: { detail: { value: string[] } }) {
   consent.value = event.detail.value.includes('agree');

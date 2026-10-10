@@ -1,28 +1,27 @@
 <template>
-  <view class="center-page">
-    <view class="page-body">
-      <view v-if="order" class="sheet-card pay-card">
-        <view class="card-h pay-title">董大象签证商城</view>
-        <view class="pay-amount">¥{{ order.due.toFixed(2) }}</view>
-        <view class="pay-no">订单号 {{ order.id }}</view>
-        <view class="kv">
-          <text>支付方式</text>
-          <text>微信支付</text>
+  <layout :show-navbar="false">
+    <view class="center-page">
+      <view class="page-body">
+        <view v-if="order" class="sheet-card pay-card">
+          <view class="card-h">微信支付</view>
+          <view class="pay-amount">¥{{ order.due.toFixed(2) }}</view>
+          <view class="kv"
+            ><text>订单号</text><text>{{ order.id }}</text></view
+          >
+          <view class="hint">支付结果以微信核验后的订单状态为准。</view>
+          <view class="button-stack">
+            <view class="btn solid full" @tap="pay">{{ busy ? '正在确认…' : '微信支付' }}</view>
+            <view class="btn outline full" @tap="goOrders">稍后支付</view>
+          </view>
         </view>
-        <view class="hint pay-hint">支付交互演示，不会发起真实扣款</view>
-        <view class="button-stack">
-          <view class="btn solid full" @tap="paySuccess">模拟支付成功</view>
-          <view class="btn outline full" @tap="payCancel">模拟取消支付</view>
-          <view class="btn outline full" @tap="payFail">模拟支付失败</view>
+        <view v-else class="sheet-card empty-state">
+          <view class="empty-h">正在加载订单…</view>
+          <view v-if="error" class="empty-p">{{ error }}</view>
+          <view class="btn solid full" @tap="load">重新加载</view>
         </view>
-      </view>
-      <view v-else class="sheet-card empty-state">
-        <view class="empty-h">未找到该订单</view>
-        <view class="empty-p">订单可能已失效，请返回后重试</view>
-        <view class="btn solid full" @tap="goBack">返回</view>
       </view>
     </view>
-  </view>
+  </layout>
 </template>
 
 <script setup lang="ts">
@@ -30,79 +29,71 @@ import { computed, ref } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { useGlobalStore } from '@/store/global';
 import { useCenterStore } from '@/store/center';
-import { useMallStore } from '@/store/mall';
+import { payTradeOrder } from '@/services/pay';
 
 const global = useGlobalStore();
 const center = useCenterStore();
-const mall = useMallStore();
-
 const orderId = ref('');
-
+const busy = ref(false);
+const error = ref('');
 const order = computed(() => center.findOrder(orderId.value));
 
-onLoad((query) => {
+onLoad(query => {
   orderId.value = query?.id || '';
 });
-
 onShow(async () => {
   if (!(await global.ensureLogin({ target: `/pagesMall/payment/index?id=${orderId.value}` }))) return;
+  await load();
 });
 
-function paySuccess() {
-  if (!order.value) return;
-  if (order.value.state !== '待付款') {
-    uni.showToast({ title: '订单状态已更新', icon: 'none' });
-    return;
+/** 加载待支付订单。 */
+async function load() {
+  try {
+    await center.loadOrder(orderId.value);
+    error.value = '';
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : '订单加载失败';
   }
-  mall.completePayment(orderId.value);
-  uni.redirectTo({ url: `/pagesMall/paySuccess/index?id=${orderId.value}` });
 }
 
-function payCancel() {
-  uni.showToast({ title: '支付已取消，可以稍后继续付款', icon: 'none' });
-  setTimeout(() => uni.navigateBack(), 800);
+/** 发起微信支付并确认收款结果。 */
+async function pay() {
+  if (busy.value || !order.value) return;
+  busy.value = true;
+  try {
+    const result = await payTradeOrder(orderId.value, order.value.priceVersion);
+    await load();
+    if (result === 'paid') {
+      uni.redirectTo({ url: `/pagesMall/paySuccess/index?id=${orderId.value}` });
+    } else {
+      uni.showToast({ title: '尚未确认收款，可稍后在订单中继续付款', icon: 'none' });
+    }
+  } catch (e) {
+    await load();
+    uni.showToast({ title: e instanceof Error ? e.message : '支付状态确认失败，请稍后重试', icon: 'none' });
+  } finally {
+    busy.value = false;
+  }
 }
 
-function payFail() {
-  uni.showToast({ title: '模拟支付失败，请重试或返回订单。', icon: 'none' });
-}
-
-function goBack() {
-  uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/account/index' }) });
+/** 进入订单列表。 */
+function goOrders() {
+  uni.redirectTo({ url: '/pagesOrder/orders/index' });
 }
 </script>
 
 <style scoped lang="scss">
 @import '@/styles/center.scss';
-
 .pay-card {
   text-align: center;
 }
-
-.pay-title {
-  margin-bottom: 8rpx;
-}
-
 .pay-amount {
   font-size: 70rpx;
   font-weight: 600;
   color: $brand-ink;
-  line-height: 1.3;
-  margin: 24rpx 0 8rpx;
+  margin: 24rpx 0;
 }
-
-.pay-no {
-  font-size: 23rpx;
-  color: $muted;
-  margin-bottom: 12rpx;
-}
-
 .pay-card .kv {
   text-align: left;
-}
-
-.pay-hint {
-  margin: 20rpx 0 0;
-  text-align: center;
 }
 </style>

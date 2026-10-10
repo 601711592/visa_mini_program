@@ -35,7 +35,6 @@
           <view class="empty-p">添加地址，用于护照或材料寄送。</view>
         </view>
       </view>
-      <view v-if="selectMode" class="sheet-card text-link" @tap="chooseAddress(0)">{{ mall.checkoutAddressId === 0 ? '本单不使用邮寄地址（已选）' : '本单不使用邮寄地址' }}</view>
       <view class="bottom-action">
         <view class="btn solid full" @tap="goEdit()">新增收货地址</view>
       </view>
@@ -65,29 +64,35 @@ onShow(async () => {
   await refresh();
 });
 
+/** 刷新地址列表。 */
 async function refresh() {
   try { await center.loadAddresses(); } catch { /* 错误状态由 Store 展示 */ }
 }
 
+/** 拼接完整收货地址。 */
 function addressText(a: Address) {
   return `${a.province} ${a.city} ${a.district} ${a.street}`;
 }
 
+/** 隐藏手机号中间四位。 */
 function maskPhone(phone: string) {
   return phone.replace(/^(\d{3})\d{4}/, '$1****');
 }
 
+/** 打开新增或编辑地址页。 */
 function goEdit(id?: number) {
   if (busy.value) return;
   uni.navigateTo({ url: id ? `/pagesCenter/addressEdit/index?id=${id}` : '/pagesCenter/addressEdit/index' });
 }
 
+/** 选用当前地址并返回结算页。 */
 function chooseAddress(id: number) {
   if (!selectMode.value || busy.value || center.addressesLoading || center.addressesError || !center.addressesLoaded) return;
   mall.checkoutAddressId = id;
   uni.navigateBack();
 }
 
+/** 设置默认收货地址。 */
 async function makeDefault(id: number) {
   if (busy.value) return;
   const token = getToken();
@@ -100,6 +105,7 @@ async function makeDefault(id: number) {
   } finally { busy.value = false; }
 }
 
+/** 确认后删除地址并清理结算选择。 */
 function confirmDelete(a: Address) {
   if (busy.value) return;
   uni.showModal({
@@ -111,10 +117,14 @@ function confirmDelete(a: Address) {
       busy.value = true;
       try {
         await center.deleteAddress(a.id);
+        // 退出登录后才返回的结果不再提示，也不改动结算选择。
         if (!global.isLogin || token !== getToken()) return;
         const wasSelected = mall.checkoutAddressId === a.id;
-        if (wasSelected) mall.checkoutAddressId = 0;
-        uni.showToast({ title: wasSelected ? '地址已删除，本单不使用邮寄地址' : '地址已删除', icon: 'none' });
+        if (wasSelected) {
+          mall.checkoutAddressId = null;
+          mall.quote = null;
+        }
+        uni.showToast({ title: wasSelected ? '地址已删除，请在结算页重新选择' : '地址已删除', icon: 'none' });
       } catch (error) {
         if (global.isLogin && token === getToken()) uni.showToast({ title: error instanceof Error ? error.message : '删除失败', icon: 'none' });
       } finally { busy.value = false; }

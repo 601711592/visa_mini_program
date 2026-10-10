@@ -17,11 +17,15 @@ export interface LoginResult {
   member: Member; // 当前会员资料
 }
 
+/** 微信身份登录结果：已注册返回凭证和资料，未注册只返回标记。 */
+export type WechatLoginResult = ({ registered: true } & LoginResult) | { registered: false };
+
 /** 两种微信凭证各自获取，不能混用。 */
 export type PhoneLoginParams = {
   login_code: string; // wx.login 返回的登录凭证
   phone_code: string; // getPhoneNumber 返回的手机号凭证
   agreement_version: string; // 用户同意的协议版本
+  invite_code?: string; // 好友分享带来的邀请码，仅注册时生效
 };
 
 /** 恢复登录时向后端校验，不能仅凭本地存在 token 判断已登录。 */
@@ -33,23 +37,23 @@ export function getCurrentUserInfo(token?: string) {
   });
 }
 
-/** 不带旧 token，分别提交两种微信 code 和前端协议版本。 */
+/** 已注册会员只凭 wx.login 的凭证登录，不带旧 token，也不需要手机号授权。 */
+export function wechatLogin(loginCode: string) {
+  return request<API.ResponseBody<WechatLoginResult>>({
+    url: '/auth/login',
+    method: 'POST',
+    auth: false,
+    data: { login_code: loginCode },
+  });
+}
+
+/** 首次注册：不带旧 token，分别提交两种微信 code 和前端协议版本。 */
 export function phoneLogin(data: PhoneLoginParams) {
   return request<API.ResponseBody<LoginResult>>({
     url: '/auth/phone-login',
     method: 'POST',
     auth: false,
     data,
-  });
-}
-
-/** 微信会话失效后核对身份，不延长业务 token 的有效期。 */
-export function verifyWechatSession(loginCode: string, token?: string) {
-  return request<API.ResponseBody<{ verified: boolean }>>({
-    url: '/auth/wechat-session',
-    method: 'POST',
-    token,
-    data: { login_code: loginCode },
   });
 }
 

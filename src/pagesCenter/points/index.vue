@@ -1,55 +1,63 @@
 <template>
-  <view class="center-page">
-    <view class="balance-hero">
-      <view class="card-heading">
-        <text>可用积分</text>
-        <view class="text-link" @tap="goRules">
-          <text>积分规则</text>
-          <image src="/static/images/center/chevron-right.png" mode="aspectFit" />
-        </view>
-      </view>
-      <view class="large-number">{{ balanceText }}</view>
-      <text class="hero-note">积分永久有效 · 500 积分可抵 10 元</text>
-      <view class="btn light-button" @tap="usePoints">去使用积分</view>
-    </view>
-    <view class="filter-tabs">
-      <view
-        v-for="tab in tabs"
-        :key="tab"
-        class="tab"
-        :class="{ selected: filter === tab }"
-        @tap="filter = tab"
-      >
-        {{ tab }}
-      </view>
-    </view>
-    <view class="page-body">
-      <view class="sheet-card">
-        <text class="card-title">积分明细</text>
-        <template v-if="entries.length">
-          <view v-for="(entry, index) in entries" :key="index" class="ledger-row">
-            <view class="ledger-info">
-              <text class="name">{{ entry.name }}</text>
-              <text class="note">{{ entry.note }}</text>
-              <text class="date">{{ entry.date }}</text>
-            </view>
-            <text class="amount" :class="entry.amount > 0 ? 'positive' : 'negative'">
-              {{ entry.amount > 0 ? '+' : '' }}{{ entry.amount }}
-            </text>
+  <layout :show-navbar="false">
+    <view class="center-page">
+      <view class="balance-hero">
+        <view class="card-heading">
+          <text>可用积分</text>
+          <view class="text-link" @tap="goRules">
+            <text>积分规则</text>
+            <image src="/static/images/center/chevron-right.png" mode="aspectFit" />
           </view>
-        </template>
-        <view v-else class="empty-state">
-          <image src="/static/images/center/receipt-text.png" mode="aspectFit" />
-          <text class="empty-title">暂无记录</text>
-          <text class="empty-sub">积分变动后会展示在这里</text>
+        </view>
+        <view class="large-number">{{ balanceText }}</view>
+        <text class="hero-note">积分永久有效 · 500 积分可抵 10 元</text>
+        <view class="btn light-button" @tap="usePoints">去使用积分</view>
+      </view>
+      <view class="filter-tabs">
+        <view
+          v-for="tab in tabs"
+          :key="tab.value"
+          class="tab"
+          :class="{ selected: center.pointsDirection === tab.value }"
+          @tap="reload(tab.value)"
+        >
+          {{ tab.label }}
+        </view>
+      </view>
+      <view class="page-body">
+        <view class="sheet-card">
+          <text class="card-title">积分明细</text>
+          <template v-if="center.ledger.length">
+            <view v-for="entry in center.ledger" :key="entry.id" class="ledger-row">
+              <view class="ledger-info">
+                <text class="name">{{ entry.name }}</text>
+                <text class="note">{{ entry.note }}</text>
+                <text class="date">{{ entry.date }}</text>
+              </view>
+              <text class="amount" :class="entry.amount > 0 ? 'positive' : 'negative'">
+                {{ entry.amount > 0 ? '+' : '' }}{{ entry.amount }}
+              </text>
+            </view>
+          </template>
+          <view v-else-if="!center.pointsLoading && !center.pointsError" class="empty-state">
+            <image src="/static/images/center/receipt-text.png" mode="aspectFit" />
+            <text class="empty-title">暂无记录</text>
+            <text class="empty-sub">积分变动后会展示在这里</text>
+          </view>
+          <view v-if="center.pointsError" class="empty-state">
+            <text class="empty-sub">{{ center.pointsError }}</text>
+            <view class="btn" @tap="retry">重新加载</view>
+          </view>
+          <view v-else-if="center.pointsLoading" class="empty-state"><text class="empty-sub">正在加载积分…</text></view>
+          <view v-else-if="center.pointsHasMore" class="btn" @tap="loadMore">加载更多</view>
         </view>
       </view>
     </view>
-  </view>
+  </layout>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import { useGlobalStore } from '@/store/global';
 import { useCenterStore } from '@/store/center';
@@ -57,27 +65,31 @@ import { useCenterStore } from '@/store/center';
 const global = useGlobalStore();
 const center = useCenterStore();
 
-type PointsFilter = '全部' | '收入' | '支出';
-
-const tabs: PointsFilter[] = ['全部', '收入', '支出'];
-const filter = ref<PointsFilter>('全部');
-
-const balanceText = computed(() => center.balance.toLocaleString());
-const entries = computed(() =>
-  center.ledger.filter((x) => filter.value === '全部' || (filter.value === '收入' ? x.amount > 0 : x.amount < 0)),
-);
+const tabs = [{ label: '全部', value: '' }, { label: '收入', value: 'in' }, { label: '支出', value: 'out' }] as const;
+const balanceText = computed(() => center.pointsPage ? center.balance.toLocaleString() : '—');
 
 onShow(async () => {
   if (!(await global.ensureLogin({ target: '/pagesCenter/points/index' }))) return;
+  await reload(center.pointsDirection);
 });
 
+/** 错误保留在页面内，重试继续未完成的页码。 */
+async function reload(direction: '' | 'in' | 'out') {
+  try { await center.loadPoints(true, direction); } catch { /* 页面展示错误和重试按钮 */ }
+}
+async function loadMore() {
+  try { await center.loadPoints(false); } catch { /* 已加载流水保留 */ }
+}
+function retry() { return center.pointsPage ? loadMore() : reload(center.pointsDirection); }
+
+/** 打开积分规则。 */
 function goRules() {
   uni.navigateTo({ url: '/pagesCenter/pointsRules/index' });
 }
 
-/** 产品分类页未建，先回首页商品列表。 */
+/** 返回产品分类选购。 */
 function usePoints() {
-  uni.reLaunch({ url: '/pages/mall/index' });
+  uni.switchTab({ url: '/pages/catalog/index' });
 }
 </script>
 
