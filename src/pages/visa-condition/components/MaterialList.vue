@@ -13,11 +13,10 @@
 import MaterialItem from './MaterialItem.vue';
 import type { MaterialItem as MaterialItemType } from '../constants.js';
 
-interface Props {
+// 类型直接写在宏里，原因见 MaterialSelector.vue。
+defineProps<{
   materials: MaterialItemType[];
-}
-
-defineProps<Props>();
+}>();
 </script>
 
 <style lang="scss" scoped>

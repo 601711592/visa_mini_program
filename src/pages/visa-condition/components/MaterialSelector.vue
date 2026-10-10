@@ -14,18 +14,16 @@
 import { computed } from 'vue';
 import type { VisaCondition } from '../constants.js';
 
-interface Props {
+// 类型直接写在宏里：vite-plugin-vue-type-imports 遇到具名 Props/Emits 会重写 import 并丢掉 type 关键字，
+// 数组类型又不会被它内联，结果 constants 被当成值导入，构建时报 "is not exported"。
+const props = defineProps<{
   modelValue: number;
   options: VisaCondition[];
-}
-
-interface Emits {
+}>();
+const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void;
   (e: 'change', value: number): void;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
+}>();
 
 const currentOption = computed(() => props.options[props.modelValue] || props.options[0]);
 
