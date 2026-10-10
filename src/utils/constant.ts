@@ -6,4 +6,6 @@ export const ASSET_DOMAIN = 'https://static.o1001.com/t-shirt/';
 // export const API_PREFIX = 'http://192.168.31.254:8000/api/mp';
 // export const API_PREFIX = 'http://localhost:8000/api/mp';
 // export const API_PREFIX = 'http://192.168.31.6:8000/api/mp';
-export const API_PREFIX = (import.meta.env.VITE_API_PREFIX || 'http://visa.test/api/min').replace(/\/$/, '');
+// build 打包走线上域名，dev 走本地域名
+const API_DOMAIN = import.meta.env.PROD ? 'https://www.visa8.cn' : 'http://visa.test';
+export const API_PREFIX = (import.meta.env.VITE_API_PREFIX || `${API_DOMAIN}/api/min`).replace(/\/$/, '');

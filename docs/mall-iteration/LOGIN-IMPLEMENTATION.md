@@ -39,7 +39,7 @@ if (!(await global.ensureLogin({ target: '/pages/account/index' }))) return;
 
 ## 环境与联调
 
-前端参数：`VITE_ID` 对应后端小程序记录，`VITE_APP_ID` 对应微信 AppID，`VITE_API_PREFIX` 指向联调 API 根路径（含 `/api/min`）。必须核对三者一致。当前默认接口地址沿用本地 `http://visa.test/api/min`，环境变量可覆盖；发布前必须显式设置正式 HTTPS API 地址。
+前端参数：`VITE_ID` 对应后端小程序记录，`VITE_APP_ID` 对应微信 AppID，`VITE_API_PREFIX` 指向联调 API 根路径（含 `/api/min`）。必须核对三者一致。默认接口地址：dev 为本地 `http://visa.test/api/min`，build 为线上 `https://www.visa8.cn/api/min`，环境变量可覆盖。
 
 现有 app1/app2 使用同一个 AppID，仅 `VITE_ID` 为 1、2；配置未擅自修改。两个目标构建通过不代表两个真实微信应用已联调。正式 AppID 映射待确认。
 
