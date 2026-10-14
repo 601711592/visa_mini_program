@@ -22,7 +22,7 @@
 
       <view class="goods-detail mt-3 mb-3 p-2">
         <view class="font-bold">套餐</view>
-        <view class="mt-1 flex">
+        <view class="mt-1 flex flex-wrap">
           <view
             class="package"
             :class="{ active: selectPackage === item }"
@@ -35,7 +35,7 @@
       </view>
       <view class="goods-detail mt-3 mb-3 p-2" v-if="selectPackage">
         <view class="font-bold">出游人群</view>
-        <view class="mt-1 flex">
+        <view class="mt-1 flex flex-wrap">
           <view
             class="package"
             :class="{ active: selectPersonIndex === index }"
