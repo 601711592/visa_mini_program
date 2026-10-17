@@ -3,7 +3,6 @@
     <view class="center-page">
       <view class="page-body">
         <view class="sheet-card">
-          <view class="card-h">{{ COMPANY.name }}</view>
           <view class="kv">
             <text>公司地址</text>
             <text>{{ COMPANY.address }}</text>
@@ -35,20 +34,20 @@
 <script setup lang="ts">
 // 游客可访问本页，不加登录守卫。
 // 坐标使用 GCJ-02（腾讯地图坐标拾取器取值）；置为 null 时页面展示待配置状态。
+// 页面不展示公司名，地图标记和导航只显示地址。
 const COMPANY = {
-  name: '广州市大象旅游科技有限公司',
-  address: '广州市白云区沙凤三路3号B101（办公：109区域）',
-  latitude: 23.150634 as number | null,
-  longitude: 113.195205 as number | null,
+  address: '广州市白云区沙凤三路3号B站329房（【金沙互联网医院】同一栋楼）',
+  latitude: 23.14861 as number | null,
+  longitude: 113.194158 as number | null,
 };
 
 const coords = COMPANY.latitude !== null && COMPANY.longitude !== null ? { latitude: COMPANY.latitude, longitude: COMPANY.longitude } : null;
-const markers = coords ? [{ id: 1, ...coords, title: COMPANY.name }] : [];
+const markers = coords ? [{ id: 1, ...coords, title: COMPANY.address }] : [];
 
 /** 打开微信内置地图，由用户选择导航应用；坐标未配置时不响应。 */
 function openNavigation() {
   if (!coords) return;
-  uni.openLocation({ ...coords, name: COMPANY.name, address: COMPANY.address, scale: 16 });
+  uni.openLocation({ ...coords, name: COMPANY.address, address: COMPANY.address, scale: 16 });
 }
 </script>
 
