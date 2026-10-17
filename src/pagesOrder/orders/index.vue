@@ -26,8 +26,8 @@
             </view>
             <view class="product-info">
               <text class="product-name">{{ item.goodsName }}</text>
-              <text class="product-meta">{{ item.pack }} · {{ item.group }}</text>
-              <text class="product-meta">{{ item.date }} · {{ item.qty }} 人</text>
+              <text class="product-meta">{{ item.pack }}<text v-if="item.group"> · {{ item.group }}</text></text>
+              <text class="product-meta"><text v-if="item.date">{{ item.date }} · </text>{{ item.qty }} 人</text>
             </view>
           </view>
           <view class="order-total">

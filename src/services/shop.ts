@@ -9,6 +9,7 @@ export interface GoodsCategory {
 export interface GoodsSpecification {
   information: string | null; // 材料清单，换行分隔，后台未填时为 null
   key: string; // 规格参数键
+  bookingEnabled?: boolean; // 是否开启出游人群与价格日历（同一个开关），未设置视为关闭
   person: string[]; // 人群
   price: string; // 价格
   priceCalender: any; // 价格日历
@@ -34,7 +35,6 @@ export interface Goods {
   booking_description: string; // 预订说明
   specification: GoodsSpecification[]; // 规格参数
   needs_travellers: boolean; // 当前商品是否需要出行人资料
-  visa_type_id: number | null; // 支付后办理的签证类型
   purchase_limit: number; // 服务端限购人数
 }
 

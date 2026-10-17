@@ -16,8 +16,10 @@
               </view>
               <view class="product-info">
                 <text class="product-name">{{ item.goodsName }}</text>
-                <text class="product-meta">{{ item.pack }} · {{ item.group }}</text>
-                <text class="product-meta">{{ item.date }}<text v-if="item.travellers.length"> · {{ item.qty }} 人</text></text>
+                <text class="product-meta">{{ item.pack }}<text v-if="item.group"> · {{ item.group }}</text></text>
+                <text class="product-meta" v-if="item.date || item.travellers.length"
+                  >{{ item.date }}<text v-if="item.travellers.length">{{ item.date ? ' · ' : '' }}{{ item.qty }} 人</text></text
+                >
               </view>
               <view class="product-pricing">
                 <text class="product-amount">¥{{ money(item.unitPrice) }}</text>

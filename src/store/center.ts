@@ -88,7 +88,7 @@ export function toCenterOrder(order: TradeOrder): CenterOrder {
     id: order.order_no, state: states[order.status], created: order.created_at,
     items: order.items.map(item => ({
       goodsId: item.goods_id, goodsName: item.goods_name, cover: item.goods_cover || '', pack: item.package_title,
-      group: item.person_name, date: item.travel_date, qty: item.quantity,
+      group: item.person_name, date: item.travel_date || '', qty: item.quantity,
       unitPrice: item.unit_cents / 100, amount: item.unit_cents * item.quantity / 100,
       travellers: item.travellers.map(p => ({ name: p.name, passport: p.passport_tail })),
     })),

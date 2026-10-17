@@ -10,7 +10,7 @@
               <view class="product-info">
                 <text class="product-name">{{ item.goodsName }}</text>
                 <text class="product-meta">套餐：{{ item.packTitle }}</text>
-                <text class="product-meta">{{ item.date }} · {{ item.personName }}</text>
+                <text class="product-meta" v-if="item.date || item.personName">{{ item.date }}<text v-if="item.date && item.personName"> · </text>{{ item.personName }}</text>
                 <text class="product-unit">单价：<text class="unit-price">¥{{ formatMoney(displayQuote?.unit_cents ?? item.unitPrice) }}</text></text>
               </view>
             </view>

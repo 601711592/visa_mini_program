@@ -9,7 +9,7 @@
           </view>
           <view class="product-info">
             <text class="product-name">{{ row.goodsName }}</text>
-            <text class="product-meta">{{ row.packTitle }} · {{ row.personName }} · {{ row.date }}</text>
+            <text class="product-meta">{{ row.packTitle }}<text v-if="row.personName"> · {{ row.personName }}</text><text v-if="row.date"> · {{ row.date }}</text></text>
           </view>
         </view>
         <view class="hint">仅填写此商品的 {{ row.qty }} 位出行人，信息须与护照一致。</view>

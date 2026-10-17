@@ -120,8 +120,8 @@ export const useMallStore = defineStore('mall', {
       const item = this.checkoutRows[0];
       if (!item?.packageKey) return null;
       return {
-        goods_id: item.goodsId, package_key: item.packageKey, person_name: item.personName,
-        travel_date: item.date, quantity: item.qty, coupon_id: this.couponId || null,
+        goods_id: item.goodsId, package_key: item.packageKey, person_name: item.personName || null,
+        travel_date: item.date || null, quantity: item.qty, coupon_id: this.couponId || null,
         use_points: this.usePoints,
       };
     },

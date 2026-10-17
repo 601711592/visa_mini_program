@@ -4,8 +4,8 @@ import request from '@/utils/request';
 export interface OrderSelection {
   goods_id: number;
   package_key: string;
-  person_name: string;
-  travel_date: string;
+  person_name: string | null; // 套餐未开启出游人群时为空
+  travel_date: string | null; // 套餐未开启价格日历时为空
   quantity: number;
   address_id?: number | null;
   coupon_id?: number | null;
@@ -71,7 +71,7 @@ export interface TradeOrder {
     goods_cover: string; // 商品封面
     package_title: string;
     person_name: string;
-    travel_date: string;
+    travel_date: string | null;
     quantity: number;
     unit_cents: number;
     travellers: Array<{ name: string; passport_tail: string }>;
