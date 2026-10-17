@@ -32,10 +32,6 @@
 
         <scroll-view scroll-y class="catalog-goods-area" :scroll-top="goodsScrollTop" :show-scrollbar="false" @scroll="onGoodsScroll">
           <view class="goods-content">
-            <view class="goods-header">
-              <text class="goods-title">{{ activeCategoryName || '产品分类' }}</text>
-              <text v-if="!loading && !loadError" class="goods-count">{{ list.length }}款商品</text>
-            </view>
             <view v-if="loading" class="catalog-state">正在加载商品…</view>
             <view v-else-if="loadError" class="catalog-state">
               <text>商品加载失败，请重试</text>
@@ -117,7 +113,6 @@ onShow(() => { updateWindow(); loadCatalog(); });
 const list = computed(() => currentCategory.value
   ? goods.value.filter(item => item.category_id === currentCategory.value)
   : []);
-const activeCategoryName = computed(() => categories.value.find(category => category.id === currentCategory.value)?.name || '');
 function onGoodsScroll(event: { detail: { scrollTop: number } }) { currentScrollTop = event.detail.scrollTop; }
 async function selectCategory(id: number) {
   if (currentCategory.value === id) return;
@@ -143,33 +138,33 @@ const goSearch = () => uni.navigateTo({ url: '/pages/search/index' });
 // .cart-entry { flex: none; width: 64rpx; height: 100%; display: flex; align-items: center; justify-content: center; }
 // .cart-icon { width: 38rpx; height: 38rpx; }
 .catalog-split { display: flex; flex: 1; min-height: 0; overflow: hidden; }
-.catalog-rail { flex: none; width: 156rpx; height: 100%; background: #f4f6fa; }
+// 内容宽 72rpx，4 字分类名按 2 字一行折成两行。
+.catalog-rail { flex: none; width: 112rpx; height: 100%; background: #f4f6fa; }
 .rail-content { padding-top: 28rpx; }
-.rail-item { position: relative; display: flex; align-items: center; min-height: 104rpx; padding: 24rpx 12rpx; box-sizing: border-box; color: #495566; }
-.rail-label { font-size: 28rpx; line-height: 42rpx; overflow-wrap: anywhere; }
-.rail-item--active { background: #eaf6fd; color: #164e70; font-weight: 600; }
+.rail-item { position: relative; display: flex; align-items: center; justify-content: center; min-height: 104rpx; padding: 20rpx; box-sizing: border-box; color: #495566; }
+.rail-label { font-size: 28rpx; line-height: 38rpx; text-align: center; overflow-wrap: anywhere; }
+.rail-item--active { background: #d2eafa; color: #164e70; font-weight: 600; }
 .rail-item--active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6rpx; background: #8ad0f9; }
 .catalog-goods-area { flex: 1; width: 0; min-width: 0; height: 100%; background: #fff; }
-.goods-content { padding: 36rpx 20rpx; }
-.goods-header { margin: 0 8rpx 36rpx; }
-.goods-title { display: block; font-size: 48rpx; font-weight: 600; line-height: 67rpx; color: #202631; overflow-wrap: anywhere; }
-.goods-count { display: block; margin-top: 8rpx; font-size: 28rpx; line-height: 45rpx; color: #737d8c; }
+.goods-content { padding: 24rpx 20rpx; }
 .tiles-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20rpx; }
 .catalog-tile { display: flex; flex-direction: column; min-width: 0; overflow: hidden; background: #fff; border: 2rpx solid #e3e8f0; border-radius: 24rpx; box-sizing: border-box; }
 .catalog-goods { flex: 1; min-width: 0; padding: 14rpx 14rpx 0; }
-// 百分比正方形容器避免微信 image 默认尺寸、固定高度及旧基础库 aspect-ratio 差异。
-.cover-frame { position: relative; width: 100%; height: 0; padding-top: 100%; overflow: hidden; border-radius: 14rpx; background: #f4f6fa; }
+// 百分比 4:3 容器避免微信 image 默认尺寸、固定高度及旧基础库 aspect-ratio 差异。
+// 封面按正方形铺满后底部对齐，只露出下方 75%，保留图片底部的国家与卖点标签。
+.cover-frame { position: relative; width: 100%; height: 0; padding-top: 75%; overflow: hidden; border-radius: 14rpx; background: #f4f6fa; }
 .tile-cover, .cover-placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.tile-cover { top: auto; bottom: 0; height: 133.333%; }
 .cover-placeholder { display: flex; align-items: center; justify-content: center; }
 .cover-placeholder-text { color: #737d8c; font-size: 24rpx; }
-.tile-name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; height: 88rpx; margin: 20rpx 2rpx 0; font-size: 28rpx; font-weight: 500; line-height: 44rpx; color: #202631; overflow-wrap: anywhere; }
-.tile-bottom { display: flex; align-items: center; justify-content: space-between; gap: 0; padding: 4rpx 6rpx 10rpx 16rpx; }
+.tile-name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; height: 88rpx; margin: 14rpx 2rpx 0; font-size: 28rpx; font-weight: 500; line-height: 44rpx; color: #202631; overflow-wrap: anywhere; }
+.tile-bottom { display: flex; align-items: center; justify-content: space-between; gap: 0; padding: 0 6rpx 6rpx 16rpx; }
 .tile-price { min-width: 0; font-size: 24rpx; color: #164e70; white-space: nowrap; }
 .tile-price-num { margin-left: 2rpx; font-size: 40rpx; font-weight: 600; }
 .tile-price-num--compact { font-size: 26rpx; }
-.tile-arrow { display: flex; flex: none; align-items: center; justify-content: center; width: 88rpx; height: 88rpx; }
-.arrow-disc { display: flex; align-items: center; justify-content: center; width: 60rpx; height: 60rpx; border-radius: 50%; background: #eaf6fd; }
-.arrow-icon { width: 40rpx; height: 40rpx; }
+.tile-arrow { display: flex; flex: none; align-items: center; justify-content: center; width: 64rpx; height: 64rpx; }
+.arrow-disc { display: flex; align-items: center; justify-content: center; width: 52rpx; height: 52rpx; border-radius: 50%; background: #eaf6fd; }
+.arrow-icon { width: 34rpx; height: 34rpx; }
 .catalog-state { padding: 60rpx 8rpx; text-align: center; color: #737d8c; font-size: 26rpx; line-height: 44rpx; }
 .retry-button { margin: 24rpx auto 0; padding: 0 24rpx; width: 200rpx; min-height: 88rpx; line-height: 88rpx; border-radius: 44rpx; background: #eaf6fd; color: #164e70; font-size: 28rpx; }
 .retry-button::after { border: 0; }
