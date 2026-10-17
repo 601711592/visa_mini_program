@@ -19,7 +19,7 @@
             link-text="明细"
             pill-text="去使用"
             @detail="go('/pagesCenter/points/index')"
-            @action="usePoints"
+            @action="goCatalog"
           />
           <benefit-row
             icon="/static/images/center/ticket-percent.png"
@@ -28,7 +28,7 @@
             link-text="查看全部"
             pill-text="去使用"
             @detail="go('/pagesCenter/coupons/index')"
-            @action="go('/pagesCenter/coupons/index?purpose=use')"
+            @action="goCatalog"
           />
           <benefit-row
             icon="/static/images/center/user-round-plus.png"
@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { useGlobalStore, ACCOUNT_PAGE, HOME_PAGE } from '@/store/global';
+import { useGlobalStore, ACCOUNT_PAGE, CATALOG_PAGE } from '@/store/global';
 import { useCenterStore } from '@/store/center';
 
 const global = useGlobalStore();
@@ -91,13 +91,13 @@ function openOrders(filter: string) {
   void go(filter ? `/pagesOrder/orders/index?filter=${encodeURIComponent(filter)}` : '/pagesOrder/orders/index');
 }
 
-/** 去使用积分：进入商品浏览；产品分类页接入前回到首页商品列表。 */
-async function usePoints() {
+/** 积分、优惠券“去使用”统一进入产品分类选购；未登录先登录，成功后回到产品分类。 */
+async function goCatalog() {
   if (!global.isLogin) {
-    await global.ensureLogin({ target: HOME_PAGE });
+    await global.ensureLogin({ target: CATALOG_PAGE });
     return;
   }
-  uni.navigateBack({ fail: () => uni.reLaunch({ url: HOME_PAGE }) });
+  uni.switchTab({ url: CATALOG_PAGE });
 }
 
 function openService(key: string) {

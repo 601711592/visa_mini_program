@@ -8,6 +8,7 @@ import { useCenterStore } from './center';
 export const LOGIN_PAGE = '/pages/login/index';
 export const ACCOUNT_PAGE = '/pages/account/index';
 export const HOME_PAGE = '/pages/mall/index';
+export const CATALOG_PAGE = '/pages/catalog/index';
 
 // 并发恢复共用一个请求；authOperationId 变化让取消、退出之前的迟到响应失效。
 let sessionRestorePromise: Promise<void> | null = null;
@@ -280,7 +281,7 @@ export function safeTarget(target?: string) {
 /** tab 页直接切换，普通页面优先返回已有实例以保留页面状态。 */
 export function returnFromLogin(target: string) {
   const url = safeTarget(target);
-  const isTabPage = [HOME_PAGE, ACCOUNT_PAGE, '/pages/catalog/index'].includes(url);
+  const isTabPage = [HOME_PAGE, ACCOUNT_PAGE, CATALOG_PAGE].includes(url);
   if (isTabPage) {
     uni.switchTab({ url, fail: () => uni.reLaunch({ url: HOME_PAGE }) });
     return;

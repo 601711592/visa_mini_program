@@ -12,9 +12,11 @@
   </layout>
 </template>
 <script setup lang="ts">
+import { CATALOG_PAGE } from '@/store/global';
+
 /** 返回商品分类页。 */
 function goCatalog() {
-  uni.switchTab({ url: '/pages/catalog/index' });
+  uni.switchTab({ url: CATALOG_PAGE });
 }
 </script>
 <style scoped lang="scss">

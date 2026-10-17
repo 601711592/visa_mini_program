@@ -127,7 +127,7 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue';
 import { onShow, onUnload } from '@dcloudio/uni-app';
-import { useGlobalStore } from '@/store/global';
+import { useGlobalStore, CATALOG_PAGE } from '@/store/global';
 import { useCenterStore } from '@/store/center';
 import { useMallStore, type CartItem } from '@/store/mall';
 import { formatMoney } from '@/utils';
@@ -220,7 +220,7 @@ function clearCoupon() {
 
 /** 返回商品分类页。 */
 function goCatalog() {
-  uni.switchTab({ url: '/pages/catalog/index' });
+  uni.switchTab({ url: CATALOG_PAGE });
 }
 
 /** 切换积分抵扣并重新报价。 */

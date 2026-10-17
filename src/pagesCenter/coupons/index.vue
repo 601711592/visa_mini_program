@@ -38,7 +38,7 @@
                   使用规则
                   <image src="/static/images/center/chevron-right.png" mode="aspectFit" />
                 </view>
-                <view v-if="coupon.status === '未使用'" class="btn compact" @tap.stop="goUse(coupon.id)">去使用</view>
+                <view v-if="coupon.status === '未使用'" class="btn compact" @tap.stop="goUse">去使用</view>
                 <text v-else class="status-tag">{{ coupon.status === '已使用' && coupon.orderStatus === 'pending' ? '订单待付款' : coupon.status }}</text>
               </view>
             </view>
@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
-import { useGlobalStore } from '@/store/global';
+import { useGlobalStore, CATALOG_PAGE } from '@/store/global';
 import { useCenterStore } from '@/store/center';
 
 const global = useGlobalStore();
@@ -97,9 +97,9 @@ function goDetail(id: number) {
   uni.navigateTo({ url: `/pagesCenter/couponDetail/index?id=${id}` });
 }
 
-/** 查看优惠券适用商品。 */
-function goUse(id: number) {
-  uni.navigateTo({ url: `/pagesCenter/couponGoods/index?id=${id}` });
+/** 按客户要求“去使用”统一进入产品分类；券的适用商品页 couponGoods 保留，需要时可改回。 */
+function goUse() {
+  uni.switchTab({ url: CATALOG_PAGE });
 }
 </script>
 

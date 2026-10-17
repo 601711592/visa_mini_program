@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { useGlobalStore } from '@/store/global';
+import { useGlobalStore, CATALOG_PAGE } from '@/store/global';
 import { useCenterStore } from '@/store/center';
 
 const global = useGlobalStore();
@@ -89,7 +89,7 @@ function goRules() {
 
 /** 返回产品分类选购。 */
 function usePoints() {
-  uni.switchTab({ url: '/pages/catalog/index' });
+  uni.switchTab({ url: CATALOG_PAGE });
 }
 </script>
 
