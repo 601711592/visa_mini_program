@@ -75,7 +75,6 @@ export interface TradeOrder {
     quantity: number;
     unit_cents: number;
     travellers: Array<{ name: string; passport_tail: string }>;
-    fulfillment_order_no: string | null;
   }>;
 }
 
