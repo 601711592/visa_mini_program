@@ -19,6 +19,7 @@
             <text class="order-no">{{ order.id }}</text>
             <text class="status-tag">{{ order.state }}</text>
           </view>
+          <view v-if="order.refund && order.refund.status !== 'cancelled' && order.state !== '已退款'" class="refund-line">{{ order.refund.label }}</view>
           <view v-for="(item, index) in order.items" :key="index" class="order-product">
             <image v-if="item.cover && !failedCovers[item.cover]" class="product-cover" :src="item.cover" mode="aspectFill" @error="failedCovers[item.cover] = true" />
               <view v-else class="product-symbol">
@@ -33,7 +34,7 @@
           <view class="order-total">
             <text>共 {{ totalQty(order) }} 人</text>
             <text>
-              {{ order.state === '待付款' ? '待支付' : '实付' }}
+              {{ order.state === '待付款' ? '待支付' : order.state === '已退款' ? '已退' : '实付' }}
               <text class="total-amount">¥{{ money(order.due) }}</text>
             </text>
           </view>
@@ -43,6 +44,7 @@
               <view class="btn solid" @tap="goPay(order)">继续付款</view>
             </template>
             <view class="btn outline" @tap="goDetail(order)">查看详情</view>
+            <view v-if="showRefundButton(order)" class="btn solid" @tap="openRefund(order)">申请退款</view>
           </view>
         </view>
         <view v-if="!filteredOrders.length && !center.ordersLoading" class="empty-state">
@@ -61,13 +63,14 @@ import { computed, ref } from 'vue';
 import { onLoad, onShow, onReachBottom } from '@dcloudio/uni-app';
 import { useGlobalStore } from '@/store/global';
 import { useCenterStore, type CenterOrder } from '@/store/center';
-import type { TradeOrder } from '@/services/orders';
+import type { OrderFilter } from '@/services/orders';
+import { openRefund, showRefundButton } from '../refund';
 
 const global = useGlobalStore();
 const center = useCenterStore();
 const failedCovers = ref<Record<string, boolean>>({});
 
-const filterTabs = ['全部', '待付款', '办理中', '已完成', '已取消'];
+const filterTabs = ['全部', '待付款', '办理中', '已完成', '售后退款', '已取消'];
 const currentFilter = ref('全部');
 
 onLoad((query) => {
@@ -89,12 +92,13 @@ onReachBottom(async () => {
   try { await center.loadOrders(false, apiFilter()); } catch { /* 继续显示已加载订单 */ }
 });
 
-const stateCodes: Record<string, TradeOrder['status']> = {
+const stateCodes: Record<string, OrderFilter> = {
   待付款: 'pending',
   办理中: 'processing', 已完成: 'completed', 已取消: 'cancelled',
+  售后退款: 'refund',
 };
 /** 将页面筛选转换为接口订单状态。 */
-function apiFilter(): TradeOrder['status'] | '' { return stateCodes[currentFilter.value] || ''; }
+function apiFilter(): OrderFilter | '' { return stateCodes[currentFilter.value] || ''; }
 /** 切换订单筛选并刷新列表。 */
 function chooseFilter(tab: string) { currentFilter.value = tab; void reload(); }
 
@@ -103,8 +107,13 @@ async function reload() {
   try { await center.loadOrders(true, apiFilter()); } catch { /* 页面显示错误和重试入口 */ }
 }
 
+// 售后退款按退款记录筛选，订单状态可能是已完成、退款中或已退款，以服务端结果为准。
 const filteredOrders = computed(() =>
-  center.orders.filter((o) => currentFilter.value === '全部' || o.state === currentFilter.value),
+  center.orders.filter((o) => {
+    if (currentFilter.value === '全部') return true;
+    if (currentFilter.value === '售后退款') return !!o.refund && o.refund.status !== 'cancelled';
+    return o.state === currentFilter.value;
+  }),
 );
 
 /** 将金额格式化为两位小数。 */
@@ -176,6 +185,12 @@ function goMall() {
     line-height: 1.6;
     margin: 2rpx 0;
   }
+}
+
+.refund-line {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: $brand-ink;
 }
 
 .order-total .total-amount {

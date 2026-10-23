@@ -28,6 +28,7 @@ withDefaults(defineProps<{ entries?: OrderEntry[] }>(), {
     { filter: '待付款', label: '待付款', icon: '/static/images/center/wallet.png' },
     { filter: '办理中', label: '办理中', icon: '/static/images/center/file-clock.png' },
     { filter: '已完成', label: '已完成', icon: '/static/images/center/circle-check.png' },
+    { filter: '售后退款', label: '售后退款', icon: '/static/images/center/undo-2.png' },
   ],
 });
 defineEmits(['open']);

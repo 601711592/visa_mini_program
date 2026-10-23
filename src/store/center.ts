@@ -1,6 +1,15 @@
 import { defineStore } from 'pinia';
 import { addAddress, updateAddress, deleteAddress, setDefaultAddress, getAddresses, type Address, type AddressInput } from '@/services/address';
-import { getOrders, getOrder, cancelOrder as cancelTradeOrder, type TradeOrder } from '@/services/orders';
+import {
+  getOrders,
+  getOrder,
+  cancelOrder as cancelTradeOrder,
+  applyRefund as applyTradeRefund,
+  cancelRefund as cancelTradeRefund,
+  type OrderFilter,
+  type RefundStatus,
+  type TradeOrder,
+} from '@/services/orders';
 import { getMemberPoints, getMemberCoupons, type PointRules } from '@/services/benefits';
 
 export type { Address } from '@/services/address';
@@ -14,7 +23,7 @@ let sessionEpoch = 0;
 
 /** 个人中心只缓存当前登录会员的服务端订单和权益；退出登录立即清空。 */
 
-export type OrderState = '待付款' | '办理中' | '已完成' | '已取消';
+export type OrderState = '待付款' | '办理中' | '已完成' | '已取消' | '退款中' | '已退款';
 export type CouponStatus = '未使用' | '已使用' | '已过期' | '未生效' | '已收回';
 
 export interface OrderTraveller {
@@ -36,6 +45,27 @@ export interface OrderItem {
   travellers: OrderTraveller[];
 }
 
+export const refundLabels: Record<RefundStatus, string> = {
+  reviewing: '退款审核中',
+  rejected: '退款未通过',
+  cancelled: '已撤销申请',
+  refunding: '退款处理中',
+  succeeded: '已退款',
+  closed: '退款已关闭',
+};
+
+export interface CenterRefund {
+  status: RefundStatus;
+  label: string;
+  byMerchant: boolean; // 商家主动退款
+  amount: number; // 退款金额（元）
+  reason: string;
+  note: string;
+  rejectReason: string;
+  requestedAt: string;
+  refundedAt: string;
+}
+
 export interface CenterOrder {
   id: string;
   state: OrderState;
@@ -51,8 +81,9 @@ export interface CenterOrder {
   priceVersion: number; // 当前展示金额版本
   adjustment: number; // 人工调价累计差额（元）
   address?: Pick<Address, 'name' | 'phone' | 'province' | 'city' | 'district' | 'street'> | null; // 下单时的邮寄地址快照
-  reason?: string;
-  note?: string;
+  refund: CenterRefund | null; // 最近一笔退款
+  canRefund: boolean; // 能否在线申请退款，以服务端判断为准
+  refundBlockedReason: string; // 不能申请时的原因，点击申请退款时提示
 }
 
 export interface LedgerEntry {
@@ -84,7 +115,10 @@ export function toCenterOrder(order: TradeOrder): CenterOrder {
   const states: Record<TradeOrder['status'], OrderState> = {
     pending: '待付款',
     processing: '办理中', completed: '已完成', cancelled: '已取消',
+    refunding: '退款中', refunded: '已退款',
   };
+  const refund = order.refund;
+  const eligibility = order.refund_eligibility;
   return {
     id: order.order_no, state: states[order.status], created: order.created_at,
     items: order.items.map(item => ({
@@ -96,6 +130,13 @@ export function toCenterOrder(order: TradeOrder): CenterOrder {
     base: order.base_cents / 100, discount: order.group_discount_cents / 100,
     coupon: order.coupon_cents / 100, couponId: null, points: order.points_used, pointsAmount: order.points_cents / 100,
     due: order.due_cents / 100, priceVersion: order.price_version, adjustment: order.adjustment_cents / 100, address: order.address,
+    refund: refund ? {
+      status: refund.status, label: refundLabels[refund.status], byMerchant: refund.source === 'admin',
+      amount: refund.amount_cents / 100, reason: refund.reason, note: refund.note || '', rejectReason: refund.reject_reason || '',
+      requestedAt: refund.requested_at, refundedAt: refund.refunded_at || order.refunded_at || '',
+    } : null,
+    canRefund: !!eligibility?.can_apply,
+    refundBlockedReason: eligibility?.reason || '',
   };
 }
 
@@ -115,7 +156,7 @@ export const useCenterStore = defineStore('center', {
     ordersError: '', // 订单列表加载错误提示
     ordersPage: 0, // 当前已加载的订单页码
     ordersHasMore: true, // 是否还有下一页订单
-    ordersFilter: '' as TradeOrder['status'] | '', // 订单列表当前服务端筛选条件
+    ordersFilter: '' as OrderFilter | '', // 订单列表当前服务端筛选条件
     addresses: [] as Address[], // 当前会员的服务端收货地址
     addressesLoading: false, // 是否正在加载地址列表
     addressesLoaded: false, // 当前会话是否成功加载过地址列表
@@ -128,7 +169,7 @@ export const useCenterStore = defineStore('center', {
   },
   actions: {
     /** 按筛选条件加载或追加订单列表。 */
-    async loadOrders(reset = true, status: TradeOrder['status'] | '' = '') {
+    async loadOrders(reset = true, status: OrderFilter | '' = '') {
       if (status !== this.ordersFilter) reset = true;
       if (!reset && (this.ordersLoading || !this.ordersHasMore)) return;
       const requestId = ++ordersRequestId;
@@ -173,6 +214,22 @@ export const useCenterStore = defineStore('center', {
       const order = toCenterOrder(response.data);
       this.orders = [order, ...this.orders.filter(x => x.id !== id)];
       try { await this.loadBenefits(); } catch { /* 服务端取消已经成功，权益可稍后重试 */ }
+    },
+    /** 申请整单退款并用返回的订单更新缓存；幂等键由页面在重试时沿用。 */
+    async applyRefund(id: string, data: { reason: string; note: string; idempotency_key: string }) {
+      const epoch = sessionEpoch;
+      const response = await applyTradeRefund(id, data);
+      if (epoch !== sessionEpoch) return;
+      const order = toCenterOrder(response.data);
+      this.orders = [order, ...this.orders.filter(x => x.id !== id)];
+    },
+    /** 撤销待审核的退款申请。 */
+    async cancelRefund(id: string) {
+      const epoch = sessionEpoch;
+      const response = await cancelTradeRefund(id);
+      if (epoch !== sessionEpoch) return;
+      const order = toCenterOrder(response.data);
+      this.orders = [order, ...this.orders.filter(x => x.id !== id)];
     },
     /** 券页面独立加载会员券，避免积分请求失败阻断选券。 */
     async loadCoupons() {

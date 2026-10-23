@@ -64,7 +64,7 @@
               <text>{{ order.adjustment < 0 ? '−' : '+' }}¥{{ money(Math.abs(order.adjustment)) }}</text>
             </view>
             <view class="kv">
-              <text>{{ order.state === '待付款' ? '待支付金额' : '订单金额' }}</text>
+              <text>{{ order.state === '待付款' ? '待支付金额' : order.state === '已退款' ? '已退金额' : '订单金额' }}</text>
               <text class="due-amount">¥{{ money(order.due) }}</text>
             </view>
           </view>
@@ -77,13 +77,28 @@
               <text>创建时间</text>
               <text>{{ order.created }}</text>
             </view>
-            <view v-if="order.state === '办理中'" class="hint">办理中，详细进度展示将在后续开放。</view>
+            <view v-if="order.state === '办理中'" class="hint">办理中，详细进度展示将在后续开放。如需退款请联系客服。</view>
+          </view>
+          <view v-if="order.refund" class="sheet-card">
+            <view class="card-title refund-title">
+              <text>退款信息</text>
+              <text class="status-tag">{{ order.refund.label }}</text>
+            </view>
+            <view class="kv"><text>退款金额</text><text>¥{{ money(order.refund.amount) }}</text></view>
+            <view class="kv"><text>{{ order.refund.byMerchant ? '商家发起时间' : '申请时间' }}</text><text>{{ order.refund.requestedAt }}</text></view>
+            <view class="kv"><text>退款原因</text><text>{{ order.refund.reason }}</text></view>
+            <view v-if="order.refund.note" class="kv"><text>补充说明</text><text>{{ order.refund.note }}</text></view>
+            <view v-if="order.refund.rejectReason" class="kv"><text>未通过原因</text><text>{{ order.refund.rejectReason }}</text></view>
+            <view v-if="order.refund.refundedAt" class="kv"><text>退款时间</text><text>{{ order.refund.refundedAt }}</text></view>
+            <view v-if="refundHint" class="hint">{{ refundHint }}</view>
           </view>
           <view class="actions detail-actions">
             <template v-if="order.state === '待付款'">
               <view class="btn outline" @tap="cancelOrder">取消订单</view>
               <view class="btn solid" @tap="goPay">继续付款</view>
             </template>
+            <view v-if="order.refund?.status === 'reviewing'" class="btn outline" @tap="withdrawRefund">撤销退款申请</view>
+            <view v-if="showRefundButton(order)" class="btn solid" @tap="openRefund(order)">申请退款</view>
           </view>
         </view>
       </template>
@@ -104,6 +119,8 @@ import { computed, ref } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { useGlobalStore } from '@/store/global';
 import { useCenterStore, type OrderState } from '@/store/center';
+import type { RefundStatus } from '@/services/orders';
+import { openRefund, showRefundButton } from '../refund';
 
 const global = useGlobalStore();
 const center = useCenterStore();
@@ -126,6 +143,7 @@ const heroIcon = computed(() => {
   const state = order.value?.state;
   if (state === '已完成') return '/static/images/center/circle-check.png';
   if (state === '待付款') return '/static/images/center/clock-3.png';
+  if (state === '退款中' || state === '已退款') return '/static/images/center/undo-2.png';
   return '/static/images/center/file-clock.png';
 });
 
@@ -139,8 +157,36 @@ const heroDescs: Record<OrderState, string> = {
   办理中: '您的订单正在办理，请关注办理情况',
   已完成: '本次服务已完成，感谢您的信任',
   已取消: '订单已取消，您可以重新选购',
+  退款中: '退款处理中，到账时间以微信通知为准',
+  已退款: '款项已原路退回，感谢您的信任',
 };
 const heroDesc = computed(() => (order.value ? heroDescs[order.value.state] : ''));
+
+const refundHints: Partial<Record<RefundStatus, string>> = {
+  reviewing: '商家审核通过后原路退回实付金额，本单使用的积分和优惠券同时退回。',
+  refunding: '退款处理中，到账时间以微信通知为准。',
+  rejected: '您可以在下单半年内再次申请，或联系客服处理。',
+  succeeded: '本单使用的积分和优惠券已退回，本单赠送的积分已扣回。',
+};
+const refundHint = computed(() => (order.value?.refund ? refundHints[order.value.refund.status] || '' : ''));
+
+/** 确认后撤销待审核的退款申请。 */
+function withdrawRefund() {
+  uni.showModal({
+    title: '撤销退款申请',
+    content: '撤销后订单保持已完成，下单半年内仍可再次申请。',
+    success: async (res) => {
+      if (!res.confirm) return;
+      try {
+        await center.cancelRefund(orderId.value);
+        uni.showToast({ title: '已撤销退款申请', icon: 'none' });
+      } catch (error) {
+        uni.showToast({ title: error instanceof Error ? error.message : '撤销失败', icon: 'none' });
+        try { await center.loadOrder(orderId.value); } catch { /* 保留页面现状 */ }
+      }
+    },
+  });
+}
 
 /** 将金额格式化为两位小数。 */
 const money = (n: number) => Number(n).toFixed(2);
@@ -257,6 +303,12 @@ function goBack() {
   font-weight: 600;
   color: $text;
   margin-bottom: 20rpx;
+}
+
+.refund-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .kv > text.due-amount {

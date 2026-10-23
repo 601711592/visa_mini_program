@@ -34,12 +34,13 @@
 | --- | --- | --- |
 | `reviewing` | 用户已申请，待商家审核 | 通过 → `refunding`；驳回 → `rejected`；用户撤销 → `cancelled` |
 | `refunding` | 已向微信提交，结果未定（含请求超时） | 按通知或查单结果转为 `succeeded`、`closed`、`abnormal` |
+| `failed` | 微信明确拒绝受理（如商户余额不足、超过一年退款期限），资金没有退出 | 用原退款单号重新提交 → `refunding`；或商家放弃 → `closed` |
 | `succeeded` | 微信退款成功，资产已处理 | 终态 |
-| `closed` | 微信关闭退款，资金没有退出 | 主单恢复到退款前的状态，可重新发起 |
+| `closed` | 微信关闭退款或商家放弃，资金没有退出 | 主单恢复到退款前的状态，可重新发起 |
 | `abnormal` | 微信退款异常（如用户银行卡已注销） | 商家在微信商户平台处理后，后台“重新查询”同步结果 |
 | `rejected`、`cancelled` | 驳回、撤销 | 终态；仍在期限内的可以再次申请 |
 
-同一订单同时只能有一笔进行中的退款单（`reviewing`、`refunding`、`abnormal`），在锁定主单行的事务内检查。
+同一订单同时只能有一笔进行中的退款单（`reviewing`、`refunding`、`failed`、`abnormal`），在锁定主单行的事务内检查。会员端把 `failed`、`abnormal` 显示为退款中。
 
 ## 数据库
 
@@ -56,28 +57,28 @@
 - `wechat_refund_id`、`last_error`：微信退款单号，以及最近一次失败的简述（不存敏感资料）
 - `requested_at`、`reviewed_at`、`submitted_at`、`refunded_at`、`created_at`、`updated_at`
 
-`mini_trade_orders` 增加 `refunded_at`，并更新 `status` 字段注释。
+`mini_trade_orders` 增加 `refunded_at`（项目没有 doctrine/dbal，`status` 字段注释不改，新取值写在退款表迁移的说明里）。`mini_member_invites` 增加 `revoked_points`、`revoked_at`，记录收回的邀请奖励，会员端按净值展示。
 
-积分流水 `type` 新增三种：`refund` 退还抵扣积分、`reward_revoke` 扣回完成赠分、`referral_revoke` 扣回邀请奖励。`mini_trade_payment_events` 增加 `kind = refund` 的事件，键为 `wechat-refund:{refund_id}`，防止重复处理。
+积分流水 `type` 新增三种：`refund` 退还抵扣积分、`reward_revoke` 扣回完成赠分、`referral_revoke` 扣回邀请奖励。`mini_trade_payment_events` 增加 `kind = refund` 的事件，键为 `wechat-refund:{refund_no}`，防止重复处理。
 
 ## 微信退款对接
 
 在 `WeChatPayGateway` 中新增两个方法：
 
 - `refund($order, $refund)`：`POST /v3/refund/domestic/refunds`，传 `out_trade_no`（即主单 `payment_no`）、`out_refund_no`、`reason`、`notify_url`、`amount.refund / total / currency`。`notify_url` 沿用支付回调的同一个地址（`notify_url/{miniProgramId}`），不新增商户配置项。
-- `queryRefund($order, $refundNo)`：`GET /v3/refund/domestic/refunds/{out_refund_no}`。
+- `queryRefund($order, $refundNo)`：`GET /v3/refund/domestic/refunds/{out_refund_no}`。返回 `RESOURCE_NOT_EXISTS` 说明微信没有受理，用原单号重新提交；微信保证同一退款单号只退一次。
 
 结果处理规则沿用现有支付的思路：
 
 - 返回 `SUCCESS`、`PROCESSING` 时，按返回状态处理。
-- 返回明确的拒绝（如参数错误、商户余额不足、超过可退款期限），退款单回到可重新提交的状态，记录 `last_error`，后台显示原因。
-- 网络超时或含义不明的错误，一律视为“结果未知”：保持 `refunding`，由查单确定结果，不换号重提。
+- 返回明确的拒绝（`PARAM_ERROR`、`INVALID_REQUEST`、`NOT_ENOUGH`、`USER_ACCOUNT_ABNORMAL`、`MCH_NOT_EXISTS`、`RESOURCE_NOT_EXISTS`），退款单置为 `failed`，记录 `last_error`，后台显示原因。
+- 限频（`FREQUENCY_LIMITED`）、系统错误（`SYSTEM_ERROR`）和网络超时，一律视为“结果未知”：保持 `refunding`，由查单确定结果，不换号重提。
 
-`PayNotifyController` 按通知的 `event_type` 分流：`TRANSACTION.SUCCESS` 走现有收款逻辑；`REFUND.SUCCESS`、`REFUND.ABNORMAL`、`REFUND.CLOSED` 走退款处理。验签、时间窗口和解密逻辑共用，`verifyNotification` 改为返回事件类型和解密后的资源，收款和退款各自校验内容。退款通知需要核对 `out_refund_no`、`out_trade_no` 和退款金额都与本地记录一致。
+`PayNotifyController` 按通知的 `event_type` 分流：`TRANSACTION.SUCCESS` 走现有收款逻辑；`REFUND.SUCCESS`、`REFUND.ABNORMAL`、`REFUND.CLOSED` 走退款处理。验签、时间窗口和解密逻辑共用，`verifyNotification` 改为返回事件类型和解密后的资源，收款和退款各自校验内容。退款通知需要核对商户号、`out_refund_no`、`out_trade_no` 和退款金额都与本地记录一致；退款通知不含 AppID，只能核对商户号。
 
 补偿任务：`mini-trade:reconcile` 增加一段，查询 `refunding` 状态超过 5 分钟的退款单，每次限量，与现有过期订单处理方式相同。
 
-实现前需对照微信支付官方文档，核对申请退款、查询退款、退款通知的字段和错误码；上面的接口路径和状态值按 API v3 写成，未在本次核实。
+申请退款、查询退款、退款通知的字段和错误码已于 2026-10-22 对照微信支付官方文档核对。
 
 ## 退款成功后的处理
 
@@ -106,6 +107,7 @@
 
 - `POST /mini-trade/orders/{no}/refunds`：商家主动退款，参数为 `reason`、`idempotency_key`，以及订单当前金额版本，防止金额变化后误退。仅限 `processing`、`completed` 状态的订单。
 - `POST /mini-trade/refunds/{refundNo}/approve`、`/reject`：审核用户申请；驳回必须填写原因。
+- `POST /mini-trade/refunds/{refundNo}/retry`、`/abandon`：`failed` 的退款用原单号重新提交，或放弃并恢复订单。
 - `POST /mini-trade/refunds/{refundNo}/sync`：重新查询微信退款结果。
 - 订单列表增加按退款状态筛选；订单详情返回该订单的全部退款单。
 
@@ -123,7 +125,7 @@
 
 - 订单详情增加“退款记录”区块；审核中的申请显示【通过】【驳回】。
 - 办理中、已完成的订单显示【主动退款】，弹窗确认金额并填写原因。
-- `refunding`、`abnormal` 状态的退款单显示【重新查询】；`abnormal` 状态提示到微信商户平台处理。
+- `failed` 状态的退款单显示失败原因和【重新提交】【放弃退款】；`refunding`、`abnormal` 状态显示【重新查询】；`abnormal` 状态提示到微信商户平台处理。
 - 列表增加退款状态筛选和状态标签。
 
 ## 验证

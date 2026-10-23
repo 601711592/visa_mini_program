@@ -6,10 +6,10 @@
           <view v-for="row in rows" :key="row.id" class="ledger-row">
             <view class="invite-info">
               <text class="name">{{ row.phone_masked }}</text>
-              <text class="note">{{ row.status === 'completed' ? '首单已办理完成' : '已注册，等待首单完成' }}</text>
+              <text class="note">{{ row.reward_revoked ? '首单已退款，奖励已扣回' : row.status === 'completed' ? '首单已办理完成' : '已注册，等待首单完成' }}</text>
               <text class="date">{{ row.joined_at }} 注册</text>
             </view>
-            <text v-if="row.status === 'completed'" class="amount">+{{ row.reward_points }}</text>
+            <text v-if="row.status === 'completed' && !row.reward_revoked" class="amount">+{{ row.reward_points }}</text>
           </view>
         </template>
         <view v-else-if="!loading && !error" class="empty-state">

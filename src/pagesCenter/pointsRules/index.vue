@@ -18,7 +18,8 @@
           <text class="para">管理员可根据实际情况增加或扣减积分，变动记录可在积分明细查看。</text>
           <text class="card-title">邀请好友</text>
           <text class="para">好友通过你的分享注册后，其首笔订单办理完成时，你获得与好友该笔订单相同的积分，详见“邀请好友”页面。</text>
-          <text class="hint">退款功能暂未开放。</text>
+          <text class="card-title">订单退款</text>
+          <text class="para">订单退款成功后，本单使用的积分全部退回，本单赠送的积分扣回；可用积分不足时扣至 0 为止。</text>
         </view>
       </view>
     </view>

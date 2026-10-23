@@ -51,9 +51,25 @@ export interface OrderQuote extends OrderSelection {
   needs_travellers: boolean;
 }
 
+// 会员端的退款状态；后台提交失败和微信异常都显示为 refunding。
+export type RefundStatus = 'reviewing' | 'rejected' | 'cancelled' | 'refunding' | 'succeeded' | 'closed';
+
+export interface OrderRefund {
+  refund_no: string;
+  source: 'member' | 'admin'; // 会员申请或商家主动退款
+  status: RefundStatus;
+  amount_cents: number;
+  reason: string;
+  note: string | null;
+  reject_reason: string | null;
+  requested_at: string;
+  reviewed_at: string | null;
+  refunded_at: string | null;
+}
+
 export interface TradeOrder {
   order_no: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  status: 'pending' | 'processing' | 'completed' | 'cancelled' | 'refunding' | 'refunded';
   price_version: number; // 付款前校验的金额版本
   adjustment_cents: number; // 人工调价累计差额
   base_cents: number;
@@ -65,6 +81,9 @@ export interface TradeOrder {
   created_at: string;
   expires_at: string;
   address: { name: string; phone: string; province: string; city: string; district: string; street: string };
+  refunded_at: string | null;
+  refund: OrderRefund | null; // 最近一笔退款
+  refund_eligibility: { can_apply: boolean; reason: string | null; deadline: string }; // 能否在线申请退款，以服务端判断为准
   items: Array<{
     goods_id: number;
     goods_name: string;
@@ -95,8 +114,11 @@ export function createOrder(
   return request<API.ResponseBody<TradeOrder>>({ url: '/member/orders', method: 'POST', data: { ...data } });
 }
 
+// refund 为“售后退款”标签：有退款记录的订单。
+export type OrderFilter = TradeOrder['status'] | 'refund';
+
 /** 分页查询会员订单。 */
-export function getOrders(page = 1, status?: TradeOrder['status']) {
+export function getOrders(page = 1, status?: OrderFilter) {
   return request<API.ResponseBody<{ data: TradeOrder[]; current_page: number; last_page: number }>>({
     url: '/member/orders',
     method: 'GET',
@@ -113,6 +135,16 @@ export function getOrder(no: string) {
 /** 取消未付款订单。 */
 export function cancelOrder(no: string) {
   return request<API.ResponseBody<TradeOrder>>({ url: `/member/orders/${encodeURIComponent(no)}/cancel`, method: 'POST' });
+}
+
+/** 申请整单退款，返回最新订单。 */
+export function applyRefund(no: string, data: { reason: string; note: string; idempotency_key: string }) {
+  return request<API.ResponseBody<TradeOrder>>({ url: `/member/orders/${encodeURIComponent(no)}/refunds`, method: 'POST', data: { ...data } });
+}
+
+/** 撤销待审核的退款申请，返回最新订单。 */
+export function cancelRefund(no: string) {
+  return request<API.ResponseBody<TradeOrder>>({ url: `/member/orders/${encodeURIComponent(no)}/refunds/cancel`, method: 'POST' });
 }
 
 /** 获取微信支付参数。 */

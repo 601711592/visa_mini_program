@@ -14,7 +14,8 @@ export interface InviteRecord {
   id: number;
   phone_masked: string;
   status: 'pending' | 'completed';
-  reward_points: number | null; // 尚未成交时为空
+  reward_points: number | null; // 尚未成交时为空；好友退款收回后按净值返回
+  reward_revoked: boolean; // 好友首单已退款，奖励已扣回
   joined_at: string;
   rewarded_at: string | null;
 }

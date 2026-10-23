@@ -10,7 +10,8 @@
         <view v-if="loaded" class="para">{{ rewardText }}</view>
         <view class="para">订单办理完成后才发放奖励，支付成功不立即发放。</view>
         <view v-if="error" class="hint" @tap="load">{{ error }} · 点击重试</view>
-        <view class="hint">好友退款后的奖励处理规则随退款功能另行公布。</view>
+        <view class="card-h">好友退款</view>
+        <view class="para">好友的首笔订单退款成功后，该笔推荐奖励从你的积分中扣回，可用积分不足时扣至 0 为止。好友之后的订单仍不再产生推荐奖励。</view>
       </view>
     </view>
   </view>
