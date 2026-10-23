@@ -78,17 +78,17 @@
               <text>商品总额</text>
               <text>{{ displayQuote ? `¥${totals.base.toFixed(2)}` : '待报价' }}</text>
             </view>
-            <view class="kv">
+            <view v-if="totals.discount > 0" class="kv">
               <view>
                 <text>多人优惠</text>
               </view>
               <text class="mini-price">−¥{{ totals.discount.toFixed(2) }}</text>
             </view>
-            <view class="kv">
+            <view v-if="totals.couponAmount > 0" class="kv">
               <text>优惠券</text>
               <text class="mini-price">−¥{{ totals.couponAmount.toFixed(2) }}</text>
             </view>
-            <view class="kv">
+            <view v-if="totals.pointsDeduct > 0" class="kv">
               <text>积分抵扣</text>
               <text class="mini-price">−¥{{ totals.pointsDeduct.toFixed(2) }}</text>
             </view>

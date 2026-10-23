@@ -47,15 +47,15 @@
               <text>商品总额</text>
               <text>¥{{ money(order.base) }}</text>
             </view>
-            <view class="kv">
+            <view v-if="order.discount > 0" class="kv">
               <text>多人优惠</text>
               <text>−¥{{ money(order.discount) }}</text>
             </view>
-            <view class="kv">
+            <view v-if="order.coupon > 0" class="kv">
               <text>优惠券</text>
               <text>−¥{{ money(order.coupon) }}</text>
             </view>
-            <view class="kv">
+            <view v-if="order.points > 0" class="kv">
               <text>积分抵扣（{{ order.points }} 积分）</text>
               <text>−¥{{ money(order.points * 0.02) }}</text>
             </view>
