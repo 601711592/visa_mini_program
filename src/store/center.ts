@@ -46,6 +46,7 @@ export interface CenterOrder {
   coupon: number; // 优惠券金额
   couponId: number | null;
   points: number; // 使用积分
+  pointsAmount: number; // 积分抵扣金额（元）
   due: number; // 实付/待支付
   priceVersion: number; // 当前展示金额版本
   adjustment: number; // 人工调价累计差额（元）
@@ -93,7 +94,7 @@ export function toCenterOrder(order: TradeOrder): CenterOrder {
       travellers: item.travellers.map(p => ({ name: p.name, passport: p.passport_tail })),
     })),
     base: order.base_cents / 100, discount: order.group_discount_cents / 100,
-    coupon: order.coupon_cents / 100, couponId: null, points: order.points_used,
+    coupon: order.coupon_cents / 100, couponId: null, points: order.points_used, pointsAmount: order.points_cents / 100,
     due: order.due_cents / 100, priceVersion: order.price_version, adjustment: order.adjustment_cents / 100, address: order.address,
   };
 }

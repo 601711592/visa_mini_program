@@ -55,9 +55,9 @@
               <text>优惠券</text>
               <text>−¥{{ money(order.coupon) }}</text>
             </view>
-            <view v-if="order.points > 0" class="kv">
+            <view v-if="order.pointsAmount > 0" class="kv">
               <text>积分抵扣（{{ order.points }} 积分）</text>
-              <text>−¥{{ money(order.points * 0.02) }}</text>
+              <text>−¥{{ money(order.pointsAmount) }}</text>
             </view>
             <view v-if="order.adjustment !== 0" class="kv">
               <text>人工调价</text>
